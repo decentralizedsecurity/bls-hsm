@@ -1,0 +1,34 @@
+modules/nrfxlib/nrf_security/src/mbedtls/oberon/CMakeFiles/mbedcrypto_oberon_noglue.dir/1e11353a0df98759ec3db6ee3dcde96f/library/sha1.c.obj: \
+ C:/Users/pablo/ncs/v1.4.99-dev1/mbedtls/library/sha1.c \
+ modules/nrfxlib/nrf_security/include/nrf-config-noglue-oberon.h \
+ C:/Users/pablo/ncs/v1.4.99-dev1/mbedtls/include/mbedtls/check_config.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\lib\gcc\arm-none-eabi\9.2.1\include-fixed\limits.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\lib\gcc\arm-none-eabi\9.2.1\include-fixed\syslimits.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\limits.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\newlib.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\_newlib_version.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\sys\cdefs.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\machine\_default_types.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\sys\features.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\lib\gcc\arm-none-eabi\9.2.1\include\stddef.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\sys\syslimits.h \
+ C:/Users/pablo/ncs/v1.4.99-dev1/mbedtls/include/mbedtls/sha1.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\lib\gcc\arm-none-eabi\9.2.1\include\stdint.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\stdint.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\sys\_intsup.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\sys\_stdint.h \
+ C:/Users/pablo/ncs/v1.4.99-dev1/nrfxlib/crypto/nrf_oberon/include/mbedtls/sha1_alt.h \
+ C:/Users/pablo/ncs/v1.4.99-dev1/mbedtls/include/mbedtls/platform_util.h \
+ C:/Users/pablo/ncs/v1.4.99-dev1/mbedtls/include/mbedtls/error.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\string.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\_ansi.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\sys\config.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\machine\ieeefp.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\sys\reent.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\_ansi.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\sys\_types.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\machine\_types.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\sys\lock.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\xlocale.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\strings.h \
+ c:\users\pablo\ncs\v1.4.99-dev1\toolchain\opt\arm-none-eabi\include\sys\string.h

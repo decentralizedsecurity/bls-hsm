@@ -1,0 +1,6 @@
+osource "C:/Users/pablo/ncs/v1.4.99-dev1/nrf/Kconfig.nrf"
+
+osource "C:/Users/pablo/ncs/v1.4.99-dev1/bootloader/mcuboot/zephyr/Kconfig"
+
+osource "C:/Users/pablo/ncs/v1.4.99-dev1/nrfxlib/Kconfig.nrfxlib"
+

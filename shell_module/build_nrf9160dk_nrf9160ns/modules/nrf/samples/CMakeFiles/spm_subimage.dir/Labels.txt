@@ -1,0 +1,13 @@
+# Target labels
+ spm_subimage
+# Source files and their labels
+C:/Users/pablo/ncs/v1.4.99-dev1/zephyr/samples/subsys/shell/shell_module/build_nrf9160dk_nrf9160ns/modules/nrf/samples/CMakeFiles/spm_subimage
+C:/Users/pablo/ncs/v1.4.99-dev1/zephyr/samples/subsys/shell/shell_module/build_nrf9160dk_nrf9160ns/modules/nrf/samples/CMakeFiles/spm_subimage.rule
+C:/Users/pablo/ncs/v1.4.99-dev1/zephyr/samples/subsys/shell/shell_module/build_nrf9160dk_nrf9160ns/modules/nrf/samples/CMakeFiles/spm_subimage-complete.rule
+C:/Users/pablo/ncs/v1.4.99-dev1/zephyr/samples/subsys/shell/shell_module/build_nrf9160dk_nrf9160ns/modules/nrf/samples/spm_subimage-prefix/src/spm_subimage-stamp/spm_subimage-install.rule
+C:/Users/pablo/ncs/v1.4.99-dev1/zephyr/samples/subsys/shell/shell_module/build_nrf9160dk_nrf9160ns/modules/nrf/samples/spm_subimage-prefix/src/spm_subimage-stamp/spm_subimage-mkdir.rule
+C:/Users/pablo/ncs/v1.4.99-dev1/zephyr/samples/subsys/shell/shell_module/build_nrf9160dk_nrf9160ns/modules/nrf/samples/spm_subimage-prefix/src/spm_subimage-stamp/spm_subimage-download.rule
+C:/Users/pablo/ncs/v1.4.99-dev1/zephyr/samples/subsys/shell/shell_module/build_nrf9160dk_nrf9160ns/modules/nrf/samples/spm_subimage-prefix/src/spm_subimage-stamp/spm_subimage-update.rule
+C:/Users/pablo/ncs/v1.4.99-dev1/zephyr/samples/subsys/shell/shell_module/build_nrf9160dk_nrf9160ns/modules/nrf/samples/spm_subimage-prefix/src/spm_subimage-stamp/spm_subimage-patch.rule
+C:/Users/pablo/ncs/v1.4.99-dev1/zephyr/samples/subsys/shell/shell_module/build_nrf9160dk_nrf9160ns/modules/nrf/samples/spm_subimage-prefix/src/spm_subimage-stamp/spm_subimage-configure.rule
+C:/Users/pablo/ncs/v1.4.99-dev1/zephyr/samples/subsys/shell/shell_module/build_nrf9160dk_nrf9160ns/modules/nrf/samples/spm_subimage-prefix/src/spm_subimage-stamp/spm_subimage-build.rule
