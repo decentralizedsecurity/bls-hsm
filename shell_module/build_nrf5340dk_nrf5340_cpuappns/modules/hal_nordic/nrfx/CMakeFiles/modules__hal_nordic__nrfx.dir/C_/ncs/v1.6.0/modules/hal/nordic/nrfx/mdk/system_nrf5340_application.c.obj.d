@@ -1,0 +1,23 @@
+modules/hal_nordic/nrfx/CMakeFiles/modules__hal_nordic__nrfx.dir/C_/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/system_nrf5340_application.c.obj: \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/system_nrf5340_application.c \
+ C:/Users/mario/OneDrive/Escritorio/bls-hsm/shell_module/build_nrf5340dk_nrf5340_cpuappns/zephyr/include/generated/autoconf.h \
+ C:/ncs/v1.6.0/zephyr/include/toolchain/zephyr_stdint.h \
+ C:/ncs/v1.6.0/zephyr/lib/libc/minimal/include/stdint.h \
+ C:/ncs/v1.6.0/zephyr/lib/libc/minimal/include/stdbool.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/nrf.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/nrf5340_application.h \
+ C:/ncs/v1.6.0/modules/hal/cmsis/CMSIS/Core/Include/core_cm33.h \
+ C:/ncs/v1.6.0/modules/hal/cmsis/CMSIS/Core/Include/cmsis_version.h \
+ C:/ncs/v1.6.0/modules/hal/cmsis/CMSIS/Core/Include/cmsis_compiler.h \
+ C:/ncs/v1.6.0/modules/hal/cmsis/CMSIS/Core/Include/cmsis_gcc.h \
+ C:/ncs/v1.6.0/modules/hal/cmsis/CMSIS/Core/Include/mpu_armv8.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/system_nrf5340_application.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/nrf5340_application_bitfields.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/nrf5340_application_name_change.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/compiler_abstraction.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/nrf_erratas.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/nrf51_erratas.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/nrf52_erratas.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/nrf53_erratas.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/nrf91_erratas.h \
+ C:/ncs/v1.6.0/modules/hal/nordic/nrfx/mdk/system_nrf53_approtect.h

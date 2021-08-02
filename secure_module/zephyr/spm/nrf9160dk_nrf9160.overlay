@@ -1,0 +1,22 @@
+/* Needed to get NRF_PWMn defined. */
+&pwm1 {
+	status = "okay";
+};
+
+&pwm2 {
+	status = "okay";
+};
+
+&pwm3 {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+
+	spm_uart: nrf-spm-uart {
+		compatible = "nordic,nrf-spm-uart";
+		status = "okay";
+		label = "SPM_UART";
+	};
+};
