@@ -36,6 +36,8 @@ int keys_counter = 0;
 
 LOG_MODULE_REGISTER(app);
 
+// SPM function declarations
+int spm_secure_function(void);
 
 static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
 {
