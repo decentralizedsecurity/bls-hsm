@@ -1,0 +1,8 @@
+sample:
+  name: spm Sample
+tests:
+  samples.nrf9160.spm:
+    build_only: true
+    build_on_all: true
+    platform_allow: nrf9160dk_nrf9160
+    tags: ci_build

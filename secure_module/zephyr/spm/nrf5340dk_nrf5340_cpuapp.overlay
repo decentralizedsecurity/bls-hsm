@@ -1,0 +1,12 @@
+/* Needed to get NRF_PWMn defined. */
+&pwm1 {
+	status = "okay";
+};
+
+&pwm2 {
+	status = "okay";
+};
+
+&pwm3 {
+	status = "okay";
+};
