@@ -53,6 +53,7 @@
 #include <aarch32/cortex_m/tz.h>
 #include <blst.h>
 #include <stdio.h>
+#include <secure_services.h>
 
 __TZ_NONSECURE_ENTRY_FUNC
 void secure_function(void){
