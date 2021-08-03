@@ -11,6 +11,7 @@ project(NONE)
 zephyr_include_directories(
   kernel/include
   ${ARCH_DIR}/${ARCH}/include
+  include
 )
 
 zephyr_library_sources(src/main.c)

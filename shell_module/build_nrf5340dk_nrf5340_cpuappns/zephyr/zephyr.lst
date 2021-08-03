@@ -41148,7 +41148,6 @@ SHELL_CMD_ARG_REGISTER(benchmark, NULL, "Benchmark for key generation and signat
 void main(void)
 {
 
-}
    25060:	4770      	bx	lr
 
 00025062 <string_cmp>:
@@ -47529,7 +47528,7 @@ NRF_NSE(int, spm_request_random_number, uint8_t *output, size_t len,
    27488:	b40f      	push	{r0, r1, r2, r3}
    2748a:	f7fa fb39 	bl	21b00 <before_nse>
    2748e:	bc0f      	pop	{r0, r1, r2, r3}
-   27490:	f7e4 fda6 	bl	bfe0 <spm_request_random_number_nse>
+   27490:	f7e4 fdaa 	bl	bfe8 <spm_request_random_number_nse>
    27494:	b40f      	push	{r0, r1, r2, r3}
    27496:	f7fa fb3d 	bl	21b14 <after_nse>
    2749a:	bc0f      	pop	{r0, r1, r2, r3}
