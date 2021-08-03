@@ -17996,12 +17996,12 @@ int64_t sys_clock_tick_get(void)
     8266:	bf00      	nop
     8268:	80000006 	.word	0x80000006
 
-0000826c <__acle_se_funcion>:
-blst_scalar sk;
-blst_scalar secret_keys_store[10];
+0000826c <__acle_se_secure_function>:
+#include <stdio.h>
 
 __TZ_NONSECURE_ENTRY_FUNC
-void funcion(void){
+void secure_function(void){
+
 }
     826c:	4670      	mov	r0, lr
     826e:	4671      	mov	r1, lr
@@ -19571,12 +19571,12 @@ GEN_ABS_SYM_END
 
 Disassembly of section .gnu.sgstubs:
 
-0000a280 <funcion-0x1d60>:
+0000a280 <secure_function-0x1d60>:
 	...
 
-0000bfe0 <funcion>:
+0000bfe0 <secure_function>:
     bfe0:	e97f e97f 	sg
-    bfe4:	f7fc b942 	b.w	826c <__acle_se_funcion>
+    bfe4:	f7fc b942 	b.w	826c <__acle_se_secure_function>
 
 0000bfe8 <spm_request_random_number_nse>:
     bfe8:	e97f e97f 	sg

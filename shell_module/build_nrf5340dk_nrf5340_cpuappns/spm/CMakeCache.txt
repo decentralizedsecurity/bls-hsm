@@ -20,8 +20,8 @@ APPLICATION_BINARY_DIR:PATH=C:/Users/mario/OneDrive/Escritorio/bls-hsm/shell_mod
 //Application Source Directory
 APPLICATION_SOURCE_DIR:PATH=C:/Users/mario/OneDrive/Escritorio/bls-hsm/secure_module/zephyr/spm
 
-//Selected board
-BOARD:STRING=nrf5340dk_nrf5340_cpuapp
+//No help, variable specified on the command line.
+BOARD:UNINITIALIZED=nrf5340dk_nrf5340_cpuapp
 
 //Path to a file.
 BOARD_DIR:PATH=C:/ncs/v1.6.0/zephyr/boards/arm/nrf5340dk_nrf5340
@@ -449,6 +449,8 @@ CMAKE_CXX_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_CXX_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_CXX_FLAGS_RELWITHDEBINFO
 CMAKE_CXX_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_COMPILER
+CMAKE_C_COMPILER-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_COMPILER_AR
 CMAKE_C_COMPILER_AR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_COMPILER_RANLIB
