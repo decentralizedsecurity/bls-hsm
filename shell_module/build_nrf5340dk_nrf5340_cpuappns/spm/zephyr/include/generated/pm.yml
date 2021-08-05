@@ -1,5 +1,5 @@
 spm:
-  size: 0x10000
+  size: 0x20000
   placement:
     before: app
   inside: mcuboot_primary_app

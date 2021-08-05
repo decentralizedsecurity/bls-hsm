@@ -2,7 +2,7 @@
 _region_min_align = 32;
 MEMORY
     {
-    FLASH (rx) : ORIGIN = 0x10000, LENGTH = 0xf0000
+    FLASH (rx) : ORIGIN = 0x20000, LENGTH = 0xe0000
     SRAM (wx) : ORIGIN = 0x20008000, LENGTH = 0x78000
    
    
@@ -51,7 +51,7 @@ SECTIONS
  *(.iplt)
  }
    
- _image_rom_start = 0x10000;
+ _image_rom_start = 0x20000;
     rom_start :
  {
 . = 0x0;

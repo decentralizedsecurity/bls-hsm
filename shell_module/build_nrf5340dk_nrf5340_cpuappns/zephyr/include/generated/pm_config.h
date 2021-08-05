@@ -2,17 +2,17 @@
 #ifndef PM_CONFIG_H__
 #define PM_CONFIG_H__
 #define PM_SPM_ADDRESS 0x0
-#define PM_SPM_END_ADDRESS 0x10000
-#define PM_SPM_SIZE 0x10000
+#define PM_SPM_END_ADDRESS 0x20000
+#define PM_SPM_SIZE 0x20000
 #define PM_SPM_NAME spm
 #define PM_SPM_ID 0
 #define PM_spm_ID PM_SPM_ID
 #define PM_spm_IS_ENABLED 1
 #define PM_0_LABEL SPM
 #define PM_SPM_DEV_NAME "NRF_FLASH_DRV_NAME"
-#define PM_APP_ADDRESS 0x10000
+#define PM_APP_ADDRESS 0x20000
 #define PM_APP_END_ADDRESS 0x100000
-#define PM_APP_SIZE 0xf0000
+#define PM_APP_SIZE 0xe0000
 #define PM_APP_NAME app
 #define PM_APP_ID 1
 #define PM_app_ID PM_APP_ID
@@ -41,8 +41,8 @@
 #define PM_SRAM_PRIMARY_NAME sram_primary
 #define PM_NUM 2
 #define PM_ALL_BY_SIZE "otp spm_sram sram_secure spm sram_primary sram_nonsecure app"
-#define PM_ADDRESS 0x10000
-#define PM_SIZE 0xf0000
+#define PM_ADDRESS 0x20000
+#define PM_SIZE 0xe0000
 #define PM_SRAM_ADDRESS 0x20008000
 #define PM_SRAM_SIZE 0x78000
 #endif /* PM_CONFIG_H__ */

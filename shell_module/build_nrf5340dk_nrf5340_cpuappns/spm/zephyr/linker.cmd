@@ -2,7 +2,7 @@
 _region_min_align = 32;
 MEMORY
     {
-    FLASH (rx) : ORIGIN = 0x0, LENGTH = 0x10000
+    FLASH (rx) : ORIGIN = 0x0, LENGTH = 0x20000
     SRAM (wx) : ORIGIN = 0x20000000, LENGTH = 0x8000
    
    
@@ -275,7 +275,7 @@ _ramfunc_rom_start = LOADADDR(.ramfunc);
    
  ASSERT(((_image_rom_start + _flash_used - 1)
    / 0x4000)
-  < (0x10000 / 0x4000),
+  < (0x20000 / 0x4000),
   "SPM and app are sharing an SPU region. Cannot partition flash correctly into secure and non-secure. Adjust partitions sizes so they are placed in separate regions." )
 /DISCARD/ :
 {

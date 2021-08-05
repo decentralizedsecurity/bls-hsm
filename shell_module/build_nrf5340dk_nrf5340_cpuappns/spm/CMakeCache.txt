@@ -20,8 +20,8 @@ APPLICATION_BINARY_DIR:PATH=C:/Users/mario/OneDrive/Escritorio/bls-hsm/shell_mod
 //Application Source Directory
 APPLICATION_SOURCE_DIR:PATH=C:/Users/mario/OneDrive/Escritorio/bls-hsm/secure_module/zephyr/spm
 
-//No help, variable specified on the command line.
-BOARD:UNINITIALIZED=nrf5340dk_nrf5340_cpuapp
+//Selected board
+BOARD:STRING=nrf5340dk_nrf5340_cpuapp
 
 //Path to a file.
 BOARD_DIR:PATH=C:/ncs/v1.6.0/zephyr/boards/arm/nrf5340dk_nrf5340
@@ -317,6 +317,12 @@ IMAGE_NAME:UNINITIALIZED=spm_
 IMGTOOL:FILEPATH=C:/ncs/v1.6.0/toolchain/opt/bin/Scripts/imgtool.exe
 
 //No help, variable specified on the command line.
+KERNEL_ELF_NAME:UNINITIALIZED=zephyr.elf
+
+//No help, variable specified on the command line.
+KERNEL_HEX_NAME:UNINITIALIZED=zephyr.hex
+
+//No help, variable specified on the command line.
 NCS_TOOLCHAIN_VERSION:UNINITIALIZED=1.6.0
 
 //Value Computed by CMake
@@ -449,8 +455,6 @@ CMAKE_CXX_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_CXX_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_CXX_FLAGS_RELWITHDEBINFO
 CMAKE_CXX_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: CMAKE_C_COMPILER
-CMAKE_C_COMPILER-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_COMPILER_AR
 CMAKE_C_COMPILER_AR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_COMPILER_RANLIB
