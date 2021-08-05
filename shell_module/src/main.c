@@ -36,6 +36,8 @@ int keys_counter = 0;
 
 LOG_MODULE_REGISTER(app);
 
+void public_key_to_sk(char * public_key_hex, blst_scalar* sk, char* public_keys_hex_store, int keys_counter);
+
 static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
@@ -130,35 +132,35 @@ static int cmd_public_key(const struct shell *shell, size_t argc, char **argv)
 	return 0;
 }
 
-void public_key_to_sk(char * public_key_hex, blst_scalar sk){
+//void public_key_to_sk(char * public_key_hex, blst_scalar sk){
     
-        char aux[96];
-        char aux2[96];
-        for(int i = 0; i < 96; i++){
-           aux2[i] = public_keys_hex_store[i];
-        }
+//        char aux[96];
+//        char aux2[96];
+//        for(int i = 0; i < 96; i++){
+//           aux2[i] = public_keys_hex_store[i];
+//        }
 
-        //This is for taking out "0x" from the string
-        /*
-        for(int i = 2; i < strlen(public_key_hex); i++){
-           aux[i-2] = public_key_hex[i];
-        }
-        */
+//        //This is for taking out "0x" from the string
+//        /*
+//        for(int i = 2; i < strlen(public_key_hex); i++){
+//           aux[i-2] = public_key_hex[i];
+//        }
+//        */
 
-        int j = 0;
-        int cont = keys_counter - 1;
+//        int j = 0;
+//        int cont = keys_counter - 1;
 
-        for(int i = 0; i < keys_counter; i++){
-            if (strcmp(aux, aux2) == 0){
-                sk = secret_keys_store[i];
-                break;
-            } else {
-                for(int k = 0; k < 96; k++){
-                  aux2[k] = public_keys_hex_store[k+96*cont];
-                }
-            }
-        }
-}
+//        for(int i = 0; i < keys_counter; i++){
+//            if (strcmp(aux, aux2) == 0){
+//                sk = secret_keys_store[i];
+//                break;
+//            } else {
+//                for(int k = 0; k < 96; k++){
+//                  aux2[k] = public_keys_hex_store[k+96*cont];
+//                }
+//            }
+//        }
+//}
 
 static int cmd_signature_message(const struct shell *shell, size_t argc, char **argv)
 {
@@ -169,7 +171,7 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
         //char * msg_hex = "b6bb8f3765f93f4f1e7c7348479289c9261399a3c6906685e320071a1a13955c";
 
         blst_scalar sk_sign;
-        public_key_to_sk(argv[1], sk_sign);
+        public_key_to_sk(argv[1], &sk_sign, public_keys_hex_store, keys_counter);
         char * msg_hex = argv[2];
 
         //Hash message
