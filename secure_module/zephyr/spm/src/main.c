@@ -72,17 +72,23 @@ void public_key_to_sk(char * public_key_hex, char* public_keys_hex_store, int ke
         }
 
         //This is for taking out "0x" from the string
-        /*
+        
         for(int i = 2; i < strlen(public_key_hex); i++){
            aux[i-2] = public_key_hex[i];
         }
-        */
+        
 
         int j = 0;
         int cont = keys_counter - 1;
+        int c = 0;
 
         for(int i = 0; i < keys_counter; i++){
-            if (strcmp(aux, aux2) == 0){
+            for(int x = 0; x < 96; x++){
+                if(aux[x] != aux2[x]){
+                    c = 1;
+                }
+            }
+            if (c == 0){
                 sk_sign = secret_keys_store[i];
                 break;
             } else {
