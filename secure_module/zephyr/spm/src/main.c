@@ -57,11 +57,13 @@
 #include <sys/printk.h>
 #include <secure_services.h>
 
+
 blst_scalar sk;
 blst_scalar secret_keys_store[10];
+blst_scalar sk_sign;
 
 __TZ_NONSECURE_ENTRY_FUNC
-void public_key_to_sk(char * public_key_hex, blst_scalar* sk, char* public_keys_hex_store, int keys_counter){
+void public_key_to_sk(char * public_key_hex, char* public_keys_hex_store, int keys_counter){
     
         char aux[96];
         char aux2[96];
@@ -81,7 +83,7 @@ void public_key_to_sk(char * public_key_hex, blst_scalar* sk, char* public_keys_
 
         for(int i = 0; i < keys_counter; i++){
             if (strcmp(aux, aux2) == 0){
-                *sk = secret_keys_store[i];
+                sk_sign = secret_keys_store[i];
                 break;
             } else {
                 for(int k = 0; k < 96; k++){
@@ -126,6 +128,16 @@ void ikm_sk(int* keys_counter){
 __TZ_NONSECURE_ENTRY_FUNC
 void sk_to_pk(blst_p1* pk){
         blst_sk_to_pk_in_g1(pk, &sk);
+}
+
+__TZ_NONSECURE_ENTRY_FUNC
+void sign_pk(blst_p2* sig, blst_p2* hash){
+        blst_sign_pk_in_g1(sig, hash, &sk_sign);
+}
+
+__TZ_NONSECURE_ENTRY_FUNC
+void sign_pk_bm(blst_p2* sig, blst_p2* hash){
+        blst_sign_pk_in_g1(sig, hash, &sk);
 }
 
 void main(void)

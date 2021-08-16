@@ -7,6 +7,6 @@ spm:
   inside: mcuboot_primary_app
 
 spm_sram:
-  size: CONFIG_PM_PARTITION_SIZE_SPM_SRAM
+  size: 0x15000
   placement: {after: start}
   inside: sram_secure
