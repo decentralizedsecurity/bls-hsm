@@ -1,7 +1,14 @@
 # bls-hsm
 
 ## Design :page_with_curl:
-Both projects emulate the behaviour of a command API that internally uses [blst library](https://github.com/supranational/blst#blst). They have been implemented with Segger Embedded Studio for the execution in Nordic Semiconductor nRF9160 board. The commands that are supported are:
+Both projects emulate the behaviour of a command API that internally uses [blst library](https://github.com/supranational/blst#blst). They have been implemented with Segger Embedded Studio for the execution in Nordic Semiconductor nRF9160 board.
+
+
+## Installation
+In order to build the project, it's recommended to use nRF Connect SDK as it is explained in this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
+
+## Usage
+The commands that are supported are:
 - *keygen*: generates a 32-bytes secret key and a 48-bytes public key randomly.
 - *publickey*: shows the last public key that has been generated.
 - *signature "publickey" "message"*: produces a 96-bytes signature with the message that has been introduced and after choosing a public key that has had to be generated before.
