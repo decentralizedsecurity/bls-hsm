@@ -21,13 +21,14 @@ Both projects emulate the behaviour of a command API that internally uses [blst 
 
 PS. The *prj.conf* file has been modified in both projects because default size caused stack overflow from the UART thread. Current size is 49152 bytes.
 
+**3. secure_module**: This module contains blst function calls that involve usage and storage of secret keys, using Secure Partition Manager (SPM).
 
 ## Benchmarks :hourglass_flowing_sand:
 **1. shell_module**:
 ```
 uart:~$ benchmark
 Secret key:
-0x2f0455fe024bcf4232c044248106e3964a13043a8a16e5798d0461850a11b475
+0x2f0455fe024bcf4232c044248106e3964a13043a8a16e5798d0461850a11b475 (no longer shown, as it is generated in ARM TrustZone)
 Public key:
 0x813f4f84cf1663c4252c63215b2b8edae2ae5d5e062a24b27752a7f6e0462bde0b256ace4cd9e9dd7e4c0b6507d3f20f
 
@@ -69,4 +70,4 @@ Benchmark for signature: 631 ms
 - [x] Benchmark command.
 - [ ] Shell script for setting up the work environment.
 - [ ] Include Nordic Security Backend in order to take advantage of the 144-byte random number used for the 32-byte vector in secret key generation function.
-- [ ] Execution of the code in ARM TrustZone.
+- [x] Execution of the code in ARM TrustZone.
