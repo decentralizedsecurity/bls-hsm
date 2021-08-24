@@ -24,21 +24,23 @@ struct k_timer my_timer;
 K_TIMER_DEFINE(my_timer, NULL, NULL);
 
 //Global variables
-blst_scalar sk;
+//blst_scalar sk;
 blst_p2 hash;
 blst_p1_affine pk2;
 blst_p2_affine sig2;
 uint8_t msg_bin[32];
-blst_scalar secret_keys_store[10];
+//blst_scalar secret_keys_store[10];
 blst_p1 public_keys_store[10];
 char public_keys_hex_store[960];
 int keys_counter = 0;
 
 LOG_MODULE_REGISTER(app);
 
-void public_key_to_sk(char * public_key_hex, blst_scalar* sk, char* public_keys_hex_store, int keys_counter);
+void public_key_to_sk(char * public_key_hex, char* public_keys_hex_store, int keys_counter);
 void ikm_sk(int* keys_counter);
 void sk_to_pk(blst_p1* pk);
+void sign_pk(blst_p2* sig, blst_p2* hash);
+void sign_pk_bm(blst_p2* sig, blst_p2* hash);
 
 static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
 {
@@ -173,8 +175,8 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
         //char * msg_hex = "5656565656565656565656565656565656565656565656565656565656565656";
         //char * msg_hex = "b6bb8f3765f93f4f1e7c7348479289c9261399a3c6906685e320071a1a13955c";
 
-        blst_scalar sk_sign;
-        public_key_to_sk(argv[1], &sk_sign, public_keys_hex_store, keys_counter);
+        //blst_scalar sk_sign;
+        public_key_to_sk(argv[1], public_keys_hex_store, keys_counter);
         char * msg_hex = argv[2];
 
         //Hash message
@@ -196,7 +198,8 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
         byte out2[96];
         char sig_hex[192];
 
-        blst_sign_pk_in_g1(&sig, &hash, &sk_sign); 
+        sign_pk(&sig, &hash);
+        //blst_sign_pk_in_g1(&sig, &hash, &sk_sign); 
         blst_p2_to_affine(&sig2, &sig);
         blst_p2_compress(out2, &sig);
         
@@ -235,24 +238,27 @@ static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
-
-        int j = 0;
-        int cont = keys_counter - 1;
-        int counter = keys_counter;
+        if(keys_counter != 0){
+            int j = 0;
+            int cont = keys_counter - 1;
+            int counter = keys_counter;
         
-        printf("{'keys':['");
-        for(int i = 0; i < 96 * cont + 96; i++){
-            printf("%c", public_keys_hex_store[i]);
-            j++;
-            if (j == 96){
-                if(counter > 1) {
-                    printf("'\n'");
-                } else {
-                    printf("']}\n");
-                }               
-                j = 0;
-                counter--;
-            }           
+            printf("{'keys':['");
+            for(int i = 0; i < 96 * cont + 96; i++){
+                printf("%c", public_keys_hex_store[i]);
+                j++;
+                if (j == 96){
+                    if(counter > 1) {
+                        printf("'\n'");
+                    } else {
+                        printf("']}\n");
+                    }               
+                    j = 0;
+                    counter--;
+                }           
+            }
+        }else{
+            printf("There are no keys stored\n");
         }
 
 	return 0;
@@ -263,51 +269,52 @@ static int cmd_benchmark(const struct shell *shell, size_t argc, char **argv)
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
 
-        unsigned char ikm[32];
-	const int random_number_len = 144;     
-        uint8_t random_number[random_number_len];
-        size_t olen = random_number_len;
-        int ret;
-
-        ret = spm_request_random_number(random_number, random_number_len, &olen);
-        if (ret != 0) {
-           printk("Could not get random number (err: %d)\n", ret);
-        }
-
-        for(int i = 0; i < sizeof(ikm); i++){
-          ikm[i] = random_number[i];
-        } 
-
-        // key_info is an optional parameter.  This parameter MAY be used to derive
-        // multiple independent keys from the same IKM.  By default, key_info is the empty string.
-        char info[] = {
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
         k_timer_start(&my_timer, K_MSEC(3000), K_NO_WAIT);
+        ikm_sk(&keys_counter);
+ //       unsigned char ikm[32];
+	//const int random_number_len = 144;     
+ //       uint8_t random_number[random_number_len];
+ //       size_t olen = random_number_len;
+ //       int ret;
+
+ //       ret = spm_request_random_number(random_number, random_number_len, &olen);
+ //       if (ret != 0) {
+ //          printk("Could not get random number (err: %d)\n", ret);
+ //       }
+
+ //       for(int i = 0; i < sizeof(ikm); i++){
+ //         ikm[i] = random_number[i];
+ //       } 
+
+ //       // key_info is an optional parameter.  This parameter MAY be used to derive
+ //       // multiple independent keys from the same IKM.  By default, key_info is the empty string.
+ //       char info[] = {
+ //         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ //         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ //         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ //         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         
-        //Secret key (256-bit scalar)
-        blst_keygen(&sk, ikm, sizeof(ikm), info, sizeof(info));
+        ////Secret key (256-bit scalar)
+        //blst_keygen(&sk, ikm, sizeof(ikm), info, sizeof(info));
                 
-        uint8_t priv_key_bin[32];
-        blst_bendian_from_scalar(priv_key_bin, &sk);
+        //uint8_t priv_key_bin[32];
+        //blst_bendian_from_scalar(priv_key_bin, &sk);
 
-        char priv_key_hex2[64];
-        if(bin2hex(priv_key_bin, sizeof(priv_key_bin), priv_key_hex2, sizeof(priv_key_hex2)) == 0) {
-          printf("Error2\n");
-        }
+        //char priv_key_hex2[64];
+        //if(bin2hex(priv_key_bin, sizeof(priv_key_bin), priv_key_hex2, sizeof(priv_key_hex2)) == 0) {
+        //  printf("Error2\n");
+        //}
 
-        printf("Secret key: \n");
-        printf("0x");
-        printf("%s\n", priv_key_hex2);
+        //printf("Secret key: \n");
+        //printf("0x");
+        //printf("%s\n", priv_key_hex2);
 
         //The secret key allow us to generate the associated public key
         blst_p1 pk;
         byte out[48];
         char public_key_hex[96];
-        blst_sk_to_pk_in_g1(&pk, &sk);
+        sk_to_pk(&pk);
+        //blst_sk_to_pk_in_g1(&pk, &sk);
         blst_p1_to_affine(&pk2, &pk);
         blst_p1_compress(out, &pk);
 
@@ -361,8 +368,9 @@ static int cmd_benchmark(const struct shell *shell, size_t argc, char **argv)
         blst_p2_affine sig2;
         byte out2[96];
         char sig_hex[192];
-
-        blst_sign_pk_in_g1(&sig, &hash, &sk); 
+        
+        sign_pk_bm(&sig, &hash);
+        //blst_sign_pk_in_g1(&sig, &hash, &sk); 
         blst_p2_to_affine(&sig2, &sig);
         blst_p2_compress(out2, &sig);
         
@@ -389,7 +397,7 @@ SHELL_CMD_ARG_REGISTER(keygen, NULL, "Generates secret key and public key", cmd_
 
 SHELL_CMD_ARG_REGISTER(publickey, NULL, "Shows the last public key that has been generated", cmd_public_key, 1, 0);
 
-SHELL_CMD_ARG_REGISTER(signature, NULL, "Signs a message with a specific public key", cmd_signature_message, 1, 2);
+SHELL_CMD_ARG_REGISTER(signature, NULL, "Signs a message with a specific public key", cmd_signature_message, 3, 0);
 
 SHELL_CMD_ARG_REGISTER(verify, NULL, "Verifies the signature", cmd_signature_verification, 1, 0);
 
