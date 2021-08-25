@@ -7,14 +7,58 @@ Both projects emulate the behaviour of a command API that internally uses [blst 
 ## Installation
 In order to build the project, it's recommended to use nRF Connect SDK as it is explained in this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
 
+
+
 ## Usage
 The commands that are supported are:
 - *keygen*: generates a 32-bytes secret key and a 48-bytes public key randomly.
+  ```
+  uart:~$ keygen
+  Public key:
+  0xa2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05cc25f4d8069a79b002ae665b9ad35ce800a0e
+  ```
 - *publickey*: shows the last public key that has been generated.
+  ```
+  uart:~$ publickey
+   Public key:
+   0xa2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05cc25f4d8069a79b002ae665b9ad35ce800a0e
+  ```
 - *signature "publickey" "message"*: produces a 96-bytes signature with the message that has been introduced and after choosing a public key that has had to be generated before.
+  ```
+  uart:~$ signature 0xa2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05c
+  c25f4d8069a79b002ae665b9ad35ce800a0e 5656565656565656565656565656565656565656565
+  656565656565656565656
+  Signature:
+  0xa60e2f24827943379f8377d6bf7a126ef8def56b08ca4cdd958954b5f56091f7cd49d251481f4cd6316396a2a4f4398c09e2cfda6ea16416dffdac687cf06db0e4d3a0ec83b4016c835b27f84325342199f724abd092cb7957177f5f30dcbe19
+  ```
 - *verify*: signature verification.
+  ```
+  uart:~$ verify
+  Success
+  ```
 - *getkeys*: returns the public keys that have been generated.
+  ```
+  uart:~$ getkeys
+  {'keys':['a2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05cc25f4d8069a79b002ae665b9ad35ce800a0e']}
+  ```
 - *benchmark*: runs the code from the key generation to the signature and it outputs the time needed to perform each operation.
+  ```
+  uart:~$ benchmark
+  Public key:
+  0xb924ae791b157e2e29017d814b016d33d8af39855a4be477a8e7050fb8a851b645f56a6366332926595d3c3c6955e085
+
+  Benchmark for key generation: 229 ms
+
+  Message:
+  0x5656565656565656565656565656565656565656565656565656565656565656
+
+  Benchmark for message hash: 430 ms
+
+  Signature:
+  0x8af4ffeb87eb37a38f6b261dfdcfb3f7eff33b5d55a520c50e79c3c5687ab12f0389962dac4378930a8ecccf10c993cb0e0e83476295f6dc45a7548c35d583ddb6b4d2d2bd7921462030a334c625fb4b7cad7c1c2ad046fe8878bb61bf3b154f
+
+  Benchmark for signature: 519 ms
+  ```
 
 
 ## Implementations :pick:
