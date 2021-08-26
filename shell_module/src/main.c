@@ -112,6 +112,14 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        
+        if(argc == 2){
+                if(strlen(argv[1]) <= strlen(info)){
+                        strcpy(info, argv[1]);
+                }else{
+                        strncpy(info, argv[1], sizeof(info));
+                }
+        }
 
         ikm_sk(&keys_counter, info);
         
@@ -443,7 +451,7 @@ static int cmd_benchmark(const struct shell *shell, size_t argc, char **argv)
 	return 0;
 }
 
-SHELL_CMD_ARG_REGISTER(keygen, NULL, "Generates secret key and public key", cmd_keygen, 1, 0);
+SHELL_CMD_ARG_REGISTER(keygen, NULL, "Generates secret key and public key", cmd_keygen, 1, 1);
 
 SHELL_CMD_ARG_REGISTER(publickey, NULL, "Shows the last public key that has been generated", cmd_public_key, 1, 0);
 
