@@ -73,13 +73,17 @@ void public_key_to_sk(char * public_key_hex, char* public_keys_hex_store, int ke
 
         //This is for taking out "0x" from the string
         
-        for(int i = 2; i < strlen(public_key_hex); i++){
-           aux[i-2] = public_key_hex[i];
+        if((public_key_hex[0] == '0') && (public_key_hex[1] == 'x')){
+            for(int i = 2; i < strlen(public_key_hex); i++){
+               aux[i-2] = public_key_hex[i];
+            }
+        }else{
+            for(int i = 0; i < strlen(public_key_hex); i++){
+               aux[i] = public_key_hex[i];
+            }
         }
         
 
-        int j = 0;
-        int cont = keys_counter - 1;
         int c = 0;
 
         for(int i = 0; i < keys_counter; i++){
@@ -92,8 +96,11 @@ void public_key_to_sk(char * public_key_hex, char* public_keys_hex_store, int ke
                 sk_sign = secret_keys_store[i];
                 break;
             } else {
-                for(int k = 0; k < 96; k++){
-                  aux2[k] = public_keys_hex_store[k+96*cont];
+                c = 0;
+                if((i+1) < keys_counter){
+                    for(int k = 0; k < 96; k++){
+                      aux2[k] = public_keys_hex_store[k+96*(i+1)];
+                    }
                 }
             }
         }
