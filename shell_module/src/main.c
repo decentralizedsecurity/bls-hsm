@@ -82,6 +82,52 @@ void get_point_from_msg(){
         blst_hash_to_g2(&hash, msg_bin, sizeof(msg_bin), dst, sizeof(dst), NULL, 0);
 }
 
+void pk_parse(char* pk_hex, blst_p1_affine* pk){
+        byte pk_bin[48];
+        char aux[96];
+        
+        if((pk_hex[0] == '0') && (pk_hex[1] == 'x')){
+            for(int i = 2; i < strlen(pk_hex); i++){
+               aux[i-2] = pk_hex[i];
+            }
+        }else{
+            for(int i = 0; i < strlen(pk_hex); i++){
+               aux[i] = pk_hex[i];
+            }
+        }
+
+        if(hex2bin(aux, 96, pk_bin, 48) == 0) {
+          printf("Failed converting public key to binary array\n");
+        }
+        blst_p1_uncompress(pk, pk_bin);
+}
+
+void msg_parse(char* msg, uint8_t* msg_bin){
+        if(hex2bin(msg, 64, msg_bin, 32) == 0) {
+          printf("Failed converting message to binary array\n");
+        }
+}
+
+void sig_parse(char* sig_hex, blst_p2_affine* sig){
+        byte sig_bin[96];
+        char aux[192];
+
+        if((sig_hex[0] == '0') && (sig_hex[1] == 'x')){
+            for(int i = 2; i < strlen(sig_hex); i++){
+               aux[i-2] = sig_hex[i];
+            }
+        }else{
+            for(int i = 0; i < strlen(sig_hex); i++){
+               aux[i] = sig_hex[i];
+            }
+        }
+
+        if(hex2bin(aux, 192, sig_bin, 96) == 0) {
+          printf("Failed converting signature to binary array\n");
+        }
+        blst_p2_uncompress(sig, sig_bin);
+}
+
 static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
@@ -279,7 +325,15 @@ static int cmd_signature_verification(const struct shell *shell, size_t argc, ch
 
         char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP"; //IETF BLS Signature V4
 
-        if(blst_core_verify_pk_in_g1(&pk2, &sig2, 1, msg_bin, sizeof(msg_bin), dst, sizeof(dst), NULL, 0) != BLST_SUCCESS){
+        blst_p1_affine pk;
+        blst_p2_affine sig;
+        uint8_t msg_bin[32];
+
+        pk_parse(argv[1], &pk);
+        msg_parse(argv[2], msg_bin);
+        sig_parse(argv[3], &sig);
+
+        if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, 32, dst, sizeof(dst), NULL, 0) != BLST_SUCCESS){
           printf("Error\n");
         }
         else {
@@ -457,7 +511,7 @@ SHELL_CMD_ARG_REGISTER(publickey, NULL, "Shows the last public key that has been
 
 SHELL_CMD_ARG_REGISTER(signature, NULL, "Signs a message with a specific public key", cmd_signature_message, 3, 0);
 
-SHELL_CMD_ARG_REGISTER(verify, NULL, "Verifies the signature", cmd_signature_verification, 1, 0);
+SHELL_CMD_ARG_REGISTER(verify, NULL, "Verifies the signature", cmd_signature_verification, 4, 0);
 
 SHELL_CMD_ARG_REGISTER(getkeys, NULL, "Returns the identifiers of the keys available to the signer", cmd_get_keys, 1, 0);
 

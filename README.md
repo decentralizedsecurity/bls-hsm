@@ -31,9 +31,13 @@ The commands that are supported are:
   Signature:
   0xa60e2f24827943379f8377d6bf7a126ef8def56b08ca4cdd958954b5f56091f7cd49d251481f4cd6316396a2a4f4398c09e2cfda6ea16416dffdac687cf06db0e4d3a0ec83b4016c835b27f84325342199f724abd092cb7957177f5f30dcbe19
   ```
-- *verify*: signature verification.
+- *verify "public_key" "message" "signature"*: signature verification.
   ```
-  uart:~$ verify
+  uart:~$ verify 0x8077842bcf8d16d842d3b9b09ad78f717468577ddb189c02ded347d551aad50
+  cbbdf37920b522a164cdf426bed9ac321 5656565656565656565656565656565656565656565656
+  565656565656565656 0x8cea6d7e2e07efd6b6e56c2dabd04ec07dead82b5806e63b85945d1d75a
+  6f53bc9d2dd6df5fc45ed79a5fd80c8d6a61509162faf1a9b0bd894461c4a6a4ac5db427e18694b1
+  d2be94cd64bb25426238ec85bf4767d892fea09825c07414421ec
   Success
   ```
 - *getkeys*: returns the public keys that have been generated.

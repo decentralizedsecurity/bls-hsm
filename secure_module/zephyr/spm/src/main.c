@@ -64,7 +64,7 @@ blst_scalar sk_sign;
 
 __TZ_NONSECURE_ENTRY_FUNC
 void public_key_to_sk(char * public_key_hex, char* public_keys_hex_store, int keys_counter){
-    
+
         char aux[96];
         char aux2[96];
         for(int i = 0; i < 96; i++){
