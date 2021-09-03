@@ -5,10 +5,9 @@ list(APPEND ZEPHYR_EXTRA_MODULES
    ${CMAKE_CURRENT_SOURCE_DIR}/../secure_module)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(shell_module)
+project(cli)
 
-target_sources(app PRIVATE src/main.c src/test_module.c)
-target_sources_ifdef(CONFIG_SHELL_DYNAMIC_CMDS app PRIVATE src/dynamic_cmd.c src/qsort.c)
+target_sources(app PRIVATE src/main.c)
 
 zephyr_library_include_directories(
   mylib/include/
