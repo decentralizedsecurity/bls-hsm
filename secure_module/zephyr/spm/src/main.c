@@ -63,18 +63,47 @@ blst_scalar secret_keys_store[10];
 blst_scalar sk_sign;
 
 __TZ_NONSECURE_ENTRY_FUNC
-int public_key_to_sk(char * public_key_hex, char* public_keys_hex_store, int keys_counter, int offset){
+void public_key_to_sk(char * public_key_hex, char* public_keys_hex_store, int keys_counter){
 
-    int ret = 0;
-    char* addr = strstr(public_keys_hex_store, public_key_hex + offset);
-    if(addr != NULL){
-        int index = addr - public_keys_hex_store;
-        sk_sign = secret_keys_store[index];
-    }else{
-        ret = -1;
-    }
-    
-    return ret;
+        char aux[96];
+        char aux2[96];
+        for(int i = 0; i < 96; i++){
+           aux2[i] = public_keys_hex_store[i];
+        }
+
+        //This is for taking out "0x" from the string
+        
+        if((public_key_hex[0] == '0') && (public_key_hex[1] == 'x')){
+            for(int i = 2; i < strlen(public_key_hex); i++){
+               aux[i-2] = public_key_hex[i];
+            }
+        }else{
+            for(int i = 0; i < strlen(public_key_hex); i++){
+               aux[i] = public_key_hex[i];
+            }
+        }
+        
+
+        int c = 0;
+
+        for(int i = 0; i < keys_counter; i++){
+            for(int x = 0; x < 96; x++){
+                if(aux[x] != aux2[x]){
+                    c = 1;
+                }
+            }
+            if (c == 0){
+                sk_sign = secret_keys_store[i];
+                break;
+            } else {
+                c = 0;
+                if((i+1) < keys_counter){
+                    for(int k = 0; k < 96; k++){
+                      aux2[k] = public_keys_hex_store[k+96*(i+1)];
+                    }
+                }
+            }
+        }
 }
 
 __TZ_NONSECURE_ENTRY_FUNC

@@ -10,8 +10,8 @@ project(cli)
 target_sources(app PRIVATE src/main.c)
 
 zephyr_library_include_directories(
-  ../blst/include/
+  mylib/include/
   )
 
 add_library(testlib STATIC IMPORTED)
-target_link_libraries(app PUBLIC ${APPLICATION_SOURCE_DIR}/../blst/src/libblst.a)
+target_link_libraries(app PUBLIC ${APPLICATION_SOURCE_DIR}/mylib/src/libblst.a)
