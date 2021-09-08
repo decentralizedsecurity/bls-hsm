@@ -80,8 +80,6 @@ PS. The *prj.conf* file has been modified because default size caused stack over
 
 **2. secure_module**: This module contains blst function calls that involve usage and storage of secret keys, using Secure Partition Manager (SPM).
 
-**3. blst**: This submodule is used internally by cli and secure_module.
-
 ## Benchmarks :hourglass_flowing_sand:
 ```
 uart:~$ benchmark
