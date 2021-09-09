@@ -1,12 +1,17 @@
 # bls-hsm
 
 ## Design :page_with_curl:
-Both projects emulate the behaviour of a command API that internally uses [blst library](https://github.com/supranational/blst#blst). They have been implemented with Segger Embedded Studio for the execution in Nordic Semiconductor nRF9160 board.
+The project emulate the behaviour of a command API that internally uses [blst library](https://github.com/supranational/blst#blst). They have been implemented with Segger Embedded Studio for the execution in Nordic Semiconductor nRF9160 board.
 
 
 ## Installation
 In order to build the project, it's recommended to use nRF Connect SDK as it is explained in this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
 
+This project uses blst static library that can be compiled for Cortex-M33 architecture with the following command:
+```
+./build.sh CC=/some/where/toolchain/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc-10.2.1 -mcpu=cortex-m33 flavour=elf -fno-pie
+```
+The shell script to configure the work environment is in progress. Meanwhile, you need to manually run the command, create "include" and "lib" folders, and include the binary library inside.
 
 
 ## Usage
