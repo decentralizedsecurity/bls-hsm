@@ -20,6 +20,6 @@ zephyr_library_include_directories(
 
 add_library(testlib STATIC IMPORTED)
 target_link_libraries(
-	app PUBLIC ${APPLICATION_SOURCE_DIR}/mylib/src/libblst.a
+	app PUBLIC ${APPLICATION_SOURCE_DIR}/../../../cli/lib/libblst.a
 	nrfxlib_crypto
 )
