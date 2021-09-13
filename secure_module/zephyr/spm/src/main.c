@@ -56,6 +56,7 @@
 #include <stdlib.h>
 #include <sys/printk.h>
 #include <secure_services.h>
+#include <bl_crypto.h>
 
 
 blst_scalar sk;
@@ -104,12 +105,7 @@ void ikm_sk(int* keys_counter, char* info){
 
         ret = spm_request_random_number_nse(random_number, random_number_len, &olen);
         
-        //TO DO: IMPLEMENTATION OF HASH FOR RANDOM NUMBER STRING
-        //ocrypto_sha256(ikm, random_number, random_number_len);
-
-        for(int i = 0; i < sizeof(ikm); i++){
-          ikm[i] = random_number[i];
-        }
+        ocrypto_sha256(ikm, random_number, random_number_len);
         
         //Secret key (256-bit scalar)
         blst_keygen(&sk, ikm, sizeof(ikm), info, sizeof(info));
