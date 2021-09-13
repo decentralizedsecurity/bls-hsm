@@ -185,86 +185,6 @@ static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv)
 	return 0;
 }
 
-static int cmd_benchmark(const struct shell *shell, size_t argc, char **argv)
-{
-	ARG_UNUSED(argc);
-	ARG_UNUSED(argv);
-
-        k_timer_start(&my_timer, K_MSEC(3000), K_NO_WAIT);
-        // key_info is an optional parameter.  This parameter MAY be used to derive
-        // multiple independent keys from the same IKM.  By default, key_info is the empty string.
-        char info[] = {
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-        
-        ikm_sk_bm(info);
-
-        //The secret key allow us to generate the associated public key
-        blst_p1 pk;
-        byte pk_bin[48];
-        char public_key_hex[96];
-        sk_to_pk(&pk);
-        pk_serialize(pk_bin, pk);
-
-        uint32_t time_left;
-        time_left = k_timer_remaining_get(&my_timer);
-        k_timer_stop(&my_timer);
-
-        printf("Public key: \n");
-        if(bin2hex(pk_bin, sizeof(pk_bin), public_key_hex, sizeof(public_key_hex)) == 0) {
-          printf("Failed converting binary key to string\n");
-        }
-        
-        print_pk(public_key_hex);
-
-        printf("\nBenchmark for key generation: %u ms\n", 3000-time_left);
-
-        k_timer_start(&my_timer, K_MSEC(3000), K_NO_WAIT);
-        
-        char * msg_hex = "5656565656565656565656565656565656565656565656565656565656565656";
-        uint8_t msg_bin[32];
-             
-        if(hex2bin(msg_hex, strlen(msg_hex), msg_bin, sizeof(msg_bin)) == 0) {
-          printf("Failed converting message to binary array\n");
-        }
-
-        printf("\nMessage: \n");
-        printf("0x");
-        printf("%s\n", msg_hex);
-
-        blst_p2 hash;
-        get_point_from_msg(&hash, msg_bin);
-
-        time_left = k_timer_remaining_get(&my_timer);
-        k_timer_stop(&my_timer);
-        printf("\nBenchmark for message hash: %u ms\n", 3000-time_left);
-
-        k_timer_start(&my_timer, K_MSEC(3000), K_NO_WAIT);
-        
-        blst_p2 sig;
-        byte sig_bin[96];
-        char sig_hex[192];
-        
-        sign_pk_bm(&sig, &hash); 
-        sig_serialize(sig_bin, sig);
-        
-        time_left = k_timer_remaining_get(&my_timer);
-        k_timer_stop(&my_timer);
-        
-        printf("\nSignature: \n");
-        if(bin2hex(sig_bin, sizeof(sig_bin), sig_hex, sizeof(sig_hex)) == 0) {
-          printf("Failed converting binary signature to string\n");
-        }
-
-        print_sig(sig_hex);
-
-        printf("\nBenchmark for signature: %u ms\n", 3000-time_left);
-
-	return 0;
-}
-
 SHELL_CMD_ARG_REGISTER(keygen, NULL, "Generates secret key and public key", cmd_keygen, 1, 1);
 
 SHELL_CMD_ARG_REGISTER(publickey, NULL, "Shows the last public key that has been generated", cmd_public_key, 1, 0);
@@ -274,8 +194,6 @@ SHELL_CMD_ARG_REGISTER(signature, NULL, "Signs a message with a specific public 
 SHELL_CMD_ARG_REGISTER(verify, NULL, "Verifies the signature", cmd_signature_verification, 4, 0);
 
 SHELL_CMD_ARG_REGISTER(getkeys, NULL, "Returns the identifiers of the keys available to the signer", cmd_get_keys, 1, 0);
-
-SHELL_CMD_ARG_REGISTER(benchmark, NULL, "Benchmark for key generation and signature proccess", cmd_benchmark, 1, 0);
 
 void main(void)
 {
