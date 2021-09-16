@@ -189,10 +189,12 @@ static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv)
 	return 0;
 }
 
-static int cmd_delkeys(const struct shell *shell, size_t argc, char **argv){
+static int cmd_reset(const struct shell *shell, size_t argc, char **argv){
         ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
 
+        reset();
+        memset(public_keys_hex_store, 0, 960);
         printf("Keys deleted\n");
         keys_counter = 0;
         return 0;
@@ -222,7 +224,7 @@ SHELL_CMD_ARG_REGISTER(verify, NULL, "Verifies the signature", cmd_signature_ver
 
 SHELL_CMD_ARG_REGISTER(getkeys, NULL, "Returns the identifiers of the keys available to the signer", cmd_get_keys, 1, 0);
 
-SHELL_CMD_ARG_REGISTER(reset, NULL, "Deletes all generated keys", cmd_delkeys, 1, 0);
+SHELL_CMD_ARG_REGISTER(reset, NULL, "Deletes all generated keys", cmd_reset, 1, 0);
 
 SHELL_CMD_ARG_REGISTER(prompt, NULL, "Toggle prompt", cmd_prompt, 2, 0);
 

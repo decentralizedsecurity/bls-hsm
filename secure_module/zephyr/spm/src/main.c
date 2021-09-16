@@ -128,6 +128,11 @@ void sign_pk_bm(blst_p2* sig, blst_p2* hash){
         blst_sign_pk_in_g1(sig, hash, &sk);
 }
 
+__TZ_NONSECURE_ENTRY_FUNC
+void reset(){
+        memset(secret_keys_store, 0, sizeof(secret_keys_store));
+}
+
 void main(void)
 {
 	spm_config();
