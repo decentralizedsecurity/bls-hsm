@@ -17,17 +17,15 @@ func main(){
 	}
 
 	str := make([]string, 10, 98)
-
+	scanner := bufio.NewScanner(s)
 	fmt.Println("Generating 10 keys...")
 	for i := 0; i < 10; i++{
 		n, err := s.Write([]byte("keygen\n"))
 		if err != nil{
 			log.Fatal(err)
 		}
-
 		_ = n
 
-		scanner := bufio.NewScanner(s)
 		for scanner.Scan(){
 			if strings.HasPrefix(scanner.Text(), "0x"){
 				str[i] = scanner.Text()
@@ -45,7 +43,7 @@ func main(){
 	}
 	_ = n
 
-	scanner := bufio.NewScanner(s)
+	
 	for scanner.Scan(){
 		if !strings.Contains(scanner.Text(), "uart"){
 			fmt.Println(scanner.Text())
@@ -71,6 +69,7 @@ func main(){
 		fmt.Println("Error")
 	}
 	fmt.Printf("\n")
+
 
 	fmt.Println("Attempting to generate extra key...")
 	n, err = s.Write([]byte("keygen\n"))
