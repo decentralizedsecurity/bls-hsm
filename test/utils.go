@@ -80,18 +80,19 @@ func getkeys(s *serial.Port, scanner *bufio.Scanner){
 	}
 }
 func check(s *serial.Port, scanner *bufio.Scanner, str []string){
-	if str[0] != str[1] && str[0] != str[2] && str[0] != str[3] && str[0] != str[4] && str[0] != str[5] && str[0] != str[6] && str[0] != str[7] && str[0] != str[8] && str[0] != str[9] && 
-	str[1] != str[2] && str[1] != str[3] && str[1] != str[4] && str[1] != str[5] && str[1] != str[6] && str[1] != str[7] && str[1] != str[8] && str[1] != str[9] && 
-	str[2] != str[3] && str[2] != str[4] && str[2] != str[5] && str[2] != str[6] && str[2] != str[7] && str[2] != str[8] && str[2] != str[9] && 
-	str[3] != str[4] && str[3] != str[5] && str[3] != str[6] && str[3] != str[7] && str[3] != str[8] && str[3] != str[9] && 
-	str[4] != str[5] && str[4] != str[6] && str[4] != str[7] && str[4] != str[8] && str[4] != str[9] && 
-	str[5] != str[6] && str[5] != str[7] && str[5] != str[8] && str[5] != str[9] && 
-	str[6] != str[7] && str[6] != str[8] && str[6] != str[9] && 
-	str[7] != str[8] && str[7] != str[9] && 
-	str[8] != str[9]{
-		fmt.Println("Ok")
-	}else{
+
+	control := false
+	for i := 0; i < 9; i++{
+		for j := i+1; j < 10; j++{
+			if str[i] == str[j]{
+				control = true
+			}
+		}
+	}
+	if control{
 		fmt.Println("Error")
+	}else{
+		fmt.Println("Ok")
 	}
 }
 func keygenext(s *serial.Port, scanner *bufio.Scanner){
