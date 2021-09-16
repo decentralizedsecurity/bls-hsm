@@ -36,40 +36,44 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
 
-        // key_info is an optional parameter.  This parameter MAY be used to derive
-        // multiple independent keys from the same IKM.  By default, key_info is the empty string.
-        char info[] = {
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        if(keys_counter < 10){
+            // key_info is an optional parameter.  This parameter MAY be used to derive
+            // multiple independent keys from the same IKM.  By default, key_info is the empty string.
+            char info[] = {
+              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         
-        if(argc == 2){
-                if(strlen(argv[1]) <= strlen(info)){
-                        strcpy(info, argv[1]);
-                }else{
-                        strncpy(info, argv[1], sizeof(info));
-                }
+            if(argc == 2){
+                    if(strlen(argv[1]) <= strlen(info)){
+                            strcpy(info, argv[1]);
+                    }else{
+                            strncpy(info, argv[1], sizeof(info));
+                    }
+            }
+
+            ikm_sk(&keys_counter, info);
+        
+            //The secret key allow us to generate the associated public key
+            blst_p1 pk;
+            byte out[48];
+            char public_key_hex[96];
+            sk_to_pk(&pk);
+            pk_serialize(out, pk);
+
+            printf("Public key: \n");
+            if(bin2hex(out, sizeof(out), public_key_hex, sizeof(public_key_hex)) == 0) {
+              printf("Failed converting binary key to string\n");
+            }
+        
+            store_pk(public_key_hex);
+            print_pk(public_key_hex);
+
+            return 0;
+        }else{
+            printf("Can't generate more keys. Limit reached.\n");
         }
-
-        ikm_sk(&keys_counter, info);
-        
-        //The secret key allow us to generate the associated public key
-        blst_p1 pk;
-        byte out[48];
-        char public_key_hex[96];
-        sk_to_pk(&pk);
-        pk_serialize(out, pk);
-
-        printf("Public key: \n");
-        if(bin2hex(out, sizeof(out), public_key_hex, sizeof(public_key_hex)) == 0) {
-          printf("Failed converting binary key to string\n");
-        }
-        
-        store_pk(public_key_hex);
-        print_pk(public_key_hex);
-
-	return 0;
 }
 
 
@@ -185,6 +189,29 @@ static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv)
 	return 0;
 }
 
+static int cmd_delkeys(const struct shell *shell, size_t argc, char **argv){
+        ARG_UNUSED(argc);
+	ARG_UNUSED(argv);
+
+        printf("Keys deleted\n");
+        keys_counter = 0;
+        return 0;
+}
+
+static int cmd_prompt(const struct shell *shell, size_t argc, char **argv){
+        ARG_UNUSED(argc);
+	ARG_UNUSED(argv);
+
+        if(strcmp(argv[1], "on") == 0){
+            shell_prompt_change(shell, "uart:~$ ");
+        }else if(strcmp(argv[1], "off") == 0){
+            shell_prompt_change(shell, "");
+        }else{
+            printf("Usage: prompt on/off\n");
+        }
+        return 0;
+}
+
 SHELL_CMD_ARG_REGISTER(keygen, NULL, "Generates secret key and public key", cmd_keygen, 1, 1);
 
 SHELL_CMD_ARG_REGISTER(publickey, NULL, "Shows the last public key that has been generated", cmd_public_key, 1, 0);
@@ -194,6 +221,10 @@ SHELL_CMD_ARG_REGISTER(signature, NULL, "Signs a message with a specific public 
 SHELL_CMD_ARG_REGISTER(verify, NULL, "Verifies the signature", cmd_signature_verification, 4, 0);
 
 SHELL_CMD_ARG_REGISTER(getkeys, NULL, "Returns the identifiers of the keys available to the signer", cmd_get_keys, 1, 0);
+
+SHELL_CMD_ARG_REGISTER(reset, NULL, "Deletes all generated keys", cmd_delkeys, 1, 0);
+
+SHELL_CMD_ARG_REGISTER(prompt, NULL, "Toggle prompt", cmd_prompt, 2, 0);
 
 void main(void)
 {
