@@ -4,6 +4,7 @@ void sk_to_pk(blst_p1* pk);
 void sign_pk(blst_p2* sig, blst_p2* hash);
 void sign_pk_bm(blst_p2* sig, blst_p2* hash);
 void ikm_sk_bm(char* info);
+void reset();
 
 void print_pk(char* public_key_hex){
         printf("0x");
