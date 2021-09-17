@@ -76,24 +76,6 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
         }
 }
 
-
-static int cmd_public_key(const struct shell *shell, size_t argc, char **argv)
-{
-	ARG_UNUSED(argc);
-	ARG_UNUSED(argv);
-
-        printf("Public key: \n");
-        
-        printf("0x");
-        int cont = keys_counter - 1;
-        for(int i = 96 * cont; i < 96 * cont + 96; i++) {
-          printf("%c", public_keys_hex_store[i]);
-        }
-        printf("\n");
-
-	return 0;
-}
-
 static int cmd_signature_message(const struct shell *shell, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
@@ -215,8 +197,6 @@ static int cmd_prompt(const struct shell *shell, size_t argc, char **argv){
 }
 
 SHELL_CMD_ARG_REGISTER(keygen, NULL, "Generates secret key and public key", cmd_keygen, 1, 1);
-
-SHELL_CMD_ARG_REGISTER(publickey, NULL, "Shows the last public key that has been generated", cmd_public_key, 1, 0);
 
 SHELL_CMD_ARG_REGISTER(signature, NULL, "Signs a message with a specific public key", cmd_signature_message, 3, 0);
 
