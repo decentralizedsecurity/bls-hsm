@@ -63,9 +63,14 @@ func keygen(s *serial.Port, scanner *bufio.Scanner, str []string){
 			}
 		}
 	}
+	if strings.Contains(str[9], "0x"){
+		fmt.Println("Ok")
+	}else{
+		fmt.Println("Failed")
+	}
 }
 
-func getkeys(s *serial.Port, scanner *bufio.Scanner){
+func getkeys(s *serial.Port, scanner *bufio.Scanner, verb bool){
 	n, err := s.Write([]byte("getkeys\n"))
 	if err != nil{
 		log.Fatal(err)
@@ -73,46 +78,58 @@ func getkeys(s *serial.Port, scanner *bufio.Scanner){
 	_ = n
 	
 	for scanner.Scan(){
-		fmt.Println(scanner.Text())
+		if verb{
+			fmt.Println(scanner.Text())
+		}
 		if strings.HasSuffix(scanner.Text(), "}"){
+			fmt.Println("Ok")
 			break
 		}
+	}
+	if !strings.HasSuffix(scanner.Text(), "}"){
+		fmt.Println("Failed")
 	}
 }
 func check(s *serial.Port, scanner *bufio.Scanner, str []string){
 
-	control := false
+	error := false
 	for i := 0; i < 9; i++{
 		for j := i+1; j < 10; j++{
 			if str[i] == str[j]{
-				control = true
+				error = true
 			}
 		}
 	}
-	if control{
-		fmt.Println("Error")
+	if error{
+		fmt.Println("Failed")
 	}else{
 		fmt.Println("Ok")
 	}
 }
-func keygenext(s *serial.Port, scanner *bufio.Scanner){
+func keygenext(s *serial.Port, scanner *bufio.Scanner, verb bool){
 	n, err := s.Write([]byte("keygen\n"))
 	if err != nil{
 		log.Fatal(err)
 	}
 	_ = n
 	for scanner.Scan(){
-		fmt.Println(scanner.Text())
+		if verb{
+			fmt.Println(scanner.Text())
+		}
 		if strings.HasSuffix(scanner.Text(), "."){
+			fmt.Println("Ok")
 			break
 		}
 	}
+	if !strings.HasSuffix(scanner.Text(), "."){
+		fmt.Println("Failed")
+	}
 }
-func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string, str []string){
-	
-	fmt.Println("Public key: " + str[0])
-	fmt.Println("Message: " + msg)
-
+func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string, str []string, verb bool){
+	if verb{
+		fmt.Println("Public key: " + str[0])
+		fmt.Println("Message: " + msg)
+	}
 	n, err := s.Write([]byte("signature " + str[0] + " " + msg + "\n"))
 	if err != nil{
 		log.Fatal(err)
@@ -120,17 +137,24 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 	_ = n
 
 	for scanner.Scan(){
-		fmt.Println(scanner.Text())
+		if verb{
+			fmt.Println(scanner.Text())
+		}
 		if strings.HasSuffix(scanner.Text(), "."){
+			fmt.Println("Ok")
 			break
 		}
 		if strings.Contains(scanner.Text(), "0x"){
+			fmt.Println("Ok")
 			*sign = scanner.Text()
 			break
 		}
 	}
+	if !strings.HasSuffix(scanner.Text(), ".") && !strings.Contains(scanner.Text(), "0x"){
+		fmt.Println("Failed")
+	}
 }
-func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str []string){
+func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str []string, verb bool){
 	n, err := s.Write([]byte("verify " + str[0] + " " + msg + " " + sign + "\n"))
 	if err != nil{
 		log.Fatal(err)
@@ -138,13 +162,20 @@ func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str
 	_ = n
 
 	for scanner.Scan(){
-		fmt.Println(scanner.Text())
-		if strings.Contains(scanner.Text(), "Success") || strings.Contains(scanner.Text(), "Error"){
+		if verb{
+			fmt.Println(scanner.Text())
+		}
+		if strings.Contains(scanner.Text(), "Success"){
+			fmt.Println("Ok")
+			break
+		}
+		if strings.Contains(scanner.Text(), "Error"){
+			fmt.Println("Failed")
 			break
 		}
 	}
 }
-func reset(s *serial.Port, scanner *bufio.Scanner){
+func reset(s *serial.Port, scanner *bufio.Scanner, verb bool){
 	n, err := s.Write([]byte("reset\n"))
 	if err != nil{
 		log.Fatal(err)
@@ -152,9 +183,15 @@ func reset(s *serial.Port, scanner *bufio.Scanner){
 	_ = n
 
 	for scanner.Scan(){
-		fmt.Println(scanner.Text())
+		if verb{
+			fmt.Println(scanner.Text())
+		}
 		if strings.Contains(scanner.Text(), "deleted"){
+			fmt.Println("Ok")
 			break
 		}
+	}
+	if !strings.Contains(scanner.Text(), "deleted"){
+		fmt.Println("Failed")
 	}
 }
