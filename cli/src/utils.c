@@ -1,10 +1,10 @@
-int public_key_to_sk(char * public_key_hex, int offset);
+int pk_in_keystore(char * public_key_hex, int offset);
 void ikm_sk(char* info);
 void sk_to_pk(blst_p1* pk);
 void sign_pk(blst_p2* sig, blst_p2* hash);
 void reset();
 void store_pk(char* public_key_hex);
-int get_keys_number();
+int get_keystore_size();
 void getkeys(char* public_keys_hex_store_ns);
 
 void print_pk(char* public_key_hex){

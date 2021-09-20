@@ -31,7 +31,7 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
-        int keys_counter = get_keys_number();
+        int keys_counter = get_keystore_size();
 
         if(keys_counter < 10){
             // key_info is an optional parameter.  This parameter MAY be used to derive
@@ -85,7 +85,7 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
         int offset = parse(argv[1], 96);
 
         if(offset != -1){
-            if(public_key_to_sk(argv[1], offset) != -1){
+            if(pk_in_keystore(argv[1], offset) != -1){
                 uint8_t msg_bin[32];
                 if(msg_parse(argv[2], msg_bin) != 1){
                     blst_p2 hash;
@@ -143,7 +143,7 @@ static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
-        int keys_counter = get_keys_number();
+        int keys_counter = get_keystore_size();
         char public_keys_hex_store[96*keys_counter];
         getkeys(public_keys_hex_store);
         if(keys_counter != 0){

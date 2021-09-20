@@ -66,7 +66,7 @@ char public_keys_hex_store[960];
 int keys_counter = 0;
 
 __TZ_NONSECURE_ENTRY_FUNC
-int get_keys_number(){
+int get_keystore_size(){
         return keys_counter;
 }
 
@@ -86,7 +86,7 @@ void getkeys(char* public_keys_hex_store_ns){
 }
 
 __TZ_NONSECURE_ENTRY_FUNC
-int public_key_to_sk(char * public_key_hex, int offset){
+int pk_in_keystore(char * public_key_hex, int offset){
 
         int ret = 0;
 
