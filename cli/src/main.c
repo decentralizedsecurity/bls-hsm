@@ -91,7 +91,6 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
                     blst_p2 hash;
                     get_point_from_msg(&hash, msg_bin);
 
-                    //The secret key allow us to perform a sign operation
                     blst_p2 sig;
                     byte sig_bin[96];
                     char sig_hex[192];
