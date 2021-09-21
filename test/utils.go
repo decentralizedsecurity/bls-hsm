@@ -8,7 +8,7 @@ import(
 	"strings"
 )
 
-func set_shell_params(s *serial.Port){
+func set_shell_params(s *serial.Port, scanner *bufio.Scanner){
 	n, err := s.Write([]byte("shell colors off\n"))
 	if err != nil{
 		log.Fatal(err)
@@ -26,6 +26,12 @@ func set_shell_params(s *serial.Port){
 		log.Fatal(err)
 	}
 	_ = n
+
+	for scanner.Scan(){
+		if strings.Contains(scanner.Text(), "echo"){
+			break
+		}
+	}
 }
 
 func reset_shell_params(s *serial.Port){

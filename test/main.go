@@ -21,9 +21,13 @@ func main(){
 
 	str := make([]string, 10, 98)
 
-	set_shell_params(s)
-
 	scanner := bufio.NewScanner(s)
+
+	set_shell_params(s, scanner)
+
+	fmt.Println("Deleting previously generated keys...")
+	reset(s, scanner, *verb)
+	fmt.Printf("\n\n")
 
 	fmt.Println("Generating 10 keys...")
 	keygen(s, scanner, str)
