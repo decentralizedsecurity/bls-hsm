@@ -6,6 +6,7 @@ import(
 	"github.com/tarm/serial"
 	"bufio"
 	"strings"
+	"time"
 )
 
 func set_shell_params(s *serial.Port, scanner *bufio.Scanner){
@@ -55,6 +56,7 @@ func reset_shell_params(s *serial.Port){
 }
 
 func keygen(s *serial.Port, scanner *bufio.Scanner, str []string){
+	t := time.Now()
 	for i := 0; i < 10; i++{
 		n, err := s.Write([]byte("keygen\n"))
 		if err != nil{
@@ -69,6 +71,8 @@ func keygen(s *serial.Port, scanner *bufio.Scanner, str []string){
 			}
 		}
 	}
+	elapsed := time.Since(t)
+	fmt.Printf("%s elapsed\n", elapsed)
 	if strings.Contains(str[9], "0x"){
 		fmt.Println("Ok")
 	}else{
@@ -141,6 +145,7 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 		log.Fatal(err)
 	}
 	_ = n
+	t := time.Now()
 
 	for scanner.Scan(){
 		if verb{
@@ -151,6 +156,8 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 			break
 		}
 		if strings.Contains(scanner.Text(), "0x"){
+			elapsed := time.Since(t)
+			fmt.Printf("%s elapsed\n", elapsed)
 			fmt.Println("Ok")
 			*sign = scanner.Text()
 			break
@@ -166,12 +173,15 @@ func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str
 		log.Fatal(err)
 	}
 	_ = n
+	t := time.Now()
 
 	for scanner.Scan(){
 		if verb{
 			fmt.Println(scanner.Text())
 		}
 		if strings.Contains(scanner.Text(), "Success"){
+			elapsed := time.Since(t)
+			fmt.Printf("%s elapsed\n", elapsed)
 			fmt.Println("Ok")
 			break
 		}
