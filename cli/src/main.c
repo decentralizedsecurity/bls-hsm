@@ -31,9 +31,9 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
-        int keys_counter = get_keystore_size();
+        int keystore_size = get_keystore_size();
 
-        if(keys_counter < 10){
+        if(keystore_size < 10){
             // key_info is an optional parameter.  This parameter MAY be used to derive
             // multiple independent keys from the same IKM.  By default, key_info is the empty string.
             char info[] = {
@@ -142,13 +142,13 @@ static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
-        int keys_counter = get_keystore_size();
-        char public_keys_hex_store[96*keys_counter];
+        int keystore_size = get_keystore_size();
+        char public_keys_hex_store[96*keystore_size];
         getkeys(public_keys_hex_store);
-        if(keys_counter != 0){
+        if(keystore_size != 0){
             int j = 0;
-            int cont = keys_counter - 1;
-            int counter = keys_counter;
+            int cont = keystore_size - 1;
+            int counter = keystore_size;
         
             printf("{'keys':['");
             for(int i = 0; i < 96 * cont + 96; i++){

@@ -63,16 +63,16 @@ blst_scalar sk;
 blst_scalar secret_keys_store[10];
 blst_scalar sk_sign;
 char public_keys_hex_store[960];
-int keys_counter = 0;
+int keystore_size = 0;
 
 __TZ_NONSECURE_ENTRY_FUNC
 int get_keystore_size(){
-        return keys_counter;
+        return keystore_size;
 }
 
 __TZ_NONSECURE_ENTRY_FUNC
 void store_pk(char* public_key_hex){
-        int cont = keys_counter - 1;
+        int cont = keystore_size - 1;
         for(int i = 0; i < 96; i++){
             public_keys_hex_store[i+96*cont] = public_key_hex[i];
         }
@@ -80,7 +80,7 @@ void store_pk(char* public_key_hex){
 
 __TZ_NONSECURE_ENTRY_FUNC
 void getkeys(char* public_keys_hex_store_ns){
-        for(int i = 0; i < keys_counter*96; i++){
+        for(int i = 0; i < keystore_size*96; i++){
             public_keys_hex_store_ns[i] = public_keys_hex_store[i];
         }
 }
@@ -93,7 +93,7 @@ int pk_in_keystore(char * public_key_hex, int offset){
         int c = 0;
         int cont = 0;
 
-        for(int i = 0; i < keys_counter; i++){
+        for(int i = 0; i < keystore_size; i++){
             for(int x = 0; x < 96; x++){
                 if(public_key_hex[x + offset] != public_keys_hex_store[x + cont]){
                     c = 1;
@@ -104,7 +104,7 @@ int pk_in_keystore(char * public_key_hex, int offset){
                 sk_sign = secret_keys_store[i];
                 break;
             } else {
-                if((i+1) < keys_counter){
+                if((i+1) < keystore_size){
                     cont += 96;
                     c = 0;
                 }else{
@@ -131,8 +131,8 @@ void ikm_sk(char* info){
         
         //Secret key (256-bit scalar)
         blst_keygen(&sk, ikm, sizeof(ikm), info, sizeof(info));
-        secret_keys_store[keys_counter] = sk;
-        keys_counter++;
+        secret_keys_store[keystore_size] = sk;
+        keystore_size++;
 }
 
 __TZ_NONSECURE_ENTRY_FUNC
@@ -149,7 +149,7 @@ __TZ_NONSECURE_ENTRY_FUNC
 void reset(){
         memset(secret_keys_store, 0, sizeof(secret_keys_store));
         memset(public_keys_hex_store, 0, 960);
-        keys_counter = 0;
+        keystore_size = 0;
 }
 
 void main(void)
