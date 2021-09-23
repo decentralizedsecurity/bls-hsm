@@ -23,10 +23,6 @@
 struct k_timer my_timer;
 K_TIMER_DEFINE(my_timer, NULL, NULL);
 
-//Global variables
-char public_keys_hex_store[960];
-int keys_counter = 0;
-
 LOG_MODULE_REGISTER(app);
 
 #include "utils.c"
@@ -35,8 +31,9 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
+        int keystore_size = get_keystore_size();
 
-        if(keys_counter < 10){
+        if(keystore_size < 10){
             // key_info is an optional parameter.  This parameter MAY be used to derive
             // multiple independent keys from the same IKM.  By default, key_info is the empty string.
             char info[] = {
@@ -53,7 +50,7 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
                     }
             }
 
-            ikm_sk(&keys_counter, info);
+            ikm_sk(info);
         
             //The secret key allow us to generate the associated public key
             blst_p1 pk;
@@ -74,6 +71,7 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
         }else{
             printf("Can't generate more keys. Limit reached.\n");
         }
+        return 0;
 }
 
 static int cmd_signature_message(const struct shell *shell, size_t argc, char **argv)
@@ -87,13 +85,12 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
         int offset = parse(argv[1], 96);
 
         if(offset != -1){
-            if(public_key_to_sk(argv[1], public_keys_hex_store, keys_counter, offset) != -1){
+            if(pk_in_keystore(argv[1], offset) != -1){
                 uint8_t msg_bin[32];
                 if(msg_parse(argv[2], msg_bin) != 1){
                     blst_p2 hash;
                     get_point_from_msg(&hash, msg_bin);
 
-                    //The secret key allow us to perform a sign operation
                     blst_p2 sig;
                     byte sig_bin[96];
                     char sig_hex[192];
@@ -145,10 +142,13 @@ static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
-        if(keys_counter != 0){
+        int keystore_size = get_keystore_size();
+        char public_keys_hex_store[96*keystore_size];
+        getkeys(public_keys_hex_store);
+        if(keystore_size != 0){
             int j = 0;
-            int cont = keys_counter - 1;
-            int counter = keys_counter;
+            int cont = keystore_size - 1;
+            int counter = keystore_size;
         
             printf("{'keys':['");
             for(int i = 0; i < 96 * cont + 96; i++){
@@ -176,9 +176,7 @@ static int cmd_reset(const struct shell *shell, size_t argc, char **argv){
 	ARG_UNUSED(argv);
 
         reset();
-        memset(public_keys_hex_store, 0, 960);
         printf("Keys deleted\n");
-        keys_counter = 0;
         return 0;
 }
 
