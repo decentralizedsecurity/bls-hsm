@@ -81,7 +81,7 @@ func keygen(s *serial.Port, scanner *bufio.Scanner, str []string, verb bool, pas
 		passed[1] = true
 		if verb{
 			elapsed := time.Since(t)
-			fmt.Printf("%s elapsed\n", elapsed)
+			color.HiMagenta("%s elapsed\n", elapsed)
 			color.HiGreen("PASSED")
 		}
 	}else{
@@ -246,7 +246,7 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 			passed[6] = true
 			if verb{
 				elapsed := time.Since(t)
-				fmt.Printf("%s elapsed\n", elapsed)
+				color.HiMagenta("%s elapsed\n", elapsed)
 				color.HiGreen("PASSED")
 			}
 			*sign = scanner.Text()
@@ -304,7 +304,7 @@ func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str
 			passed[7] = true
 			if verb{
 				elapsed := time.Since(t)
-				fmt.Printf("%s elapsed\n", elapsed)
+				color.HiMagenta("%s elapsed\n", elapsed)
 				color.HiGreen("PASSED")
 			}
 			break
