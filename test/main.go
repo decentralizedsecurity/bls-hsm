@@ -7,6 +7,7 @@ import(
 	"bufio"
 	"flag"
 	"os"
+	"github.com/fatih/color"
 )
 
 
@@ -109,69 +110,72 @@ func main(){
 
 		reset_shell_params(s)
 
-		fmt.Println("RESULTS:")
+		//pass := "\u2714"
+		//fail := "\u274c"
+
+		color.HiCyan("RESULTS:")
 		fmt.Println("----------------------------------------")
 		fmt.Printf("Delete previous keys..........")
 		if passed[0]{
-			fmt.Printf("PASSED\n")
+			color.HiGreen("PASSED")
 		}else{
-			fmt.Printf("FAILED\n")
+			color.Red("FAILED")
 		}
 
 		fmt.Printf("Generate 10 keys..............")
 		if passed[1]{
-			fmt.Printf("PASSED\n")
+			color.HiGreen("PASSED")
 		}else{
-			fmt.Printf("FAILED\n")
+			color.Red("FAILED")
 		}
 
 		fmt.Printf("Retrieve generated keys.......")
 		if passed[2]{
-			fmt.Printf("PASSED\n")
+			color.HiGreen("PASSED")
 		}else{
-			fmt.Printf("FAILED\n")
+			color.Red("FAILED")
 		}
 
 		fmt.Printf("Check keys are different......")
 		if passed[3]{
-			fmt.Printf("PASSED\n")
+			color.HiGreen("PASSED")
 		}else{
-			fmt.Printf("FAILED\n")
+			color.Red("FAILED")
 		}
 
 		fmt.Printf("Try to generate extra key.....")
 		if passed[4]{
-			fmt.Printf("PASSED\n")
+			color.HiGreen("PASSED")
 		}else{
-			fmt.Printf("FAILED\n")
+			color.Red("FAILED")
 		}
 
 		fmt.Printf("Sign msg with wrong length....")
 		if passed[5]{
-			fmt.Printf("PASSED\n")
+			color.HiGreen("PASSED")
 		}else{
-			fmt.Printf("FAILED\n")
+			color.Red("FAILED")
 		}
 
 		fmt.Printf("Sign correct msg..............")
 		if passed[6]{
-			fmt.Printf("PASSED\n")
+			color.HiGreen("PASSED")
 		}else{
-			fmt.Printf("FAILED\n")
+			color.Red("FAILED")
 		}
 
 		fmt.Printf("Verify signature..............")
 		if passed[7]{
-			fmt.Printf("PASSED\n")
+			color.HiGreen("PASSED")
 		}else{
-			fmt.Printf("FAILED\n")
+			color.Red("FAILED")
 		}
 
 		fmt.Printf("Delete keys...................")
 		if passed[8]{
-			fmt.Printf("PASSED\n")
+			color.HiGreen("PASSED")
 		}else{
-			fmt.Printf("FAILED\n")
+			color.Red("FAILED")
 		}
 		fmt.Println("----------------------------------------")
 	}else{

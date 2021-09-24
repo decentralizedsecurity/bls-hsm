@@ -7,6 +7,7 @@ import(
 	"bufio"
 	"strings"
 	"time"
+	"github.com/fatih/color"
 )
 
 func set_shell_params(s *serial.Port, scanner *bufio.Scanner){
@@ -77,12 +78,12 @@ func keygen(s *serial.Port, scanner *bufio.Scanner, str []string, verb bool, pas
 		if verb{
 			elapsed := time.Since(t)
 			fmt.Printf("%s elapsed\n", elapsed)
-			fmt.Println("Ok")
+			color.HiGreen("Ok")
 		}
 	}else{
 		passed[1] = false
 		if verb{
-			fmt.Println("Failed")
+			color.Red("Failed")
 		}
 	}
 }
@@ -101,7 +102,7 @@ func getkeys(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool){
 		if strings.HasSuffix(scanner.Text(), "}"){
 			passed[2] = true
 			if verb{
-				fmt.Println("Ok")
+				color.HiGreen("Ok")
 			}
 			break
 		}
@@ -109,7 +110,7 @@ func getkeys(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool){
 	if !strings.HasSuffix(scanner.Text(), "}"){
 		passed[2] = false
 		if verb{
-			fmt.Println("Failed")
+			color.Red("Failed")
 		}
 	}
 }
@@ -126,12 +127,12 @@ func check(s *serial.Port, scanner *bufio.Scanner, str []string, verb bool, pass
 	if error{
 		passed[3] = false
 		if verb{
-			fmt.Println("Failed")
+			color.Red("Failed")
 		}
 	}else{
 		passed[3] = true
 		if verb{
-			fmt.Println("Ok")
+			color.HiGreen("Ok")
 		}
 	}
 }
@@ -148,7 +149,7 @@ func keygenext(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool)
 		if strings.HasSuffix(scanner.Text(), "."){
 			passed[4] = true
 			if verb{
-				fmt.Println("Ok")
+				color.HiGreen("Ok")
 			}
 			break
 		}
@@ -156,7 +157,7 @@ func keygenext(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool)
 	if !strings.HasSuffix(scanner.Text(), "."){
 		passed[4] = false
 		if verb{
-			fmt.Println("Failed")
+			color.Red("Failed")
 		}
 	}
 }
@@ -180,7 +181,7 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 		if strings.HasSuffix(scanner.Text(), "."){
 			passed[5] = true
 			if verb{
-				fmt.Println("Ok")
+				color.HiGreen("Ok")
 			}
 			break
 		}
@@ -189,7 +190,7 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 			if verb{
 				elapsed := time.Since(t)
 				fmt.Printf("%s elapsed\n", elapsed)
-				fmt.Println("Ok")
+				color.HiGreen("Ok")
 			}
 			*sign = scanner.Text()
 			break
@@ -198,13 +199,13 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 	if !strings.HasSuffix(scanner.Text(), ".") && len(msg) != 64{
 		passed[5] = false
 		if verb{
-			fmt.Println("Failed")
+			color.Red("Failed")
 		}
 	}
 	if !strings.Contains(scanner.Text(), "0x") && len(msg) == 64{
 		passed[6] = false
 		if verb{
-			fmt.Println("Failed")
+			color.Red("Failed")
 		}
 	}
 }
@@ -227,14 +228,14 @@ func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str
 			if verb{
 				elapsed := time.Since(t)
 				fmt.Printf("%s elapsed\n", elapsed)
-				fmt.Println("Ok")
+				color.HiGreen("Ok")
 			}
 			break
 		}
 		if strings.Contains(scanner.Text(), "Error"){
 			passed[7] = false
 			if verb{
-				fmt.Println("Failed")
+				color.Red("Failed")
 			}
 			break
 		}
@@ -254,7 +255,7 @@ func reset(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, tes
 		if strings.Contains(scanner.Text(), "deleted"){
 			passed[test] = true
 			if verb{
-				fmt.Println("Ok")
+				color.HiGreen("Ok")
 			}
 			break
 		}
@@ -262,7 +263,7 @@ func reset(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, tes
 	if !strings.Contains(scanner.Text(), "deleted"){
 		passed[test] = false
 		if verb{
-			fmt.Println("Failed")
+			color.Red("Failed")
 		}
 	}
 }
