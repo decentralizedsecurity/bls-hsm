@@ -62,6 +62,14 @@ PS. The *prj.conf* file has been modified because default size caused stack over
 
 **2. secure_module**: This module contains blst function calls that involve usage and storage of secret keys, using Secure Partition Manager (SPM).
 
+## Test
+"test" folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go run .\main.go .\utils.go [-v] COMport` command in a terminal or `go build` and then `test.exe [-v] COMport`. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4).
+This test will do the following:
+- Generate 10 keypairs (the maximum allowed by the board) and check that all keys are different.
+- Attempt to generate an extra key pair and confirm the board refuses to do that.
+- Perform a signature of a message with the wrong size an confirm the board refuses to do that.
+- Perform a signature of a message with the right size and check that the signature is properly verified.
+
 ## To Do: :ballot_box_with_check:
 - [x] Benchmark command.
 - [ ] Shell script for setting up the work environment.

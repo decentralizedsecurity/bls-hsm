@@ -1,3 +1,5 @@
 cli/build_nrf5340dk_nrf5340_cpuappns
 cli/lib/**
 cli/include/**
+test/test.exe
+test/test
