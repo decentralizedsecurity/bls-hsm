@@ -152,6 +152,11 @@ void reset(){
         keystore_size = 0;
 }
 
+__TZ_NONSECURE_ENTRY_FUNC
+void reset(){
+        memset(secret_keys_store, 0, sizeof(secret_keys_store));
+}
+
 void main(void)
 {
 	spm_config();
