@@ -5,10 +5,13 @@ The project emulate the behaviour of a command API that internally uses [blst li
 
 
 ## Installation
-You can run `./setup.sh [-c "compiler path"] [-i]` to build blst library and move the required files to build the project.
-`-c "compiler path"` option will define the path of the arm compiler. `-i` option is used to automatically check if the compiler is installed and install it otherwise, using it to build blst library.
-
 In order to build the project, it's recommended to use nRF Connect SDK as it is explained in this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
+
+This project uses blst static library that can be compiled for Cortex-M33 architecture with the following command:
+```
+./build.sh CC=/some/where/toolchain/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc-10.2.1 -mcpu=cortex-m33 flavour=elf -fno-pie
+```
+The shell script to configure the work environment is in progress. Meanwhile, you need to manually run the command, create "include" and "lib" folders, and include the binary library inside.
 
 
 ## Usage
