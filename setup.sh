@@ -63,7 +63,7 @@ bls=`pwd`
 mkdir ~/ncs
 cd ~/ncs
 pip3 install --user west
-echo 'export PATH=~/.local/bin:"$PATH"'
+export PATH=~/.local/bin:"$PATH"
 
 west init -m https://github.com/nrfconnect/sdk-nrf --mr v1.7.0
 west update
