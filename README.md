@@ -5,7 +5,7 @@ The project emulate the behaviour of a command API that internally uses [blst li
 
 
 ## Installation
-You can run `./setup.sh [-c "compiler path"] [-i]` to build blst library and allocate the required files to build the project.
+You can run `./setup.sh [-c "compiler path"] [-i] -b "board identifier"` to build blst library and allocate the required files to build the project.
 `-c "compiler path"` option will define the path of the arm compiler. `-i` option is used to automatically check if the compiler is installed and install it otherwise, using it to build blst library.
 
 In order to build the project, it's recommended to use nRF Connect SDK as it is explained in this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
