@@ -1,30 +1,36 @@
 #!/usr/bin/bash
 
 usage(){
-  echo "Usage: $0 [-c \"compiler path\"] [-i]
+  echo "Usage: $0 [-c \"compiler path\"] [-i] -b \"board identifier\"
   -c \"compiler path\": define path of the arm compiler (arm-none-eabi-gcc file)
-  -i: check if GNU ARM Embedded Toolchain is installed. Install it otherwise"
+  -i: check if GNU ARM Embedded Toolchain is installed. Install it otherwise
+  -b: board identifier"
   exit 1;
 }
 
-while getopts ":c::i" opt; do
+while getopts ":c::b::i" opt; do
   case $opt in
     c) comp="$OPTARG"
     control=0
     export control
     ;;
-    i) sudo apt install gcc-arm-none-eabi
-    comp="/usr/bin/arm-none-eabi-gcc"
+    i)comp="/usr/bin/arm-none-eabi-gcc"
     control=1
     export control
+    ;;
+    b)board="$OPTARG"
     ;;
     *) usage
     ;;
   esac
 done
 
-if [ -z $comp ]; then
+if [ -z $comp ] || [ -z $board ]; then
   usage
+fi
+
+if [ control -eq 1 ]; then
+	sudo apt install gcc-arm-none-eabi
 fi
 
 comp=`realpath $comp`
@@ -85,4 +91,19 @@ source zephyr/zephyr-env.sh
 
 cd $bls/cli
 sudo rm -r build
-west build -b nrf5340dk_nrf5340_cpuapp_ns
+west build -b $board
+
+cd ~
+
+wget https://www.nordicsemi.com/-/media/Software-and-other-downloads/Desktop-software/nRF-command-line-tools/sw/Versions-10-x-x/10-13-0/nRF-Command-Line-Tools_10_13_0_Linux64.zip
+unzip nRF-Command-Line-Tools_10_13_0_Linux64.zip -d tools
+cd tools/nRF-Command-Line-Tools_10_13_0_Linux64
+tar xvf nRF-Command-Line-Tools_10_13_0_Linux-amd64.tar.gz
+sudo dpkg -i --force-overwrite JLink_Linux_V750a_x86_64.deb
+sudo dpkg -i --force-overwrite nRF-Command-Line-Tools_10_13_0_Linux-amd64.deb
+
+cd $bls/cli
+rm -r ~/tools
+rm ~/nRF-Command-Line-Tools_10_13_0_Linux64.zip
+
+west flash --erase
