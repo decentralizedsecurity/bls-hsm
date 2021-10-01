@@ -60,12 +60,32 @@ PS. The *prj.conf* file has been modified because default size caused stack over
 **2. secure_module**: This module contains blst function calls that involve usage and storage of secret keys, using Secure Partition Manager (SPM).
 
 ## Test
-"test" folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go run .\main.go .\utils.go [-v] COMport` command in a terminal or `go build` and then `test.exe [-v] COMport`. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4).
+"test" folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go run .\main.go .\utils.go [-v] COMport` command in a terminal or `go build` and then `test.exe [-v] COMport`. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4, /dev/ttyS3).
 This test will do the following:
 - Generate 10 keypairs (the maximum allowed by the board) and check that all keys are different.
 - Attempt to generate an extra key pair and confirm the board refuses to do that.
 - Perform a signature of a message with the wrong size an confirm the board refuses to do that.
 - Perform a signature of a message with the right size and check that the signature is properly verified.
+
+Output example:
+```
+PS C:\Users\username\bls-hsm\test> go build
+PS C:\Users\username\bls-hsm\test> .\test.exe com4
+Running tests...
+Delete previous keys..........PASSED
+Generate 10 keys..............PASSED
+Retrieve generated keys.......PASSED
+Check keys are different......PASSED
+Try to generate extra key.....PASSED
+Sign msg with wrong length....PASSED
+Sign correct msg..............PASSED
+Verify signature..............PASSED
+Delete keys...................PASSED
+RESULTS:
+----------------------------------------
+Total.........................9/9
+----------------------------------------
+```
 
 ## To Do: :ballot_box_with_check:
 - [x] Benchmark command.
