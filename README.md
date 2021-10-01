@@ -69,8 +69,8 @@ This test will do the following:
 
 Output example:
 ```
-PS C:\Users\username\bls-hsm\test> go build
-PS C:\Users\username\bls-hsm\test> .\test.exe com4
+user@user:~/bls-hsm/test$ go build
+user@user:~/bls-hsm/test$ ./test /dev/ttyACM2
 Running tests...
 Delete previous keys..........PASSED
 Generate 10 keys..............PASSED
