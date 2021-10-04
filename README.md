@@ -87,6 +87,6 @@ Total.........................9/9
 
 ## To Do: :ballot_box_with_check:
 - [x] Benchmark command.
-- [ ] Shell script for setting up the work environment.
+- [x] Shell script for setting up the work environment.
 - [x] Include Nordic Security Backend in order to take advantage of the 144-byte random number used for the 32-byte vector in secret key generation function.
 - [x] Execution of the code in ARM TrustZone.
