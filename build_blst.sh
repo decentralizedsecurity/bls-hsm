@@ -1,5 +1,11 @@
 #!/usr/bin/bash
 
+usage(){
+  echo "Usage: $0 -c \"compiler path\"
+  -c \"compiler path\": define path of the arm compiler (arm-none-eabi-gcc file)"
+  exit 1;
+}
+
 while getopts ":c:" opt; do
   case $opt in
     c) comp="$OPTARG"
@@ -8,8 +14,7 @@ while getopts ":c:" opt; do
 done
 
 if [ -z $comp ]; then
-	echo "Compiler path required"
-	exit 1;
+	usage
 fi
 
 ./blst/build.sh CC=$comp -mcpu=cortex-m33 flavour=elf -fno-pie
