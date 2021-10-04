@@ -53,10 +53,7 @@ The commands that are supported are:
 
 
 ## Implementations :pick:
-**1. cli**: This project uses blst static library that has been compiled for Cortex-M33 architecture with the following command:
-```
-./build.sh CC=/some/where/toolchain/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc-10.2.1 -mcpu=cortex-m33 flavour=elf -fno-pie
-```
+**1. cli**: This project uses blst static library that has been compiled for Cortex-M33 architecture:
 
 PS. The *prj.conf* file has been modified because default size caused stack overflow from the UART thread. Current size is 49152 bytes.
 
