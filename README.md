@@ -7,7 +7,7 @@ The project emulate the behaviour of a command API that internally uses [blst li
 ## Installation
 You can run `./setup.sh [-c "compiler path"] [-i] -b "board identifier"` to build the project.
 `-c "compiler path"` option will define the path of the arm compiler. `-i` option is used to automatically check if the compiler is installed and install it otherwise, using it in the building process.
-`setup.sh` will run sequentially `build_blst.sh`, `required.sh`, `build.sh` and `flash.sh`. After running `build_blst.sh` and `required.sh` once, only `build.sh` and `flash.sh` should be used.
+`setup.sh` will run sequentially `build_blst.sh`, `dependencies.sh`, `build.sh` and `flash.sh`. After running `build_blst.sh` and `dependencies.sh` once, only `build.sh` and `flash.sh` should be used.
 
 It's also possible to use nRF Connect SDK as it is explained in this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
 
