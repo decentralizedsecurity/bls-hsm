@@ -5,13 +5,11 @@ The project emulate the behaviour of a command API that internally uses [blst li
 
 
 ## Installation
-In order to build the project, it's recommended to use nRF Connect SDK as it is explained in this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
+You can run `./setup.sh [-c "compiler path"] [-i] -b "board identifier"` to build the project.
+`-c "compiler path"` option will define the path of the arm compiler. `-i` option is used to automatically check if the compiler is installed and install it otherwise, using it in the building process.
+`setup.sh` will run sequentially `build_blst.sh`, `dependencies.sh`, `build.sh` and `flash.sh`. After running `build_blst.sh` and `dependencies.sh` once, only `build.sh` and `flash.sh` are needed.
 
-This project uses blst static library that can be compiled for Cortex-M33 architecture with the following command:
-```
-./build.sh CC=/some/where/toolchain/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc-10.2.1 -mcpu=cortex-m33 flavour=elf -fno-pie
-```
-The shell script to configure the work environment is in progress. Meanwhile, you need to manually run the command, create "include" and "lib" folders, and include the binary library inside.
+It's also possible to use nRF Connect SDK as it is explained in this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
 
 
 ## Usage
@@ -53,22 +51,39 @@ The commands that are supported are:
 
 
 ## Implementations :pick:
-**1. cli**: This project uses blst static library that has been compiled for Cortex-M33 architecture with the following command:
-```
-./build.sh CC=/some/where/toolchain/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc-10.2.1 -mcpu=cortex-m33 flavour=elf -fno-pie
-```
+**1. cli**: This project uses blst static library that has been compiled for Cortex-M33 architecture.
 
 PS. The *prj.conf* file has been modified because default size caused stack overflow from the UART thread. Current size is 49152 bytes.
 
 **2. secure_module**: This module contains blst function calls that involve usage and storage of secret keys, using Secure Partition Manager (SPM).
 
 ## Test
-"test" folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go run .\main.go .\utils.go [-v] COMport` command in a terminal or `go build` and then `test.exe [-v] COMport`. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4).
+"test" folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go run .\main.go .\utils.go [-v] COMport` command in a terminal or `go build` and then `test.exe [-v] COMport`. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4, /dev/ttyS3).
 This test will do the following:
 - Generate 10 keypairs (the maximum allowed by the board) and check that all keys are different.
 - Attempt to generate an extra key pair and confirm the board refuses to do that.
 - Perform a signature of a message with the wrong size an confirm the board refuses to do that.
 - Perform a signature of a message with the right size and check that the signature is properly verified.
+
+Output example:
+```
+user@user:~/bls-hsm/test$ go build
+user@user:~/bls-hsm/test$ ./test /dev/ttyACM2
+Running tests...
+Delete previous keys..........PASSED
+Generate 10 keys..............PASSED
+Retrieve generated keys.......PASSED
+Check keys are different......PASSED
+Try to generate extra key.....PASSED
+Sign msg with wrong length....PASSED
+Sign correct msg..............PASSED
+Verify signature..............PASSED
+Delete keys...................PASSED
+RESULTS:
+----------------------------------------
+Total.........................9/9
+----------------------------------------
+```
 
 ## To Do: :ballot_box_with_check:
 - [x] Benchmark command.
