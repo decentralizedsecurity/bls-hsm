@@ -36,7 +36,7 @@ echo "Compiler selected: $comp"
 
 ./build_blst.sh -c $comp
 
-./required.sh
+./dependencies.sh
 
 ./build.sh -c $comp -b $board
 
