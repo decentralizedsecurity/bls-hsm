@@ -14,6 +14,7 @@ while getopts ":c::b::i" opt; do
     c) comp="$OPTARG"
     ;;
     i)comp="/usr/bin/arm-none-eabi-gcc"
+    control=1
     ;;
     b)board="$OPTARG"
     ;;
