@@ -28,5 +28,4 @@ echo "export GNUARMEMB_TOOLCHAIN_PATH=${comp%bin*}" >> ~/.zephyrrc
 source ~/ncs/zephyr/zephyr-env.sh
 
 cd $bls/cli
-sudo rm -r build
-west build -b $board
+west build -p -b $board
