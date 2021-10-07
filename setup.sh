@@ -12,6 +12,7 @@ usage(){
 while getopts ":c::b::i" opt; do
   case $opt in
     c) comp="$OPTARG"
+    control=0
     ;;
     i)comp="/usr/bin/arm-none-eabi-gcc"
     control=1
