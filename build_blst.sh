@@ -17,6 +17,10 @@ if [ -z $comp ]; then
 	usage
 fi
 
+cd ./blst
+git checkout dc79d429fa4c63a53f4b1f8cb01d90cb9c2eccf0
+cd ..
+
 ./blst/build.sh CC=$comp -mcpu=cortex-m33 flavour=elf -fno-pie
 ret=$?
 
