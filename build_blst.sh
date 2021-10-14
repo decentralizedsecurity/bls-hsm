@@ -17,6 +17,11 @@ if [ -z $comp ]; then
 	usage
 fi
 
+#Use working version of blst module
+cd ./blst
+git checkout master
+cd ..
+
 ./blst/build.sh CC=$comp -mcpu=cortex-m33 flavour=elf -fno-pie
 ret=$?
 
