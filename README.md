@@ -68,7 +68,7 @@ The commands that are supported are:
 
 
 ## Implementations :pick:
-**1. cli**: This project uses blst static library that has been compiled for Cortex-M33 architecture. The working version of blst used in the project is from 28 May, 2021 (commit [dc79d429fa4c63a53f4b1f8cb01d90cb9c2eccf0](https://github.com/supranational/blst/tree/dc79d429fa4c63a53f4b1f8cb01d90cb9c2eccf0))
+**1. cli**: This project uses blst static library that has been compiled for Cortex-M33 architecture.
 
 PS. The *prj.conf* file has been modified because default size caused stack overflow from the UART thread. Current size is 49152 bytes.
 
