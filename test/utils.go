@@ -1,376 +1,375 @@
 package main
 
-import(
-	"log"
-	"fmt"
-	"github.com/tarm/serial"
+import (
 	"bufio"
+	"fmt"
+	"log"
 	"strings"
 	"time"
+
 	"github.com/fatih/color"
+	"github.com/tarm/serial"
 )
 
-func set_shell_params(s *serial.Port, scanner *bufio.Scanner){
+func set_shell_params(s *serial.Port, scanner *bufio.Scanner) {
 	n, err := s.Write([]byte("shell colors off\n"))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
-
 
 	n, err = s.Write([]byte("prompt off\n"))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 
-
 	n, err = s.Write([]byte("shell echo off\n"))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	_ = n
 
-	for scanner.Scan(){
-		if strings.Contains(scanner.Text(), "echo"){
+	for scanner.Scan() {
+		if strings.Contains(scanner.Text(), "echo") {
 			break
 		}
 	}
 }
 
-func reset_shell_params(s *serial.Port){
+func reset_shell_params(s *serial.Port) {
 	n, err := s.Write([]byte("shell colors on\n"))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
-
 
 	n, err = s.Write([]byte("prompt on\n"))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 
-
 	n, err = s.Write([]byte("shell echo on\n"))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	_ = n
 }
 
-func keygen(s *serial.Port, scanner *bufio.Scanner, str []string, verb bool, passed []bool){
+func keygen(s *serial.Port, scanner *bufio.Scanner, str []string, verb bool, passed []bool, times []time.Duration) {
 
-	if !verb{
+	if !verb {
 		fmt.Printf("Generate 10 keys..............")
 	}
 
 	t := time.Now()
-	for i := 0; i < 10; i++{
+	for i := 0; i < 10; i++ {
 		n, err := s.Write([]byte("keygen\n"))
-		if err != nil{
+		if err != nil {
 			log.Fatal(err)
 		}
 		_ = n
 
-		for scanner.Scan(){
-			if strings.HasPrefix(scanner.Text(), "0x"){
+		for scanner.Scan() {
+			if strings.HasPrefix(scanner.Text(), "0x") {
 				str[i] = scanner.Text()
 				break
 			}
 		}
 	}
-	if strings.Contains(str[9], "0x"){
+	if strings.Contains(str[9], "0x") {
 		passed[1] = true
-		if verb{
-			elapsed := time.Since(t)
-			color.HiMagenta("%s elapsed\n", elapsed)
+		times[0] = time.Since(t)
+		if verb {
+			color.HiMagenta("%s elapsed\n", times[0])
 			color.HiGreen("PASSED")
 		}
-	}else{
+	} else {
 		passed[1] = false
-		if verb{
+		if verb {
 			color.Red("FAILED")
 		}
 	}
 
-	if !verb{
-		if passed[1]{
+	if !verb {
+		if passed[1] {
 			color.HiGreen("PASSED")
-		}else{
+			color.HiMagenta("%s elapsed\n", times[0])
+		} else {
 			color.Red("FAILED")
 		}
 	}
 }
 
-func getkeys(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool){
+func getkeys(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool) {
 	n, err := s.Write([]byte("getkeys\n"))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	_ = n
-	
-	if !verb{
+
+	if !verb {
 		fmt.Printf("Retrieve generated keys.......")
 	}
 
-	for scanner.Scan(){
-		if verb{
+	for scanner.Scan() {
+		if verb {
 			fmt.Println(scanner.Text())
 		}
-		if strings.HasSuffix(scanner.Text(), "}"){
+		if strings.HasSuffix(scanner.Text(), "}") {
 			passed[2] = true
-			if verb{
+			if verb {
 				color.HiGreen("PASSED")
 			}
 			break
 		}
 	}
-	if !strings.HasSuffix(scanner.Text(), "}"){
+	if !strings.HasSuffix(scanner.Text(), "}") {
 		passed[2] = false
-		if verb{
+		if verb {
 			color.Red("FAILED")
 		}
 	}
 
-	if !verb{
-		if passed[2]{
+	if !verb {
+		if passed[2] {
 			color.HiGreen("PASSED")
-		}else{
+		} else {
 			color.Red("FAILED")
 		}
 	}
 }
-func check(s *serial.Port, scanner *bufio.Scanner, str []string, verb bool, passed []bool){
+func check(s *serial.Port, scanner *bufio.Scanner, str []string, verb bool, passed []bool) {
 
-	if !verb{
+	if !verb {
 		fmt.Printf("Check keys are different......")
 	}
 
 	error := false
-	for i := 0; i < 9; i++{
-		for j := i+1; j < 10; j++{
-			if str[i] == str[j]{
+	for i := 0; i < 9; i++ {
+		for j := i + 1; j < 10; j++ {
+			if str[i] == str[j] {
 				error = true
 			}
 		}
 	}
-	if error{
+	if error {
 		passed[3] = false
-		if verb{
+		if verb {
 			color.Red("FAILED")
 		}
-	}else{
+	} else {
 		passed[3] = true
-		if verb{
+		if verb {
 			color.HiGreen("PASSED")
 		}
 	}
 
-	if !verb{
-		if passed[3]{
+	if !verb {
+		if passed[3] {
 			color.HiGreen("PASSED")
-		}else{
+		} else {
 			color.Red("FAILED")
 		}
 	}
 }
-func keygenext(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool){
+func keygenext(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool) {
 	n, err := s.Write([]byte("keygen\n"))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	_ = n
 
-	if !verb{
+	if !verb {
 		fmt.Printf("Try to generate extra key.....")
 	}
 
-	for scanner.Scan(){
-		if verb{
+	for scanner.Scan() {
+		if verb {
 			fmt.Println(scanner.Text())
 		}
-		if strings.HasSuffix(scanner.Text(), "."){
+		if strings.HasSuffix(scanner.Text(), ".") {
 			passed[4] = true
-			if verb{
+			if verb {
 				color.HiGreen("PASSED")
 			}
 			break
 		}
 	}
-	if !strings.HasSuffix(scanner.Text(), "."){
+	if !strings.HasSuffix(scanner.Text(), ".") {
 		passed[4] = false
-		if verb{
+		if verb {
 			color.Red("FAILED")
 		}
 	}
 
-	if !verb{
-		if passed[4]{
+	if !verb {
+		if passed[4] {
 			color.HiGreen("PASSED")
-		}else{
+		} else {
 			color.Red("FAILED")
 		}
 	}
 }
-func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string, str []string, verb bool, passed []bool, test int){
-	if verb{
+func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string, str []string, verb bool, passed []bool, test int, times []time.Duration) {
+	if verb {
 		fmt.Println("Public key: " + str[0])
 		fmt.Println("Message: " + msg)
 	}
 	n, err := s.Write([]byte("signature " + str[0] + " " + msg + "\n"))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	_ = n
 
-	if !verb{
-		if test == 5{
+	if !verb {
+		if test == 5 {
 			fmt.Printf("Sign msg with wrong length....")
-		}else{
+		} else {
 			fmt.Printf("Sign correct msg..............")
 		}
 	}
 
 	t := time.Now()
 
-	for scanner.Scan(){
-		if verb{
+	for scanner.Scan() {
+		if verb {
 			fmt.Println(scanner.Text())
 		}
-		if strings.HasSuffix(scanner.Text(), "."){
+		if strings.HasSuffix(scanner.Text(), ".") {
 			passed[5] = true
-			if verb{
+			if verb {
 				color.HiGreen("PASSED")
 			}
 			break
 		}
-		if strings.Contains(scanner.Text(), "0x"){
+		if strings.Contains(scanner.Text(), "0x") {
 			passed[6] = true
-			if verb{
-				elapsed := time.Since(t)
-				color.HiMagenta("%s elapsed\n", elapsed)
+			times[1] = time.Since(t)
+			if verb {
+				color.HiMagenta("%s elapsed\n", times[1])
 				color.HiGreen("PASSED")
 			}
 			*sign = scanner.Text()
 			break
 		}
 	}
-	if !strings.HasSuffix(scanner.Text(), ".") && len(msg) != 64{
+	if !strings.HasSuffix(scanner.Text(), ".") && len(msg) != 64 {
 		passed[5] = false
-		if verb{
+		if verb {
 			color.Red("FAILED")
 		}
 	}
-	if !strings.Contains(scanner.Text(), "0x") && len(msg) == 64{
+	if !strings.Contains(scanner.Text(), "0x") && len(msg) == 64 {
 		passed[6] = false
-		if verb{
+		if verb {
 			color.Red("FAILED")
 		}
 	}
 
-	if !verb{
-		if test == 5{
-			if passed[5]{
+	if !verb {
+		if test == 5 {
+			if passed[5] {
 				color.HiGreen("PASSED")
-			}else{
+			} else {
 				color.Red("FAILED")
 			}
-		}else{
-			if passed[6]{
+		} else {
+			if passed[6] {
 				color.HiGreen("PASSED")
-			}else{
+				color.HiMagenta("%s elapsed\n", times[1])
+			} else {
 				color.Red("FAILED")
 			}
 		}
 	}
 }
-func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str []string, verb bool, passed []bool){
+func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str []string, verb bool, passed []bool, times []time.Duration) {
 	n, err := s.Write([]byte("verify " + str[0] + " " + msg + " " + sign + "\n"))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	_ = n
 
-	if !verb{
+	if !verb {
 		fmt.Printf("Verify signature..............")
 	}
 
 	t := time.Now()
 
-
-	for scanner.Scan(){
-		if verb{
+	for scanner.Scan() {
+		if verb {
 			fmt.Println(scanner.Text())
 		}
-		if strings.Contains(scanner.Text(), "Success"){
+		if strings.Contains(scanner.Text(), "Success") {
 			passed[7] = true
-			if verb{
-				elapsed := time.Since(t)
-				color.HiMagenta("%s elapsed\n", elapsed)
+			times[2] = time.Since(t)
+			if verb {
+				color.HiMagenta("%s elapsed\n", times[2])
 				color.HiGreen("PASSED")
 			}
 			break
 		}
-		if strings.Contains(scanner.Text(), "Error"){
+		if strings.Contains(scanner.Text(), "Error") {
 			passed[7] = false
-			if verb{
+			if verb {
 				color.Red("FAILED")
 			}
 			break
 		}
 	}
 
-	if !verb{
-		if passed[7]{
+	if !verb {
+		if passed[7] {
 			color.HiGreen("PASSED")
-		}else{
+			color.HiMagenta("%s elapsed\n", times[2])
+		} else {
 			color.Red("FAILED")
 		}
 	}
 }
-func reset(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, test int){
+func reset(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, test int) {
 	n, err := s.Write([]byte("reset\n"))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	_ = n
 
-	if !verb{
-		if test == 0{
+	if !verb {
+		if test == 0 {
 			fmt.Printf("Delete previous keys..........")
-		}else{
+		} else {
 			fmt.Printf("Delete keys...................")
 		}
 	}
 
-	for scanner.Scan(){
-		if verb{
+	for scanner.Scan() {
+		if verb {
 			fmt.Println(scanner.Text())
 		}
-		if strings.Contains(scanner.Text(), "deleted"){
+		if strings.Contains(scanner.Text(), "deleted") {
 			passed[test] = true
-			if verb{
+			if verb {
 				color.HiGreen("PASSED")
 			}
 			break
 		}
 	}
-	if !strings.Contains(scanner.Text(), "deleted"){
+	if !strings.Contains(scanner.Text(), "deleted") {
 		passed[test] = false
-		if verb{
+		if verb {
 			color.Red("FAILED")
 		}
 	}
 
-	if !verb{
-		if test == 0{
-			if passed[0]{
+	if !verb {
+		if test == 0 {
+			if passed[0] {
 				color.HiGreen("PASSED")
-			}else{
+			} else {
 				color.Red("FAILED")
 			}
-		}else{
-			if passed[8]{
+		} else {
+			if passed[8] {
 				color.HiGreen("PASSED")
-			}else{
+			} else {
 				color.Red("FAILED")
 			}
 		}
