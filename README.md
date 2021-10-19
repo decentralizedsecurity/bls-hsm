@@ -37,12 +37,6 @@ The commands that are supported are:
   Public key:
   0xa2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05cc25f4d8069a79b002ae665b9ad35ce800a0e
   ```
-- *publickey*: shows the last public key that has been generated.
-  ```
-  uart:~$ publickey
-   Public key:
-   0xa2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05cc25f4d8069a79b002ae665b9ad35ce800a0e
-  ```
 - *signature "publickey" "message"*: produces a 96-bytes signature with the message that has been introduced and after choosing a public key that has had to be generated before.
   ```
   uart:~$ signature 0xa2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05c
@@ -64,6 +58,11 @@ The commands that are supported are:
   ```
   uart:~$ getkeys
   {'keys':['a2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05cc25f4d8069a79b002ae665b9ad35ce800a0e']}
+  ```
+- *reset*: deletes all the keys.
+  ```
+  uart:~$ reset
+  Keys deleted
   ```
 
 
