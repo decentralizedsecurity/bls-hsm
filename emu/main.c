@@ -82,7 +82,7 @@ static int cmd_signature_message(int argc, char **argv, char* buff)
         if(offset != -1){
             if(pk_in_keystore(argv[1], offset) != -1){
                 uint8_t msg_bin[32];
-                if(msg_parse(argv[2], msg_bin) != 1){
+                if(msg_parse(argv[2], msg_bin, buff) != 1){
                     blst_p2 hash;
                     get_point_from_msg(&hash, msg_bin);
 
@@ -123,7 +123,7 @@ static int cmd_signature_verification(int argc, char **argv, char* buff)
         blst_p2_affine sig;
         uint8_t msg_bin[32];
         
-        if((pk_parse(argv[1], &pk) || msg_parse(argv[2], msg_bin) || sig_parse(argv[3], &sig)) != 1){
+        if((pk_parse(argv[1], &pk, buff) || msg_parse(argv[2], msg_bin, buff) || sig_parse(argv[3], &sig, buff)) != 1){
             if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, 32, dst, sizeof(dst), NULL, 0) != BLST_SUCCESS){
               //printf("Error\n");
               strcat(buff, "Error\n");
