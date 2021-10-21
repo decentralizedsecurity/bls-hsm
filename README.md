@@ -111,6 +111,9 @@ Total.........................9/9
 ----------------------------------------
 ```
 
+## Emulation
+It is possible to try the project without having the required board. "emu" directory contains the required files for compiling the project in Linux. To do so, run `./build.sh`, start the server by running `./server` and then run `./client` in another terminal, where you can try all the supported commands.
+
 ## To Do: :ballot_box_with_check:
 - [x] Benchmark command.
 - [x] Shell script for setting up the work environment.
