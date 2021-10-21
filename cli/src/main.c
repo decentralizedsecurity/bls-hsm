@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
+#ifndef EMU
 #include <zephyr.h>
 #include <sys/printk.h>
 #include <shell/shell.h>
@@ -17,20 +17,20 @@
 #include <fw_info.h>
 
 #include <blst.h>
+#include <common.h>
+
 
 #define CONFIG_SPM_SERVICE_RNG
 
-struct k_timer my_timer;
-K_TIMER_DEFINE(my_timer, NULL, NULL);
-
 LOG_MODULE_REGISTER(app);
+#endif
 
-#include "utils.c"
-
-static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
+static int cmd_keygen(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
+#ifndef EMU
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
+#endif
         int keystore_size = get_keystore_size();
 
         if(keystore_size < 10){
@@ -58,26 +58,42 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
             char public_key_hex[96];
             sk_to_pk(&pk);
             pk_serialize(out, pk);
-
+#ifndef EMU
             printf("Public key: \n");
+#else
+            strcat(buff, "Public key: \n");
+#endif
             if(bin2hex(out, sizeof(out), public_key_hex, sizeof(public_key_hex)) == 0) {
+#ifndef EMU
               printf("Failed converting binary key to string\n");
+#else
+                strcat(buff, "Failed converting binary key to string\n");
+#endif
             }
         
             store_pk(public_key_hex);
-            print_pk(public_key_hex);
-
+#ifndef EMU
+            print_pk(public_key_hex, NULL);
+#else
+            print_pk(public_key_hex, buff);
+#endif
             return 0;
         }else{
+#ifndef EMU
             printf("Can't generate more keys. Limit reached.\n");
+#else
+            strcat(buff, "Can't generate more keys. Limit reached.\n");
+#endif
         }
         return 0;
 }
 
-static int cmd_signature_message(const struct shell *shell, size_t argc, char **argv)
+static int cmd_signature_message(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
+#ifndef EMU
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
+#endif
         //Message examples
         //char * msg_hex = "5656565656565656565656565656565656565656565656565656565656565656";
         //char * msg_hex = "b6bb8f3765f93f4f1e7c7348479289c9261399a3c6906685e320071a1a13955c";
@@ -87,7 +103,11 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
         if(offset != -1){
             if(pk_in_keystore(argv[1], offset) != -1){
                 uint8_t msg_bin[32];
-                if(msg_parse(argv[2], msg_bin) != 1){
+#ifndef EMU
+                if(msg_parse(argv[2], msg_bin, NULL) != 1){
+#else
+                if(msg_parse(argv[2], msg_bin, buff) != 1){
+#endif
                     blst_p2 hash;
                     get_point_from_msg(&hash, msg_bin);
 
@@ -97,36 +117,56 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
 
                     sign_pk(&sig, &hash);
                     sig_serialize(sig_bin, sig);
-        
+#ifndef EMU
                     printf("Signature: \n");
+#else
+                    strcat(buff, "Signature: \n");
+#endif
                     if(bin2hex(sig_bin, sizeof(sig_bin), sig_hex, sizeof(sig_hex)) == 0) {
+#ifndef EMU
                       printf("Failed converting binary signature to string\n");
+#else
+                        strcat(buff, "Failed converting binary signature to string\n");
+#endif
                     }
-        
-                    print_sig(sig_hex);
+#ifndef EMU
+                    print_sig(sig_hex, NULL);
+#else
+                    print_sig(sig_hex, buff);
+#endif
                 }
             }else{
+#ifndef EMU
                 printf("Public key isn't stored\n");
+#else
+                strcat(buff, "Public key isn't stored\n");
+#endif
             }
         }else{
+#ifndef EMU
             printf("Incorrect public key length. It must be 96 characters long\n");
+#else
+            strcat(buff, "Incorrect public key length. It must be 96 characters long\n");
+#endif
         }
 
 	return 0;
 }
 
-static int cmd_signature_verification(const struct shell *shell, size_t argc, char **argv)
+static int cmd_signature_verification(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
+#ifndef EMU
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
+#endif
 
         char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP"; //IETF BLS Signature V4
 
         blst_p1_affine pk;
         blst_p2_affine sig;
         uint8_t msg_bin[32];
-        
-        if((pk_parse(argv[1], &pk) || msg_parse(argv[2], msg_bin) || sig_parse(argv[3], &sig)) != 1){
+#ifndef EMU
+        if((pk_parse(argv[1], &pk, NULL) || msg_parse(argv[2], msg_bin, NULL) || sig_parse(argv[3], &sig, NULL)) != 1){
             if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, 32, dst, sizeof(dst), NULL, 0) != BLST_SUCCESS){
               printf("Error\n");
             }
@@ -134,14 +174,25 @@ static int cmd_signature_verification(const struct shell *shell, size_t argc, ch
               printf("Success\n");
             }
         }
-
+#else
+        if((pk_parse(argv[1], &pk, buff) || msg_parse(argv[2], msg_bin, buff) || sig_parse(argv[3], &sig, buff)) != 1){
+            if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, 32, dst, sizeof(dst), NULL, 0) != BLST_SUCCESS){
+              strcat(buff, "Error\n");
+            }
+            else {
+              strcat(buff, "Success\n");
+            }
+        }
+#endif
 	return 0;
 }
 
-static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv)
+static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
+#ifndef EMU
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
+#endif
         int keystore_size = get_keystore_size();
         char public_keys_hex_store[96*keystore_size];
         getkeys(public_keys_hex_store);
@@ -149,7 +200,7 @@ static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv)
             int j = 0;
             int cont = keystore_size - 1;
             int counter = keystore_size;
-        
+#ifndef EMU
             printf("{'keys':['");
             for(int i = 0; i < 96 * cont + 96; i++){
                 printf("%c", public_keys_hex_store[i]);
@@ -167,19 +218,45 @@ static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv)
         }else{
             printf("There are no keys stored\n");
         }
-
+#else
+            strcat(buff, "{'keys':['");
+            for(int i = 0; i < 96 * cont + 96; i++){
+                char str[2] = {public_keys_hex_store[i], '\0'};
+                strcat(buff, str);
+                j++;
+                if (j == 96){
+                    if(counter > 1) {
+                        strcat(buff, "'\n'");
+                    } else {
+                        strcat(buff, "']}\n");
+                    }               
+                    j = 0;
+                    counter--;
+                }           
+            }
+        }else{
+            strcat(buff, "There are no keys stored\n");
+        }
+#endif
 	return 0;
 }
 
-static int cmd_reset(const struct shell *shell, size_t argc, char **argv){
-        ARG_UNUSED(argc);
+static int cmd_reset(const struct shell *shell, size_t argc, char **argv, char* buff){
+#ifndef EMU
+	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
+#endif
 
         reset();
+#ifndef EMU
         printf("Keys deleted\n");
+#else
+        strcat(buff, "Keys deleted\n");
+#endif
         return 0;
 }
 
+#ifndef EMU
 static int cmd_prompt(const struct shell *shell, size_t argc, char **argv){
         ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
@@ -210,3 +287,4 @@ void main(void)
 {
 
 }
+#endif

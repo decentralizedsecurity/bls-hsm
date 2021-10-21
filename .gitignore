@@ -1,7 +1,8 @@
 cli/build_nrf5340dk_nrf5340_cpuappns
 cli/build
 cli/lib/**
-cli/include/**
+cli/include/blst.h
+cli/include/blst_aux.h
 test/test.exe
 test/test
 test/go.mod
