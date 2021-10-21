@@ -76,6 +76,8 @@ void func(int sockfd)
             cmd_get_keys(NULL, argc, argv, buff);
         }else if(strstr(argv[0], "reset") != NULL){
             cmd_reset(NULL, argc, argv, buff);
+        }else{
+            strcat(buff, "Command not found\n");
         }
         char* end = strrchr(buff, '\n');
         bzero(end+1, MAX-(end-buff));
