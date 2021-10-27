@@ -37,13 +37,13 @@ func main() {
 		set_shell_params(s, scanner)
 
 		test := 0
-		passed := make([]bool, 9)
+		passed := make([]bool, 8)
 		times := make([]time.Duration, 3)
 		if verb {
 			fmt.Println("Deleting previously generated keys...")
 		}
 		reset(s, scanner, verb, passed, test)
-		test = 8
+		test = 7
 		if verb {
 			fmt.Printf("\n\n")
 		}
@@ -80,21 +80,12 @@ func main() {
 			fmt.Printf("\n\n")
 		}
 
-		if verb {
-			fmt.Println("Attempting to sign message with wrong length...")
-		}
 		sign := ""
-		msg := "565656565656565656565656565656565656565656565656565656565656565"
-		signature(s, scanner, msg, &sign, str, verb, passed, 5, times)
 		if verb {
-			fmt.Printf("\n\n")
+			fmt.Println("Attempting to sign message...")
 		}
-
-		if verb {
-			fmt.Println("Attempting to sign message with correct length...")
-		}
-		msg = "5656565656565656565656565656565656565656565656565656565656565656"
-		signature(s, scanner, msg, &sign, str, verb, passed, 6, times)
+		msg := "5656565656565656565656565656565656565656565656565656565656565656"
+		signature(s, scanner, msg, &sign, str, verb, passed, times)
 		if verb {
 			fmt.Printf("\n\n")
 		}
@@ -159,15 +150,8 @@ func main() {
 				color.Red("FAILED")
 			}
 
-			fmt.Printf("Sign msg with wrong length....")
+			fmt.Printf("Sign msg......................")
 			if passed[5] {
-				color.HiGreen("PASSED")
-			} else {
-				color.Red("FAILED")
-			}
-
-			fmt.Printf("Sign correct msg..............")
-			if passed[6] {
 				color.HiGreen("PASSED")
 				color.HiMagenta("%s elapsed", times[1])
 			} else {
@@ -175,7 +159,7 @@ func main() {
 			}
 
 			fmt.Printf("Verify signature..............")
-			if passed[7] {
+			if passed[6] {
 				color.HiGreen("PASSED")
 				color.HiMagenta("%s elapsed", times[2])
 			} else {
@@ -183,19 +167,19 @@ func main() {
 			}
 
 			fmt.Printf("Delete keys...................")
-			if passed[8] {
+			if passed[7] {
 				color.HiGreen("PASSED")
 			} else {
 				color.Red("FAILED")
 			}
 		}
 		cont := 0
-		for i := 0; i < 9; i++ {
+		for i := 0; i < 8; i++ {
 			if passed[i] {
 				cont++
 			}
 		}
-		color.HiMagenta("Total.........................%d/9", cont)
+		color.HiMagenta("Total.........................%d/8", cont)
 		fmt.Println("----------------------------------------")
 	} else {
 		fmt.Println("Usage: .\\test.exe [-v] COMport")

@@ -102,14 +102,15 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
 
         if(offset != -1){
             if(pk_in_keystore(argv[1], offset) != -1){
-                uint8_t msg_bin[32];
+                int len = msg_len(argv[2]);
+                uint8_t msg_bin[len/2 + len%2];
 #ifndef EMU
-                if(msg_parse(argv[2], msg_bin, NULL) != 1){
+                if(msg_parse(argv[2], msg_bin, len, NULL) != 1){
 #else
-                if(msg_parse(argv[2], msg_bin, buff) != 1){
+                if(msg_parse(argv[2], msg_bin, len, buff) != 1){
 #endif
                     blst_p2 hash;
-                    get_point_from_msg(&hash, msg_bin);
+                    get_point_from_msg(&hash, msg_bin, len/2 + len%2);
 
                     blst_p2 sig;
                     byte sig_bin[96];
@@ -164,10 +165,11 @@ static int cmd_signature_verification(const struct shell *shell, size_t argc, ch
 
         blst_p1_affine pk;
         blst_p2_affine sig;
-        uint8_t msg_bin[32];
+        int len = msg_len(argv[2]);
+        uint8_t msg_bin[len/2 + len%2];
 #ifndef EMU
-        if((pk_parse(argv[1], &pk, NULL) || msg_parse(argv[2], msg_bin, NULL) || sig_parse(argv[3], &sig, NULL)) != 1){
-            if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, 32, dst, sizeof(dst), NULL, 0) != BLST_SUCCESS){
+        if((pk_parse(argv[1], &pk, NULL) || msg_parse(argv[2], msg_bin, len, NULL) || sig_parse(argv[3], &sig, NULL)) != 1){
+            if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, len/2 + len%2, dst, sizeof(dst), NULL, 0) != BLST_SUCCESS){
               printf("Error\n");
             }
             else {
@@ -175,8 +177,8 @@ static int cmd_signature_verification(const struct shell *shell, size_t argc, ch
             }
         }
 #else
-        if((pk_parse(argv[1], &pk, buff) || msg_parse(argv[2], msg_bin, buff) || sig_parse(argv[3], &sig, buff)) != 1){
-            if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, 32, dst, sizeof(dst), NULL, 0) != BLST_SUCCESS){
+        if((pk_parse(argv[1], &pk, buff) || msg_parse(argv[2], msg_bin, len, buff) || sig_parse(argv[3], &sig, buff)) != 1){
+            if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, len/2 + len%2, dst, sizeof(dst), NULL, 0) != BLST_SUCCESS){
               strcat(buff, "Error\n");
             }
             else {

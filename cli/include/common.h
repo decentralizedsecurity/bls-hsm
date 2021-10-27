@@ -103,10 +103,10 @@ void sig_serialize(byte* out2, blst_p2 sig){
         blst_p2_compress(out2, &sig);
 }
 
-void get_point_from_msg(blst_p2* hash, uint8_t* msg_bin){
+void get_point_from_msg(blst_p2* hash, uint8_t* msg_bin, int len){
         char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP"; //IETF BLS Signature V4
         //Obtain the point from a message
-        blst_hash_to_g2(hash, msg_bin, 32, dst, sizeof(dst), NULL, 0);
+        blst_hash_to_g2(hash, msg_bin, len, dst, sizeof(dst), NULL, 0);
 }
 
 int parse(char* str, int len){
@@ -215,37 +215,34 @@ int pk_parse(char* pk_hex, blst_p1_affine* pk, char* buff){
         return error;
 }
 
-int msg_parse(char* msg, uint8_t* msg_bin, char* buff){
+int msg_parse(char* msg, uint8_t* msg_bin, int len, char* buff){
 
-        int offset = parse(msg, 64);
+        int offset;
+        if(msg[0] == '0' && msg[1] == 'x'){
+            offset = 2;
+        }else{
+            offset = 0;
+        }
         int error = 0;
 
-        if(offset == -1){
+        if(char_chk(msg + offset, len)){
 #ifndef EMU
-            printf("Incorrect message length. It must be 64 characters long.\n");
+            printf("Message contains incorrect characters.\n");
 #else
-            strcat(buff, "Incorrect message length. It must be 64 characters long.\n");
+            strcat(buff, "Message contains incorrect characters.\n");
 #endif
             error = 1;
         }else{
-            if(char_chk(msg + offset, 64)){
+            if(hex2bin(msg + offset, len, msg_bin, len/2 + len%2) == 0) {
 #ifndef EMU
-                printf("Message contains incorrect characters.\n");
+                printf("Failed converting message to binary array\n");
 #else
-                strcat(buff, "Message contains incorrect characters.\n");
+                strcat(buff, "Failed converting message to binary array\n");
 #endif
                 error = 1;
-            }else{
-                if(hex2bin(msg + offset, 64, msg_bin, 32) == 0) {
-#ifndef EMU
-                    printf("Failed converting message to binary array\n");
-#else
-                    strcat(buff, "Failed converting message to binary array\n");
-#endif
-                    error = 1;
-                }
             }
         }
+
 
         return error;
 }
@@ -284,6 +281,16 @@ int sig_parse(char* sig_hex, blst_p2_affine* sig, char* buff){
             }
         }
         return error;
+}
+
+int msg_len(char* msg){
+    int len;
+    if(msg[0] == '0' && msg[1] == 'x'){
+        len = strlen(msg + 2);
+    }else{
+        len = strlen(msg);
+    }
+    return len;
 }
 
 #endif
