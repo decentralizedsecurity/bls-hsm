@@ -18,7 +18,6 @@
 #include "../cli/include/common.h"
 
 #include "../secure_module/zephyr/spm/src/main.c"
-#include "../cli/src/main.c"
 
 #define MAX 500
 #define PORT 8080
@@ -59,23 +58,23 @@ void func(int sockfd)
         }
         bzero(buff, MAX);
         if(strstr(argv[0], "keygen") != NULL){
-            cmd_keygen(NULL, argc, argv, buff);
+            keygen(argc, argv, buff);
         }else if(strstr(argv[0], "signature") != NULL){
             if(argc != 3){
                 strcat(buff, "Incorrect arguments\n");
             }else{
-                cmd_signature_message(NULL, argc, argv, buff);
+                signature(argc, argv, buff);
             }
         }else if(strstr(argv[0], "verify") != NULL){
             if(argc != 4){
                 strcat(buff, "Incorrect arguments\n");
             }else{
-                cmd_signature_verification(NULL, argc, argv, buff);
+                verify(argc, argv, buff);
             }
         }else if(strstr(argv[0], "getkeys") != NULL){
-            cmd_get_keys(NULL, argc, argv, buff);
+            get_keys(argc, argv, buff);
         }else if(strstr(argv[0], "reset") != NULL){
-            cmd_reset(NULL, argc, argv, buff);
+            resetc(argc, argv, buff);
         }else{
             strcat(buff, "Command not found\n");
         }
