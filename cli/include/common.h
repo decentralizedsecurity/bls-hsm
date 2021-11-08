@@ -1,6 +1,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include "../include/blst.h"
+#include <stdlib.h>
+
 #ifdef EMU
 
 int char2hex(char c, uint8_t *x)
@@ -340,7 +343,6 @@ void keygen(int argc, char** argv, char* buff){
 #else
         print_pk(public_key_hex, buff);
 #endif
-        return 0;
     }else{
 #ifndef EMU
         printf("Can't generate more keys. Limit reached.\n");
