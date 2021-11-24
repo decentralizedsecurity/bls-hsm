@@ -208,7 +208,7 @@ func keygenext(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool)
 		}
 	}
 }
-func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string, str []string, verb bool, passed []bool, test int, times []time.Duration) {
+func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string, str []string, verb bool, passed []bool, times []time.Duration) {
 	if verb {
 		fmt.Println("Public key: " + str[0])
 		fmt.Println("Message: " + msg)
@@ -220,11 +220,7 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 	_ = n
 
 	if !verb {
-		if test == 5 {
-			fmt.Printf("Sign msg with wrong length....")
-		} else {
-			fmt.Printf("Sign correct msg..............")
-		}
+		fmt.Printf("Sign msg......................")
 	}
 
 	t := time.Now()
@@ -233,15 +229,8 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 		if verb {
 			fmt.Println(scanner.Text())
 		}
-		if strings.HasSuffix(scanner.Text(), ".") {
-			passed[5] = true
-			if verb {
-				color.HiGreen("PASSED")
-			}
-			break
-		}
 		if strings.Contains(scanner.Text(), "0x") {
-			passed[6] = true
+			passed[5] = true
 			times[1] = time.Since(t)
 			if verb {
 				color.HiMagenta("%s elapsed\n", times[1])
@@ -251,33 +240,18 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 			break
 		}
 	}
-	if !strings.HasSuffix(scanner.Text(), ".") && len(msg) != 64 {
+	if !strings.Contains(scanner.Text(), "0x") {
 		passed[5] = false
-		if verb {
-			color.Red("FAILED")
-		}
-	}
-	if !strings.Contains(scanner.Text(), "0x") && len(msg) == 64 {
-		passed[6] = false
 		if verb {
 			color.Red("FAILED")
 		}
 	}
 
 	if !verb {
-		if test == 5 {
-			if passed[5] {
-				color.HiGreen("PASSED")
-			} else {
-				color.Red("FAILED")
-			}
+		if passed[5] {
+			color.HiGreen("PASSED")
 		} else {
-			if passed[6] {
-				color.HiGreen("PASSED")
-				color.HiMagenta("%s elapsed\n", times[1])
-			} else {
-				color.Red("FAILED")
-			}
+			color.Red("FAILED")
 		}
 	}
 }
@@ -299,7 +273,7 @@ func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str
 			fmt.Println(scanner.Text())
 		}
 		if strings.Contains(scanner.Text(), "Success") {
-			passed[7] = true
+			passed[6] = true
 			times[2] = time.Since(t)
 			if verb {
 				color.HiMagenta("%s elapsed\n", times[2])
@@ -308,7 +282,7 @@ func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str
 			break
 		}
 		if strings.Contains(scanner.Text(), "Error") {
-			passed[7] = false
+			passed[6] = false
 			if verb {
 				color.Red("FAILED")
 			}
@@ -317,7 +291,7 @@ func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str
 	}
 
 	if !verb {
-		if passed[7] {
+		if passed[6] {
 			color.HiGreen("PASSED")
 			color.HiMagenta("%s elapsed\n", times[2])
 		} else {
@@ -367,7 +341,7 @@ func reset(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, tes
 				color.Red("FAILED")
 			}
 		} else {
-			if passed[8] {
+			if passed[7] {
 				color.HiGreen("PASSED")
 			} else {
 				color.Red("FAILED")
