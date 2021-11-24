@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include "../include/blst.h"
+#include "blst.h"
 #include <stdlib.h>
 
 #ifdef EMU

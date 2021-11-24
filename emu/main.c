@@ -75,6 +75,8 @@ void func(int sockfd)
             get_keys(argc, argv, buff);
         }else if(strstr(argv[0], "reset") != NULL){
             resetc(argc, argv, buff);
+        }else if(strstr(argv[0], "import") != NULL){
+            import(argc, argv, buff);
         }else{
             strcat(buff, "Command not found\n");
         }
