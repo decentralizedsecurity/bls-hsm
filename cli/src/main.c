@@ -69,6 +69,11 @@ static int cmd_prompt(const struct shell *shell, size_t argc, char **argv){
     return 0;
 }
 
+static int cmd_import(const struct shell *shell, size_t argc, char **argv){
+    import(argc, argv, NULL);
+    return 0;
+}
+
 SHELL_CMD_ARG_REGISTER(keygen, NULL, "Generates secret key and public key", cmd_keygen, 1, 1);
 
 SHELL_CMD_ARG_REGISTER(signature, NULL, "Signs a message with a specific public key", cmd_signature_message, 3, 0);
@@ -80,6 +85,8 @@ SHELL_CMD_ARG_REGISTER(getkeys, NULL, "Returns the identifiers of the keys avail
 SHELL_CMD_ARG_REGISTER(reset, NULL, "Deletes all generated keys", cmd_reset, 1, 0);
 
 SHELL_CMD_ARG_REGISTER(prompt, NULL, "Toggle prompt", cmd_prompt, 2, 0);
+
+SHELL_CMD_ARG_REGISTER(import, NULL, "Import secret key", cmd_import, 2, 0);
 
 void main(void)
 {

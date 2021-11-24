@@ -136,7 +136,7 @@ void ikm_sk(char* info){
         size_t olen = random_number_len;
         int ret;
 
-        ret = spm_request_random_number_nse(random_number, random_number_len, &olen);
+        ret = nrf_cc3xx_platform_ctr_drbg_get(NULL, random_number, random_number_len, &olen);
         
         ocrypto_sha256(ikm, random_number, random_number_len);
 #else
@@ -173,6 +173,15 @@ void reset(){
         memset(secret_keys_store, 0, sizeof(secret_keys_store));
         memset(public_keys_hex_store, 0, 960);
         keystore_size = 0;
+}
+
+#ifndef EMU
+__TZ_NONSECURE_ENTRY_FUNC
+#endif
+void import_sk(blst_scalar* sk_imp){
+        secret_keys_store[keystore_size] = *sk_imp;
+        keystore_size++;
+        sk = *sk_imp;
 }
 
 #ifndef EMU

@@ -97,6 +97,7 @@ void reset();
 void store_pk(char* public_key_hex);
 int get_keystore_size();
 void getkeys(char* public_keys_hex_store_ns);
+void import_sk(blst_scalar* sk_imp);
 
 void pk_serialize(byte* out, blst_p1 pk){
         blst_p1_compress(out, &pk);
@@ -107,7 +108,7 @@ void sig_serialize(byte* out2, blst_p2 sig){
 }
 
 void get_point_from_msg(blst_p2* hash, uint8_t* msg_bin, int len){
-        char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP"; //IETF BLS Signature V4
+        char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"; //IETF BLS Signature V4
         //Obtain the point from a message
         blst_hash_to_g2(hash, msg_bin, len, dst, sizeof(dst), NULL, 0);
 }
@@ -412,7 +413,7 @@ void signature(int argc, char** argv, char* buff){
 }
 
 void verify(int argc, char** argv, char* buff){
-    char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP"; //IETF BLS Signature V4
+    char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"; //IETF BLS Signature V4
 
     blst_p1_affine pk;
     blst_p2_affine sig;
@@ -494,6 +495,59 @@ void resetc(int argc, char** argv, char* buff){
 #else
     strcat(buff, "Keys deleted\n");
 #endif
+}
+
+void import(int argc, char** argv, char* buff){
+    int offset = parse(argv[1], 64);
+
+    if(offset != -1){
+        if(!char_chk(argv[1] + offset, 64)){
+            byte sk_bin[32];
+            if(hex2bin(argv[1] + offset, 64, sk_bin, 32) == 0){
+#ifndef EMU
+                printf("Failed converting hex to bin\n");
+#else
+                strcat(buff, "Failed converting hex to bin\n");
+#endif
+            }else{
+                blst_scalar sk_imp;
+                blst_scalar_from_bendian(&sk_imp, sk_bin);
+                import_sk(&sk_imp);
+
+                blst_p1 pk;
+                sk_to_pk(&pk);
+                byte pk_bin[48];
+                pk_serialize(pk_bin, pk);
+                char pk_hex[96];
+                if(bin2hex(pk_bin, 48, pk_hex, 96) == 0){
+#ifndef EMU
+                    printf("Failed converting bin to hex\n");
+#else
+                    strcat(buff, "Failed converting bin to hex\n");
+#endif
+                }else{
+                    store_pk(pk_hex);
+#ifndef EMU
+                    print_pk(pk_hex, NULL);
+#else
+                    print_pk(pk_hex, buff);
+#endif
+                }
+            }
+        }else{
+#ifndef EMU
+            printf("Incorrect characters\n");
+#else
+            strcat(buff, "Incorrect characters\n");
+#endif
+        }
+    }else{
+#ifndef EMU
+        printf("Incorrect secret key length\n");
+#else
+        strcat(buff, "Incorrect secret key length\n");
+#endif
+    }
 }
 
 #endif
