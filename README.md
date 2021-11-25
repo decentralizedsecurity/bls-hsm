@@ -1,10 +1,10 @@
 # bls-hsm
 
 ## Design :page_with_curl:
-The project emulate the behaviour of a command API that internally uses [blst library](https://github.com/supranational/blst#blst). They have been implemented with Segger Embedded Studio for the execution in Nordic Semiconductor nRF9160 board.
+This project implements a command line interface (cli) that internally uses [blst library](https://github.com/supranational/blst#blst). It has been implemented using the Nordic Connect SDK for the execution in Nordic Semiconductor nRF9160DK and rRF5340DK boards. The cli can be accessed using the serial port of the board.
+We take advantage of ARM TrustZone technology to protect cryptographic material. All critical parts of the code that require access to private keys are run in the secure world.
 
-
-## Installation
+## Installation in Linux
 You can run `./setup.sh [-c "compiler path"] [-i] -b "board identifier"` to build the project.
 `-c "compiler path"` option will define the path of the arm compiler. `-i` option is used to automatically check if the compiler is installed and install it otherwise, using it in the building process.
 `setup.sh` will run sequentially `build_blst.sh`, `dependencies.sh`, `build.sh` and `flash.sh`. After running `build_blst.sh` and `dependencies.sh` once, only `build.sh` and `flash.sh` are needed.
@@ -26,7 +26,18 @@ Blst library built
 user@user:~/bls-hsm$
 ```
 
-It's also possible to use nRF Connect SDK as it is explained in this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
+It's also possible to install the nRF Connect SDK manually following this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
+
+## Emulation
+It is also possible to compile the project to run in Linux and MacOS directly without the board. The "emu" directory contains a simple socket server that by default exports all the funcionality of the cli project over the 8080 port, if you need to change the port simple modify the value of PORT in [main.c](emu/main.c). It also contains a simple socket client to comsume this API and do some testing ([client.c](emu/client.c)).
+
+In order to compile those files you can use the script [build_emu.sh](build_emu.sh). Just run `./build_emu.sh`, start the server by running `./emu/build/server` and then in another terminal run `./emu/build/client`. You should see a prompt like this and will be able to enter any command supported by the cli project (see [Usage](#Usage)):
+
+```
+Socket successfully created..
+connected to the server..
+Enter command: 
+```
 
 
 ## Usage
@@ -111,11 +122,3 @@ Total.........................9/9
 ----------------------------------------
 ```
 
-## Emulation
-It is possible to try the project without having the required board. "emu" directory contains the required files for compiling the project in Linux. To do so, run `./build.sh`, start the server by running `./server` and then run `./client` in another terminal, where you can try all the supported commands.
-
-## To Do: :ballot_box_with_check:
-- [x] Benchmark command.
-- [x] Shell script for setting up the work environment.
-- [x] Include Nordic Security Backend in order to take advantage of the 144-byte random number used for the 32-byte vector in secret key generation function.
-- [x] Execution of the code in ARM TrustZone.
