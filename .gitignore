@@ -10,3 +10,5 @@ test/test
 test/go.mod
 test/go.sum
 .vscode/settings.json
+server/*
+sv/*
