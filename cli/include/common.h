@@ -110,7 +110,7 @@ void sig_serialize(byte* out2, blst_p2 sig){
 void get_point_from_msg(blst_p2* hash, uint8_t* msg_bin, int len){
         char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"; //IETF BLS Signature V4
         //Obtain the point from a message
-        blst_hash_to_g2(hash, msg_bin, len, dst, sizeof(dst), NULL, 0);
+        blst_hash_to_g2(hash, msg_bin, len, dst, sizeof(dst)-1, NULL, 0);
 }
 
 int parse(char* str, int len){
@@ -421,7 +421,7 @@ void verify(int argc, char** argv, char* buff){
     uint8_t msg_bin[len/2 + len%2];
 #ifndef EMU
     if((pk_parse(argv[1], &pk, NULL) || msg_parse(argv[2], msg_bin, len, NULL) || sig_parse(argv[3], &sig, NULL)) != 1){
-        if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, len/2 + len%2, dst, sizeof(dst), NULL, 0) != BLST_SUCCESS){
+        if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, len/2 + len%2, dst, sizeof(dst)-1, NULL, 0) != BLST_SUCCESS){
             printf("Error\n");
         }
         else {
@@ -430,7 +430,7 @@ void verify(int argc, char** argv, char* buff){
     }
 #else
     if((pk_parse(argv[1], &pk, buff) || msg_parse(argv[2], msg_bin, len, buff) || sig_parse(argv[3], &sig, buff)) != 1){
-        if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, len/2 + len%2, dst, sizeof(dst), NULL, 0) != BLST_SUCCESS){
+        if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, len/2 + len%2, dst, sizeof(dst)-1, NULL, 0) != BLST_SUCCESS){
             strcat(buff, "Error\n");
         }
         else {
