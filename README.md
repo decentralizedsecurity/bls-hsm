@@ -42,38 +42,43 @@ Enter command:
 
 ## Usage
 The commands that are supported are:
-- *keygen*: generates a 32-bytes secret key and a 48-bytes public key randomly.
+- :warning:*import*:warning:: imports secrets key and derives public key (NOTE: this is currently an INSECURE implementation).
   ```
-  uart:~$ keygen
-  Public key:
-  0xa2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05cc25f4d8069a79b002ae665b9ad35ce800a0e
+  uart:~$ import 31e8ff32b69aca39ce7ce789cff517cc9323cedec39eea9660d0dc3d4e8622cb
+  0x86a722b1f5c1cb1420ff0766cf5205b023de2e9c69efc65dbf976af2d710c3d12f937cf7104c9cd51bb4c62ff185d07f
   ```
 - *signature "publickey" "message"*: produces a 96-bytes signature with the message that has been introduced and after choosing a public key that has had to be generated before.
   ```
-  uart:~$ signature 0xa2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05c
-  c25f4d8069a79b002ae665b9ad35ce800a0e 5656565656565656565656565656565656565656565
-  656565656565656565656
+  uart:~$ signature 86a722b1f5c1cb1420ff0766cf5205b023de2e9c69efc65dbf976af2d710c3
+  d12f937cf7104c9cd51bb4c62ff185d07f  56565656565656565656565656565656565656565656
+  56565656565656565656
   Signature:
-  0xa60e2f24827943379f8377d6bf7a126ef8def56b08ca4cdd958954b5f56091f7cd49d251481f4cd6316396a2a4f4398c09e2cfda6ea16416dffdac687cf06db0e4d3a0ec83b4016c835b27f84325342199f724abd092cb7957177f5f30dcbe19
+  0xb912c912616709f6a190b03db1a259ca21f535abe51f88d6c95407a81fd8648b067c5e0548587f6a84f2dea9afd2098812bb1d7fb188f1d04411a04f25042b627c5f8d60dcef6416072cfef40b799b3c89397bcddf69ae62611484bfc6e83689
   ```
 - *verify "public_key" "message" "signature"*: signature verification.
   ```
-  uart:~$ verify 0x8077842bcf8d16d842d3b9b09ad78f717468577ddb189c02ded347d551aad50
-  cbbdf37920b522a164cdf426bed9ac321 5656565656565656565656565656565656565656565656
-  565656565656565656 0x8cea6d7e2e07efd6b6e56c2dabd04ec07dead82b5806e63b85945d1d75a
-  6f53bc9d2dd6df5fc45ed79a5fd80c8d6a61509162faf1a9b0bd894461c4a6a4ac5db427e18694b1
-  d2be94cd64bb25426238ec85bf4767d892fea09825c07414421ec
+  uart:~$ verify 0x86a722b1f5c1cb1420ff0766cf5205b023de2e9c69efc65dbf976af2d710c3d
+  12f937cf7104c9cd51bb4c62ff185d07f 5656565656565656565656565656565656565656565656
+  565656565656565656 0xb912c912616709f6a190b03db1a259ca21f535abe51f88d6c95407a81fd
+  8648b067c5e0548587f6a84f2dea9afd2098812bb1d7fb188f1d04411a04f25042b627c5f8d60dce
+  f6416072cfef40b799b3c89397bcddf69ae62611484bfc6e83689
   Success
   ```
 - *getkeys*: returns the public keys that have been generated.
   ```
   uart:~$ getkeys
-  {'keys':['a2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05cc25f4d8069a79b002ae665b9ad35ce800a0e']}
+  {'keys':['86a722b1f5c1cb1420ff0766cf5205b023de2e9c69efc65dbf976af2d710c3d12f937cf7104c9cd51bb4c62ff185d07f']}
   ```
 - *reset*: deletes all the keys.
   ```
   uart:~$ reset
   Keys deleted
+  ```
+- *keygen*: generates a 32-bytes secret key and a 48-bytes public key randomly.
+  ```
+  uart:~$ keygen
+  Public key:
+  0xa2c0acfbfc35763cf0ca221f2f44a42b3767dc168d00a99f3952ac5ad05cc25f4d8069a79b002ae665b9ad35ce800a0e
   ```
 
 
