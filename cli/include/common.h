@@ -97,7 +97,7 @@ void reset();
 void store_pk(char* public_key_hex);
 int get_keystore_size();
 void getkeys(char* public_keys_hex_store_ns);
-void import_sk(blst_scalar* sk_imp);
+int import_sk(blst_scalar* sk_imp);
 
 void pk_serialize(byte* out, blst_p1 pk){
         blst_p1_compress(out, &pk);
@@ -449,15 +449,15 @@ void get_keys(int argc, char** argv, char* buff){
         int cont = keystore_size - 1;
         int counter = keystore_size;
 #ifndef EMU
-        printf("{'keys':['");
+        printf("{\"keys\":[\"");
         for(int i = 0; i < 96 * cont + 96; i++){
             printf("%c", public_keys_hex_store[i]);
             j++;
             if (j == 96){
                 if(counter > 1) {
-                    printf("'\n'");
+                    printf("\", \n\"");
                 } else {
-                    printf("']}\n");
+                    printf("\"]}\n");
                 }               
                 j = 0;
                 counter--;
@@ -498,54 +498,69 @@ void resetc(int argc, char** argv, char* buff){
 }
 
 void import(int argc, char** argv, char* buff){
-    int offset = parse(argv[1], 64);
+    if(get_keystore_size() < 10){
+        int offset = parse(argv[1], 64);
 
-    if(offset != -1){
-        if(!char_chk(argv[1] + offset, 64)){
-            byte sk_bin[32];
-            if(hex2bin(argv[1] + offset, 64, sk_bin, 32) == 0){
-#ifndef EMU
-                printf("Failed converting hex to bin\n");
-#else
-                strcat(buff, "Failed converting hex to bin\n");
-#endif
-            }else{
-                blst_scalar sk_imp;
-                blst_scalar_from_bendian(&sk_imp, sk_bin);
-                import_sk(&sk_imp);
-
-                blst_p1 pk;
-                sk_to_pk(&pk);
-                byte pk_bin[48];
-                pk_serialize(pk_bin, pk);
-                char pk_hex[96];
-                if(bin2hex(pk_bin, 48, pk_hex, 96) == 0){
-#ifndef EMU
-                    printf("Failed converting bin to hex\n");
-#else
-                    strcat(buff, "Failed converting bin to hex\n");
-#endif
+        if(offset != -1){
+            if(!char_chk(argv[1] + offset, 64)){
+                byte sk_bin[32];
+                if(hex2bin(argv[1] + offset, 64, sk_bin, 32) == 0){
+    #ifndef EMU
+                    printf("Failed converting hex to bin\n");
+    #else
+                    strcat(buff, "Failed converting hex to bin\n");
+    #endif
                 }else{
-                    store_pk(pk_hex);
-#ifndef EMU
-                    print_pk(pk_hex, NULL);
-#else
-                    print_pk(pk_hex, buff);
-#endif
+                    blst_scalar sk_imp;
+                    blst_scalar_from_bendian(&sk_imp, sk_bin);
+                    if(import_sk(&sk_imp) == 0){
+
+                        blst_p1 pk;
+                        sk_to_pk(&pk);
+                        byte pk_bin[48];
+                        pk_serialize(pk_bin, pk);
+                        char pk_hex[96];
+                        if(bin2hex(pk_bin, 48, pk_hex, 96) == 0){
+    #ifndef EMU
+                            printf("Failed converting bin to hex\n");
+    #else
+                            strcat(buff, "Failed converting bin to hex\n");
+    #endif
+                        }else{
+                            store_pk(pk_hex);
+    #ifndef EMU
+                            print_pk(pk_hex, NULL);
+    #else
+                            print_pk(pk_hex, buff);
+    #endif
+                        }
+                    }else{
+    #ifndef EMU
+                            printf("Key already imported\n");
+    #else
+                            strcat(buff, "Key already imported\n");
+    #endif
+                    }
                 }
+            }else{
+    #ifndef EMU
+                printf("Incorrect characters\n");
+    #else
+                strcat(buff, "Incorrect characters\n");
+    #endif
             }
         }else{
-#ifndef EMU
-            printf("Incorrect characters\n");
-#else
-            strcat(buff, "Incorrect characters\n");
-#endif
+    #ifndef EMU
+            printf("Incorrect secret key length\n");
+    #else
+            strcat(buff, "Incorrect secret key length\n");
+    #endif
         }
     }else{
 #ifndef EMU
-        printf("Incorrect secret key length\n");
+            printf("Limit reached\n");
 #else
-        strcat(buff, "Incorrect secret key length\n");
+            strcat(buff, "Limit reached\n");
 #endif
     }
 }

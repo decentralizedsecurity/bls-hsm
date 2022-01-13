@@ -19,7 +19,7 @@
 
 #include "../secure_module/zephyr/spm/src/main.c"
 
-#define MAX 500
+#define MAX 1024
 #define PORT 8080
 #define SA struct sockaddr
 
