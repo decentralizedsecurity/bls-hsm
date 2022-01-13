@@ -29,7 +29,7 @@ user@user:~/bls-hsm$
 It's also possible to install the nRF Connect SDK manually following this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
 
 ## Emulation
-It is also possible to compile the project to run in Linux and MacOS directly without the board. The "emu" directory contains a simple socket server that by default exports all the funcionality of the cli project over the 8080 port, if you need to change the port simple modify the value of PORT in [main.c](emu/main.c). It also contains a simple socket client to comsume this API and do some testing ([client.c](emu/client.c)).
+It is also possible to compile the project to run in Linux and MacOS directly without the board. The "emu" directory contains a simple socket server that by default exports all the funcionality of the cli project over the 8080 port, if you need to change the port simply modify the value of PORT in [main.c](emu/main.c). It also contains a simple socket client to comsume this API and do some testing ([client.c](emu/client.c)).
 
 In order to compile those files you can use the script [build_emu.sh](build_emu.sh). Just run `./build_emu.sh`, start the server by running `./emu/build/server` and then in another terminal run `./emu/build/client`. You should see a prompt like this and will be able to enter any command supported by the cli project (see [Usage](#Usage)):
 
@@ -96,6 +96,7 @@ This test will do the following:
 - Attempt to generate an extra key pair and confirm the board refuses to do that.
 - Perform a signature of a message with the wrong size an confirm the board refuses to do that.
 - Perform a signature of a message with the right size and check that the signature is properly verified.
+- Import key from both Web3 and EIP2335 sample keystores (only use them for testing purposes).
 
 Output example:
 ```
@@ -111,18 +112,23 @@ user@user:~/bls-hsm/test$ ./test /dev/ttyACM2
 Running tests...
 Delete previous keys..........PASSED
 Generate 10 keys..............PASSED
-2.209466751s elapsed
+2.1241352s elapsed
 Retrieve generated keys.......PASSED
 Check keys are different......PASSED
 Try to generate extra key.....PASSED
-Sign msg with wrong length....PASSED
-Sign correct msg..............PASSED
-873.448751ms elapsed
+Sign msg......................PASSED
 Verify signature..............PASSED
-2.970017188s elapsed
+2.9396091s elapsed
+Import from Web3 keystore.....PASSED
+Import from EIP2335 keystore..PASSED
 Delete keys...................PASSED
 RESULTS:
 ----------------------------------------
-Total.........................9/9
+Total.........................10/10
 ----------------------------------------
 ```
+## sv
+"sv" directory implements a HTTP server which complies the [EIP-3030 spec](https://eips.ethereum.org/EIPS/eip-3030). This module is currently in development and only supports signing of [Phase0 Beacon Blocks](https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#beacon-blocks).
+**Usage**
+To build the server run `go mod init sv`, `go mod tidy` and `go build`. Then launch it by running `.\sv.exe <comPort> <keystore_path> <keystore_password> [-v]`. This will import the secret key obtained from the given keystore in `keystore_path` and wait for requests.
+It can be tested using [Postman](https://www.postman.com/).
