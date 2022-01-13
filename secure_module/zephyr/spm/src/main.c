@@ -101,6 +101,10 @@ int pk_in_keystore(char * public_key_hex, int offset){
         int c = 0;
         int cont = 0;
 
+        if(keystore_size == 0){
+                ret = -1;
+        }
+
         for(int i = 0; i < keystore_size; i++){
             for(int x = 0; x < 96; x++){
                 if(public_key_hex[x + offset] != public_keys_hex_store[x + cont]){
@@ -178,10 +182,39 @@ void reset(){
 #ifndef EMU
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
-void import_sk(blst_scalar* sk_imp){
-        secret_keys_store[keystore_size] = *sk_imp;
-        keystore_size++;
-        sk = *sk_imp;
+int import_sk(blst_scalar* sk_imp){
+        int ret = 0;
+
+        int c = 0;
+
+        if(keystore_size == 0){
+                secret_keys_store[keystore_size] = *sk_imp;
+                keystore_size++;
+                sk = *sk_imp;
+        }else{
+            for(int i = 0; i < keystore_size; i++){
+                for(int x = 0; x < 32; x++){
+                    if(secret_keys_store[i].b[x] != (*sk_imp).b[x]){
+                        c = 1;
+                        break;
+                    }
+            }
+                if (c == 0){
+                    ret = -1;
+                    break;
+                } else {
+                    if((i+1) < keystore_size){
+                        c = 0;
+                    }else{
+                        secret_keys_store[keystore_size] = *sk_imp;
+                        keystore_size++;
+                        sk = *sk_imp;
+                        break;
+                    }
+                }
+            }
+        }
+        return ret;
 }
 
 #ifndef EMU
