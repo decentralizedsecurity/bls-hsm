@@ -2,12 +2,17 @@ package main
 
 import (
 	"bufio"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/protolambda/go-keystorev4"
+	ks "github.com/prysmaticlabs/prysm/shared/keystore"
 	"github.com/tarm/serial"
 )
 
@@ -341,11 +346,70 @@ func reset(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, tes
 				color.Red("FAILED")
 			}
 		} else {
-			if passed[7] {
+			if passed[9] {
 				color.HiGreen("PASSED")
 			} else {
 				color.Red("FAILED")
 			}
 		}
+	}
+}
+
+func imp(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, test int) {
+	if !verb {
+		if test == 7 {
+			fmt.Printf("Import from Web3 keystore.....")
+		} else {
+			fmt.Printf("Import from EIP2335 keystore..")
+		}
+	}
+	passed[test] = false
+	var sk string
+	var pkhex string
+	if test == 7 {
+		ks := new(ks.Keystore)
+		keys, err := ks.GetKey("./web3/keystore-m_12381_3600_0_0_0-1638363930.json", "poipoipoi")
+		if err == nil {
+			sk = hex.EncodeToString(keys.SecretKey.Marshal())
+			pkhex = "0x" + hex.EncodeToString(keys.PublicKey.Marshal())
+		}
+	} else {
+		ksjson, err := os.ReadFile("./eip2335/keystore-m_12381_3600_0_0_0-1638363930.json")
+		var ks keystorev4.Keystore
+		err = json.Unmarshal(ksjson, &ks)
+		skbin, err := ks.Decrypt([]byte("poipoipoi"))
+		if err == nil {
+			sk = hex.EncodeToString(skbin)
+			pkhex = "0x" + hex.EncodeToString(ks.Pubkey)
+		}
+	}
+	if sk != "" && pkhex != "" {
+		n, err := s.Write([]byte("reset\n"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		_ = n
+		n, err = s.Write([]byte("import " + sk + "\n"))
+		for scanner.Scan() {
+			if verb {
+				fmt.Println(scanner.Text())
+			}
+			if (strings.HasPrefix(scanner.Text(), "0x")) && (scanner.Text() == pkhex) {
+				passed[test] = true
+				break
+			} else if strings.HasPrefix(scanner.Text(), "Incorrect") || strings.Contains(scanner.Text(), "reached") {
+				break
+			}
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		_ = n
+	}
+
+	if passed[test] {
+		color.HiGreen("PASSED")
+	} else {
+		color.Red("FAILED")
 	}
 }
