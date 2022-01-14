@@ -36,7 +36,7 @@ func main() {
 
 		set_shell_params(s, scanner)
 
-		passed := make([]bool, 10)
+		passed := make([]bool, 11)
 		times := make([]time.Duration, 3)
 		if verb {
 			fmt.Println("Deleting previously generated keys...")
@@ -113,9 +113,17 @@ func main() {
 		}
 
 		if verb {
+			fmt.Println("Attempting to import key with wrong pass...")
+		}
+		imp(s, scanner, verb, passed, 9)
+		if verb {
+			fmt.Printf("\n\n")
+		}
+
+		if verb {
 			fmt.Println("Deleting keys...")
 		}
-		reset(s, scanner, verb, passed, 9)
+		reset(s, scanner, verb, passed, 10)
 		if verb {
 			fmt.Printf("\n\n")
 		}
@@ -194,20 +202,27 @@ func main() {
 				color.Red("FAILED")
 			}
 
-			fmt.Printf("Delete keys...................")
+			fmt.Printf("Try wrong pass in keystore....")
 			if passed[9] {
+				color.HiGreen("PASSED")
+			} else {
+				color.Red("FAILED")
+			}
+
+			fmt.Printf("Delete keys...................")
+			if passed[10] {
 				color.HiGreen("PASSED")
 			} else {
 				color.Red("FAILED")
 			}
 		}
 		cont := 0
-		for i := 0; i < 10; i++ {
+		for i := 0; i < 11; i++ {
 			if passed[i] {
 				cont++
 			}
 		}
-		color.HiMagenta("Total.........................%d/10", cont)
+		color.HiMagenta("Total.........................%d/11", cont)
 		fmt.Println("----------------------------------------")
 	} else {
 		fmt.Println("Usage: .\\test.exe [-v] COMport")

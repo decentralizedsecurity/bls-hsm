@@ -339,19 +339,12 @@ func reset(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, tes
 	}
 
 	if !verb {
-		if test == 0 {
-			if passed[0] {
-				color.HiGreen("PASSED")
-			} else {
-				color.Red("FAILED")
-			}
+		if passed[test] {
+			color.HiGreen("PASSED")
 		} else {
-			if passed[9] {
-				color.HiGreen("PASSED")
-			} else {
-				color.Red("FAILED")
-			}
+			color.Red("FAILED")
 		}
+
 	}
 }
 
@@ -359,8 +352,10 @@ func imp(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, test 
 	if !verb {
 		if test == 7 {
 			fmt.Printf("Import from Web3 keystore.....")
-		} else {
+		} else if test == 8 {
 			fmt.Printf("Import from EIP2335 keystore..")
+		} else {
+			fmt.Printf("Try wrong pass in keystore....")
 		}
 	}
 	passed[test] = false
@@ -374,13 +369,23 @@ func imp(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, test 
 			pkhex = "0x" + hex.EncodeToString(keys.PublicKey.Marshal())
 		}
 	} else {
+		var pass string
+		if test == 8 {
+			pass = "poipoipoi"
+		} else {
+			pass = ""
+		}
 		ksjson, err := os.ReadFile("./eip2335/keystore-m_12381_3600_0_0_0-1638363930.json")
 		var ks keystorev4.Keystore
 		err = json.Unmarshal(ksjson, &ks)
-		skbin, err := ks.Decrypt([]byte("poipoipoi"))
+		skbin, err := ks.Decrypt([]byte(pass))
 		if err == nil {
 			sk = hex.EncodeToString(skbin)
 			pkhex = "0x" + hex.EncodeToString(ks.Pubkey)
+		} else {
+			if test == 9 {
+				passed[test] = true
+			}
 		}
 	}
 	if sk != "" && pkhex != "" {
