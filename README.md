@@ -132,12 +132,12 @@ Total.........................11/11
 ## :warning:Remote signer interface:warning: (UNSTABLE)
 [remote](remote) folder implements a HTTP server which follows the same spec as [Web3Signer](https://github.com/ConsenSys/web3signer), which is based on [EIP-3030 spec](https://eips.ethereum.org/EIPS/eip-3030). This module is currently in development and only supports signing of [Phase0 Beacon Blocks](https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#beacon-blocks).
 
-To build the server run `go mod init remote`, `go mod tidy` and `go build`. Then launch it by running `./remote <comPort> <keystore_path> <keystore_password> [-v]`. This will import the secret key obtained from the given keystore in `keystore_path` and wait for requests. `[-v]` parameter will give information about each signing request received. 
+To run the server use `go run ./main.go <comPort> <keystore_path> <keystore_password> [-v]`  command or, if you prefer to build it first, run `go mod init remote`, `go mod tidy` and `go build`. Then launch it by running `./remote <comPort> <keystore_path> <keystore_password> [-v]`. This will import the secret key obtained from the given keystore in `keystore_path` and wait for requests. `[-v]` parameter will give information about each signing request received. 
 It can be tested using [Postman](https://www.postman.com/).
 
 Example in terminal:
 ```
-.\remote.exe com3 ..\test\eip2335\keystore-m_12381_3600_0_0_0-1642162977.json 123456789 -v
+go run ./main.go ../test/eip2335/keystore-m_12381_3600_0_0_0-1642162977.json 123456789 -v
 Key imported
 Starting server at port 80
 Received signing request
