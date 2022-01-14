@@ -130,7 +130,7 @@ Total.........................11/11
 ----------------------------------------
 ```
 ## :warning:Remote signer interface:warning: (UNSTABLE)
-[remote](remote) folder implements a HTTP server which complies the same spec as [Web3Signer](https://github.com/ConsenSys/web3signer), which is based on [EIP-3030 spec](https://eips.ethereum.org/EIPS/eip-3030). This module is currently in development and only supports signing of [Phase0 Beacon Blocks](https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#beacon-blocks).
+[remote](remote) folder implements a HTTP server which follows the same spec as [Web3Signer](https://github.com/ConsenSys/web3signer), which is based on [EIP-3030 spec](https://eips.ethereum.org/EIPS/eip-3030). This module is currently in development and only supports signing of [Phase0 Beacon Blocks](https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#beacon-blocks).
 
 To build the server run `go mod init remote`, `go mod tidy` and `go build`. Then launch it by running `./remote <comPort> <keystore_path> <keystore_password> [-v]`. This will import the secret key obtained from the given keystore in `keystore_path` and wait for requests. `[-v]` parameter will give information about each signing request received. 
 It can be tested using [Postman](https://www.postman.com/).
