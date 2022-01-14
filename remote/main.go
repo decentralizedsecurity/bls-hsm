@@ -235,11 +235,17 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 
 				s.Close()
 			} else {
+				if v {
+					fmt.Println("Signing failed")
+				}
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("{\"error\":\"Failed while signing\"}"))
 			}
 		} else {
+			if v {
+				fmt.Println("Signing failed")
+			}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotImplemented)
 			w.Write([]byte("{\"error\":\"Type not supported\"}"))
