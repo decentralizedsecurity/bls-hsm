@@ -168,7 +168,7 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 
 		sr, err := getSigningRoot(bod, &supported)
 
-		if supported && err != nil {
+		if supported && err == nil {
 			signingroot, err := sr.MarshalText()
 
 			if err == nil {
