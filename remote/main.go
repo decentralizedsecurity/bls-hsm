@@ -59,6 +59,7 @@ func getSigningRoot(bod []byte, supported *bool) (common.Root, error) {
 
 	switch bodymap["type"].(string) {
 	case "block", "BLOCK":
+		*supported = true
 		body, err := json.Marshal(bodymap["block"])
 		if err != nil {
 			return sr, err
@@ -98,8 +99,6 @@ func getSigningRoot(bod []byte, supported *bool) (common.Root, error) {
 		dom, err := fork.GetDomain(common.DOMAIN_BEACON_PROPOSER, *genvalroot, fork.Epoch)
 		sr = common.ComputeSigningRoot(htr, dom)
 		break
-	default:
-		*supported = false
 	}
 
 	return sr, err
@@ -165,11 +164,11 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		supported := true
+		supported := false
 
 		sr, err := getSigningRoot(bod, &supported)
 
-		if supported {
+		if supported && err != nil {
 			signingroot, err := sr.MarshalText()
 
 			if err == nil {

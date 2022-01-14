@@ -113,23 +113,41 @@ user@user:~/bls-hsm/test$ ./test /dev/ttyACM2
 Running tests...
 Delete previous keys..........PASSED
 Generate 10 keys..............PASSED
-2.1241352s elapsed
+2.1233534s elapsed
 Retrieve generated keys.......PASSED
 Check keys are different......PASSED
 Try to generate extra key.....PASSED
 Sign msg......................PASSED
 Verify signature..............PASSED
-2.9396091s elapsed
+2.9392392s elapsed
 Import from Web3 keystore.....PASSED
 Import from EIP2335 keystore..PASSED
+Try wrong pass in keystore....PASSED
 Delete keys...................PASSED
 RESULTS:
 ----------------------------------------
-Total.........................10/10
+Total.........................11/11
 ----------------------------------------
 ```
 ## :warning:Remote signer interface:warning: (UNSTABLE)
 [remote](remote) folder implements a HTTP server which complies the same spec as [Web3Signer](https://github.com/ConsenSys/web3signer), which is based on [EIP-3030 spec](https://eips.ethereum.org/EIPS/eip-3030). This module is currently in development and only supports signing of [Phase0 Beacon Blocks](https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#beacon-blocks).
 
-To build the server run `go mod init remote`, `go mod tidy` and `go build`. Then launch it by running `./remote <comPort> <keystore_path> <keystore_password> [-v]`. This will import the secret key obtained from the given keystore in `keystore_path` and wait for requests.
+To build the server run `go mod init remote`, `go mod tidy` and `go build`. Then launch it by running `./remote <comPort> <keystore_path> <keystore_password> [-v]`. This will import the secret key obtained from the given keystore in `keystore_path` and wait for requests. `[-v]` parameter will give information about each signing request received. 
 It can be tested using [Postman](https://www.postman.com/).
+
+Example in terminal:
+```
+.\remote.exe com3 ..\test\eip2335\keystore-m_12381_3600_0_0_0-1642162977.json 123456789 -v
+Key imported
+Starting server at port 80
+Received signing request
+Signing successful
+```
+Output using curl:
+```
+curl -X POST localhost:80/sign/ae249bcf645e7470cdd10c546de97ea87f70a93dbf8a99e2b77833c9e83a5833a6d37f73ef8359aa79f495130697eec2 -H 'Content-Type: application/json' -d @block.json
+{
+        "signature": "0xb7131dbfc2d3b867751d419665402d1a1f06c7f52f83c3cc2af9c7b940bfdb30d8c4e21e72b71e7908406adefcf902ea18bec2326348c1de635dc8728d46e3f56531cc29dc5fb951032d2d9db26fafcd5e2b04cb759bf2c8cd5dcc9de77dcfce"
+}
+```
+The body used in the HTTP request is the block json found in [samples](samples) folder.
