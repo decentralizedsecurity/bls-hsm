@@ -29,7 +29,7 @@ user@user:~/bls-hsm$
 It's also possible to install the nRF Connect SDK manually following this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
 
 ## Emulation
-It is also possible to compile the project to run in Linux and MacOS directly without the board. The "emu" directory contains a simple socket server that by default exports all the funcionality of the cli project over the 8080 port, if you need to change the port simple modify the value of PORT in [main.c](emu/main.c). It also contains a simple socket client to comsume this API and do some testing ([client.c](emu/client.c)).
+It is also possible to compile the project to run in Linux and MacOS directly without the board. The "emu" directory contains a simple socket server that by default exports all the funcionality of the cli project over the 8080 port, if you need to change the port simply modify the value of PORT in [main.c](emu/main.c). It also contains a simple socket client to comsume this API and do some testing ([client.c](emu/client.c)).
 
 In order to compile those files you can use the script [build_emu.sh](build_emu.sh). Just run `./build_emu.sh`, start the server by running `./emu/build/server` and then in another terminal run `./emu/build/client`. You should see a prompt like this and will be able to enter any command supported by the cli project (see [Usage](#Usage)):
 
@@ -90,12 +90,14 @@ PS. The *prj.conf* file has been modified because default size caused stack over
 **2. secure_module**: This module contains blst function calls that involve usage and storage of secret keys, using Secure Partition Manager (SPM).
 
 ## Test
-"test" folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go run .\main.go .\utils.go [-v] COMport` command in a terminal or `go mod init test`, `go mod tidy`, `go build` and then `test.exe [-v] COMport`. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4, /dev/ttyS3).
+"test" folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go run ./main.go ./utils.go [-v] COMport` command in a terminal or `go mod init test`, `go mod tidy`, `go build` and then `./test [-v] COMport`. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4, /dev/ttyS3).
 This test will do the following:
 - Generate 10 keypairs (the maximum allowed by the board) and check that all keys are different.
 - Attempt to generate an extra key pair and confirm the board refuses to do that.
 - Perform a signature of a message with the wrong size an confirm the board refuses to do that.
 - Perform a signature of a message with the right size and check that the signature is properly verified.
+- Import key from both Web3 and EIP2335 sample keystores (only use them for testing purposes).
+- Attempt to get key from keystore using wrong password.
 
 Output example:
 ```
@@ -111,18 +113,41 @@ user@user:~/bls-hsm/test$ ./test /dev/ttyACM2
 Running tests...
 Delete previous keys..........PASSED
 Generate 10 keys..............PASSED
-2.209466751s elapsed
+2.1233534s elapsed
 Retrieve generated keys.......PASSED
 Check keys are different......PASSED
 Try to generate extra key.....PASSED
-Sign msg with wrong length....PASSED
-Sign correct msg..............PASSED
-873.448751ms elapsed
+Sign msg......................PASSED
 Verify signature..............PASSED
-2.970017188s elapsed
+2.9392392s elapsed
+Import from Web3 keystore.....PASSED
+Import from EIP2335 keystore..PASSED
+Try wrong pass in keystore....PASSED
 Delete keys...................PASSED
 RESULTS:
 ----------------------------------------
-Total.........................9/9
+Total.........................11/11
 ----------------------------------------
 ```
+## :warning:Remote signer interface:warning: (UNSTABLE)
+[remote](remote) folder implements a HTTP server which follows the same spec as [Web3Signer](https://github.com/ConsenSys/web3signer), which is based on [EIP-3030 spec](https://eips.ethereum.org/EIPS/eip-3030). This module is currently in development and only supports signing of [Phase0 Beacon Blocks](https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#beacon-blocks).
+
+To run the server use `go run ./main.go <comPort> <keystore_path> <keystore_password> [-v]`  command or, if you prefer to build it first, run `go mod init remote`, `go mod tidy` and `go build`. Then launch it by running `./remote <comPort> <keystore_path> <keystore_password> [-v]`. This will import the secret key obtained from the given keystore in `keystore_path` and wait for requests. `[-v]` parameter will give information about each signing request received. 
+It can be tested using [Postman](https://www.postman.com/).
+
+Example in terminal:
+```
+go run ./main.go ../test/eip2335/keystore-m_12381_3600_0_0_0-1642162977.json 123456789 -v
+Key imported
+Starting server at port 80
+Received signing request
+Signing successful
+```
+Output using curl:
+```
+curl -X POST localhost:80/sign/ae249bcf645e7470cdd10c546de97ea87f70a93dbf8a99e2b77833c9e83a5833a6d37f73ef8359aa79f495130697eec2 -H 'Content-Type: application/json' -d @block.json
+{
+        "signature": "0xb7131dbfc2d3b867751d419665402d1a1f06c7f52f83c3cc2af9c7b940bfdb30d8c4e21e72b71e7908406adefcf902ea18bec2326348c1de635dc8728d46e3f56531cc29dc5fb951032d2d9db26fafcd5e2b04cb759bf2c8cd5dcc9de77dcfce"
+}
+```
+The body used in the HTTP request is the block json found in [samples](samples) folder.
