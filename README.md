@@ -90,7 +90,7 @@ PS. The *prj.conf* file has been modified because default size caused stack over
 **2. secure_module**: This module contains blst function calls that involve usage and storage of secret keys, using Secure Partition Manager (SPM).
 
 ## Test
-"test" folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go run ./main.go ./utils.go [-v] COMport` command in a terminal or `go mod init test`, `go mod tidy`, `go build` and then `./test [-v] COMport`. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4, /dev/ttyS3).
+"test" folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go mod init test`, `go mod tidy` and then either `go run ./main.go ./utils.go [-v] COMport` if you want to run it right away or `go build` and then `./test [-v] COMport` if you want to generate an executable. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4, /dev/ttyS3).
 This test will do the following:
 - Generate 10 keypairs (the maximum allowed by the board) and check that all keys are different.
 - Attempt to generate an extra key pair and confirm the board refuses to do that.
@@ -132,7 +132,7 @@ Total.........................11/11
 ## :warning:Remote signer interface:warning: (UNSTABLE)
 [remote](remote) folder implements a HTTP server which follows the same spec as [Web3Signer](https://github.com/ConsenSys/web3signer), which is based on [EIP-3030 spec](https://eips.ethereum.org/EIPS/eip-3030). This module is currently in development and only supports signing of [Phase0 Beacon Blocks](https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#beacon-blocks).
 
-To run the server use `go run ./main.go <comPort> <keystore_path> <keystore_password> [-v]`  command or, if you prefer to build it first, run `go mod init remote`, `go mod tidy` and `go build`. Then launch it by running `./remote <comPort> <keystore_path> <keystore_password> [-v]`. This will import the secret key obtained from the given keystore in `keystore_path` and wait for requests. `[-v]` parameter will give information about each signing request received. 
+To run the server use `go mod init remote`, `go mod tidy` and `go run ./main.go <comPort> <keystore_path> <keystore_password> [-v]` to run it directly or, if you prefer to build it first, run `go build` and then launch it by running `./remote <comPort> <keystore_path> <keystore_password> [-v]`. This will import the secret key obtained from the given keystore in `keystore_path` and wait for requests. `[-v]` parameter will give information about each signing request received.
 It can be tested using [Postman](https://www.postman.com/).
 
 Example in terminal:
