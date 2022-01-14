@@ -97,6 +97,7 @@ This test will do the following:
 - Perform a signature of a message with the wrong size an confirm the board refuses to do that.
 - Perform a signature of a message with the right size and check that the signature is properly verified.
 - Import key from both Web3 and EIP2335 sample keystores (only use them for testing purposes).
+- Attempt to get key from keystore using wrong password.
 
 Output example:
 ```
