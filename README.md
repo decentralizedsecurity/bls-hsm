@@ -134,6 +134,7 @@ Total.........................11/11
 
 To run the server use `go mod init remote`, `go mod tidy` and `go run ./main.go <comPort> <keystore_path> <keystore_password> [-v]` to run it directly or, if you prefer to build it first, run `go build` and then launch it by running `./remote <comPort> <keystore_path> <keystore_password> [-v]`. This will import the secret key obtained from the given keystore in `keystore_path` and wait for requests. `[-v]` parameter will give information about each signing request received.
 It can be tested using [Postman](https://www.postman.com/).
+Supported HTTP requests are `/upcheck`, `/api/v1/eth2/sign/{identifier}` and `/api/v1/eth2/publicKeys`.
 
 Example in terminal:
 ```
