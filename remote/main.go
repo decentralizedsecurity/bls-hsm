@@ -186,7 +186,7 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 					log.Fatal(err)
 				}
 
-				str := "signature " + r.URL.Path[6:] + " " + string(signingroot) + "\n"
+				str := "signature " + r.URL.Path[18:] + " " + string(signingroot) + "\n"
 
 				n, err = s.Write([]byte(str))
 				if err != nil {
@@ -282,11 +282,11 @@ func main() {
 		if len(os.Args) == 5 {
 			v = true
 		}
-		http.HandleFunc("/sign/", signHandler)
+		http.HandleFunc("/api/v1/eth2/sign/", signHandler)
 		http.HandleFunc("/", badReqHandler)
 		http.HandleFunc("/sign", badReqHandler)
 		http.HandleFunc("/upcheck", upcheckHandler)
-		http.HandleFunc("/keys", publicKeysHandler)
+		http.HandleFunc("/api/v1/eth2/publicKeys", publicKeysHandler)
 
 		var ksmap map[string]interface{}
 		ksjson, err := os.ReadFile(os.Args[2])
