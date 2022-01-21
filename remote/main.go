@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -14,7 +15,7 @@ import (
 
 	"github.com/protolambda/go-keystorev4"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
-	zrnt "github.com/protolambda/zrnt/eth2/beacon/phase0"
+	"github.com/protolambda/zrnt/eth2/beacon/phase0"
 	"github.com/protolambda/zrnt/eth2/configs"
 	"github.com/protolambda/ztyp/tree"
 	"github.com/prysmaticlabs/prysm/shared/keystore"
@@ -49,12 +50,14 @@ func decryptEIP2335(ksjson *[]byte) error {
 	return err
 }
 
-func getSigningRoot(bod []byte, supported *bool) (common.Root, error) {
+func getSigningRoot(bod []byte, supported *bool, signingroot *[]byte) error {
+	var htr common.Root
+	var domtype common.BLSDomainType
 	var sr common.Root
 	var bodymap map[string]interface{}
 	err := json.Unmarshal(bod, &bodymap)
 	if err != nil {
-		return sr, err
+		return err
 	}
 
 	switch bodymap["type"].(string) {
@@ -62,46 +65,104 @@ func getSigningRoot(bod []byte, supported *bool) (common.Root, error) {
 		*supported = true
 		body, err := json.Marshal(bodymap["block"])
 		if err != nil {
-			return sr, err
+			return err
 		}
 
-		beaconblock := new(zrnt.BeaconBlock)
+		beaconblock := new(phase0.BeaconBlock)
 		err = json.Unmarshal(body, beaconblock)
 		if err != nil {
-			return sr, err
+			return err
 		}
 		sp := configs.Mainnet
-		htr := beaconblock.HashTreeRoot(sp, tree.GetHashFn())
+		htr = beaconblock.HashTreeRoot(sp, tree.GetHashFn())
+		domtype = common.DOMAIN_BEACON_PROPOSER
+		break
+	case "attestation", "ATTESTATION":
+		*supported = true
+		body, err := json.Marshal(bodymap["attestation"])
+		if err != nil {
+			return err
+		}
+		attestation := new(phase0.AttestationData)
+		err = json.Unmarshal(body, attestation)
+		if err != nil {
+			return err
+		}
+		htr = attestation.HashTreeRoot(tree.GetHashFn())
+		domtype = common.DOMAIN_BEACON_ATTESTER
+		break
+	case "aggregation_slot", "AGGREGATION_SLOT":
+		*supported = true
+		body, err := json.Marshal(bodymap["aggregation_slot"])
+		if err != nil {
+			return err
+		}
+		type AggregationSlot struct {
+			Slot common.Slot `json:slot`
+		}
+		agslot := new(AggregationSlot)
+		err = json.Unmarshal(body, agslot)
+		if err != nil {
+			return err
+		}
+		htr = agslot.Slot.HashTreeRoot(tree.GetHashFn())
+		domtype = common.DOMAIN_SELECTION_PROOF
+		break
+	case "aggregate_and_proof", "AGGREGATE_AND_PROOF":
+		*supported = true
+		body, err := json.Marshal(bodymap["aggregate_and_proof"])
+		if err != nil {
+			return err
+		}
+		agandproof := new(phase0.AggregateAndProof)
+		err = json.Unmarshal(body, agandproof)
+		if err != nil {
+			return err
+		}
+		sp := configs.Mainnet
+		htr = agandproof.HashTreeRoot(sp, tree.GetHashFn())
+		domtype = common.DOMAIN_AGGREGATE_AND_PROOF
+		break
+	}
 
+	if *supported {
 		forkinfo, err := json.Marshal(bodymap["fork_info"])
 		if err != nil {
-			return sr, err
+			return err
 		}
 		var forkinfomap map[string]interface{}
 		err = json.Unmarshal(forkinfo, &forkinfomap)
 		if err != nil {
-			return sr, err
+			return err
 		}
 		fork := new(common.Fork)
 		forkbin, err := json.Marshal(forkinfomap["fork"])
 		err = json.Unmarshal(forkbin, fork)
 		if err != nil {
-			return sr, err
+			return err
 		}
 
 		gvroot, err := hex.DecodeString(forkinfomap["genesis_validators_root"].(string)[2:])
 		if err != nil {
-			return sr, err
+			return err
 		}
 		genvalroot := new(common.Root)
 		copy(genvalroot[:], gvroot[:])
 
-		dom, err := fork.GetDomain(common.DOMAIN_BEACON_PROPOSER, *genvalroot, fork.Epoch)
+		dom, err := fork.GetDomain(domtype, *genvalroot, fork.Epoch)
 		sr = common.ComputeSigningRoot(htr, dom)
-		break
+		if err != nil {
+			return err
+		}
+		*signingroot, err = sr.MarshalText()
+		if bodymap["signingRoot"] != nil && bodymap["signingRoot"].(string) != string(*signingroot) {
+			err = errors.New("Incorrect signing root")
+		}
+	} else {
+		err = errors.New("Type not supported")
 	}
 
-	return sr, err
+	return err
 }
 
 func publicKeysHandler(w http.ResponseWriter, r *http.Request) {
@@ -166,12 +227,15 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 
 		supported := false
 
-		sr, err := getSigningRoot(bod, &supported)
+		var signingroot []byte
+		err = getSigningRoot(bod, &supported, &signingroot)
 
 		if supported && err == nil {
-			signingroot, err := sr.MarshalText()
 
 			if err == nil {
+				if v {
+					fmt.Println("Signing root: " + string(signingroot))
+				}
 				com := os.Args[1]
 
 				c := &serial.Config{Name: com, Baud: 115200}
@@ -248,7 +312,8 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotImplemented)
-			w.Write([]byte("{\"error\":\"Type not supported\"}"))
+			str := "{\"error\": \"" + err.Error() + "\"}"
+			w.Write([]byte(str))
 		}
 	} else {
 		w.Header().Set("Content-Type", "application/json")
