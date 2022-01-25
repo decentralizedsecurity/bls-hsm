@@ -1,0 +1,1 @@
+/usr/bin/cc -g  -rdynamic CMakeFiles/test4.dir/test4.c.o  -o test4  -Wl,-rpath,/home/jorge/bls-hsm/json-c-build ../libjson-c.so.5.1.0 

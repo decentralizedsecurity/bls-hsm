@@ -1,6 +1,12 @@
 git submodule init
 git submodule update
 blst/build.sh
+mkdir json-c-build
+cd json-c-build
+cmake ../json-c
+make
+make install
+cd ..
 cp blst/bindings/blst.h blst/bindings/blst_aux.h cli/include/
 mkdir emu/lib
 mkdir emu/build
