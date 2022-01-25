@@ -1,1 +1,0 @@
-/usr/bin/cc -g  -rdynamic CMakeFiles/test_parse_int64.dir/test_parse_int64.c.o  -o test_parse_int64  -Wl,-rpath,/home/jorge/bls-hsm/json-c-build ../libjson-c.so.5.1.0 

@@ -1,3 +1,7 @@
 [submodule "blst"]
 	path = blst
 	url = https://github.com/supranational/blst.git
+
+[submodule "json-c"]
+	path = json
+	url = https://github.com/json-c/json-c.git

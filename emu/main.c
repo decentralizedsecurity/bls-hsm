@@ -136,7 +136,42 @@ void func(int sockfd)
             }
 
             }else if(strncmp(peticion, "POST", 4) == 0){//Peticion POST
-                ;
+                //Vamos a sacar el json de la peticion POST
+                int inicio = -1;
+                int fin = -1;
+                int corchetesAbiertos = 0;
+
+                for(int i = 0; (peticion[i] != 0) && (fin < 0); ++i){
+                    if(peticion[i] == '{'){
+                        if(inicio < 0){
+                            inicio = i;
+                        }
+
+                        ++corchetesAbiertos;
+                    }
+
+                    if(peticion[i] =='}'){
+                        --corchetesAbiertos;
+
+                        if(corchetesAbiertos == 0){
+                            fin = i;
+                        }
+                    }
+                }
+
+                char[inicio - fin + 2] jsonStr;
+
+                for(int i = 0; i < (inicio - fin + 1); ++i){
+                    jsontStr[i] = peticion[inicio + i];
+                }
+
+                jsonStr[inicio - fin + 1] = '\0';
+
+                printf(jsonStr);
+
+                json_object* json = json_tokener_parse(jsonStr);
+
+                printf(json->type);
             }
         }
     }

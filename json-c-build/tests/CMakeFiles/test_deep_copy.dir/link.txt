@@ -1,1 +1,0 @@
-/usr/bin/cc -g  -rdynamic CMakeFiles/test_deep_copy.dir/test_deep_copy.c.o  -o test_deep_copy  -Wl,-rpath,/home/jorge/bls-hsm/json-c-build ../libjson-c.so.5.1.0 
