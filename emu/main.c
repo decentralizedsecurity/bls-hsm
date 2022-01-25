@@ -13,77 +13,132 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <json.h>
 
 #include "../blst/bindings/blst.h"
 #include "../cli/include/common.h"
 
 #include "../secure_module/zephyr/spm/src/main.c"
 
-#define MAX 1024
+#define MAX 1500 //Tamaño maximo MTU - cabeceras + 1 para añadir el /0
 #define PORT 8080
 #define SA struct sockaddr
 
+/*
+    Los mensajes GET pueden ser superiores al tamaño de la MTU, como vamos a tener que manipular el JSON
+    nos sería mas comodo que solo estuviesen en un array como una string, vamos a hacer una implementación de la siguiente manera;
+    cada vez que queramos leer un paquete tcp integro lo leeremos y lo integraremos en una lista enlazada cuyo contenido son arrays
+    de 1500 bytes y un puntero al siguiente nodo, despues crearemos un único array y volcaremos todo el contenido de las listas enlazadas
+    de esta manera el procesamiento será mucho mas comodo.
+*/
+
+struct nodo{
+    char buff[MAX];
+    struct nodo* siguiente;
+};
+
 void func(int sockfd)
 {
-    char buff[MAX];
     char* argv[4];
     int argc;
+
     // infinite loop for chat
     for (;;) {
-        bzero(buff, MAX);
-   
-        // read the message from client and copy it in buffer
-        read(sockfd, buff, sizeof(buff));
-        // print buffer which contains the client contents
-        printf("%s", buff);
-        // if msg contains "Exit" then server exit and chat ended.
-        if (strncmp("exit", buff, 4) == 0) {
-            printf("Server Exit...\n");
-            break;
+        //read the message from client and copy it in buffer
+        struct nodo* head = NULL;
+        char buff[MAX];
+
+        int listSize = 0;
+        int lastSize = 0;
+        int leidos = 0;
+        struct nodo* iteration = NULL;
+
+        do{
+            leidos = read(sockfd, buff, sizeof(buff));
+
+            if(leidos != 0){
+                lastSize = leidos;
+
+                if(listSize == 0){
+                    head = (struct nodo*) malloc(sizeof(struct nodo));
+                    iteration = head;
+
+                    for(int i= 0; i < leidos; ++i){
+                        (*iteration).buff[i] = buff[i];
+                    }
+                    iteration->siguiente = NULL;//Por si acaso
+                }else{
+                    iteration->siguiente = (struct nodo*) malloc(sizeof(struct nodo));
+                    iteration = iteration->siguiente;
+
+                    for(int i= 0; i < leidos; ++i){
+                        (*iteration).buff[i] = buff[i];
+                    }
+                    iteration->siguiente = NULL;//Por si acaso
+                }
+
+                ++listSize;
+            }
+        }while(leidos == MAX);
+
+        
+        char peticion[MAX*(listSize - 1) + lastSize + 1];//el + 1 es para meter el /0
+        iteration = head;
+        int j = 0;
+
+        for(int i = 0; i < listSize; ++i){
+            if(i == (listSize - 1)){
+                for(;(j - (i * MAX)) < lastSize; ++j){
+                    peticion[j] = iteration -> buff[(j - (i * MAX))];
+                }
+            }else{
+                for(;(j - (i * MAX)) < MAX; ++j){
+                    peticion[j] = iteration -> buff[(j - (i * MAX))];
+                }
+            }
+
+            struct nodo* borrar = iteration;
+            iteration = iteration -> siguiente;
+
+            free(borrar);
         }
 
-        char* token;                  //split command into separate strings
-        char* cmd = strdup(buff);
-        token = strtok(cmd," ");
-        argc = 0;
-        while(token!=NULL){
-            char* c = strchr(token, '\n');
-            if(c != NULL){
-                *c = '\0';
+        peticion[j] = '\0';
+
+        // print buffer which contains the client contents 
+        printf("%s", peticion);
+        fflush(stdout);
+        
+        //State-machine
+
+        if(j >= 3){
+            if(strncmp(peticion, "GET", 3) == 0){//Peticion GET
+            //Solo nos interesa la frase que va despues del GET para saber el tipo de peticion
+            int inicio = 3;
+            int final = 3;
+
+            while((peticion[inicio] != '/') && (peticion[inicio] != '\0')){
+                ++inicio;
             }
-            argv[argc] = token;
-            printf("%s\n", token);
-            token = strtok(NULL," ");
-            argc++;
+
+            final = inicio;
+            if(peticion[inicio] != '\0'){
+                while((peticion[final] != ' ') && (peticion[final] != '\n' && peticion[final] != '\0')){
+                    ++final;
+                }
+
+                if(strncmp(peticion + inicio, "/upcheck", final - inicio) == 0){
+                    write(sockfd, "HTTP/1.1 200 OK\ncontent-type: text/plain; charset=utf-8\ncontent-length: 2\n\nOK", 77);
+                }else if(strncmp(peticion + inicio, "/api/v1/eth2/publicKeys", final - inicio) == 0){
+                    //el formato tiene que ser ["key1","key2"]
+                    ;
+                }
+            }
+
+            }else if(strncmp(peticion, "POST", 4) == 0){//Peticion POST
+                ;
+            }
         }
-        bzero(buff, MAX);
-        if(strstr(argv[0], "keygen") != NULL){
-            keygen(argc, argv, buff);
-        }else if(strstr(argv[0], "signature") != NULL){
-            if(argc != 3){
-                strcat(buff, "Incorrect arguments\n");
-            }else{
-                signature(argc, argv, buff);
-            }
-        }else if(strstr(argv[0], "verify") != NULL){
-            if(argc != 4){
-                strcat(buff, "Incorrect arguments\n");
-            }else{
-                verify(argc, argv, buff);
-            }
-        }else if(strstr(argv[0], "getkeys") != NULL){
-            get_keys(argc, argv, buff);
-        }else if(strstr(argv[0], "reset") != NULL){
-            resetc(argc, argv, buff);
-        }else if(strstr(argv[0], "import") != NULL){
-            import(argc, argv, buff);
-        }else{
-            strcat(buff, "Command not found\n");
-        }
-        char* end = strrchr(buff, '\n');
-        bzero(end+1, MAX-(end-buff));
-        printf("%s", buff);
-        write(sockfd, buff, strlen(buff));
     }
 }
 
