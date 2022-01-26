@@ -1,1 +1,0 @@
-/usr/bin/cc -g  -rdynamic CMakeFiles/test_strerror.dir/test_strerror.c.o CMakeFiles/test_strerror.dir/__/strerror_override.c.o  -o test_strerror  -Wl,-rpath,/home/jorge/bls-hsm/json-c-build ../libjson-c.so.5.1.0 
