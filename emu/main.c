@@ -35,6 +35,8 @@ void func(int sockfd)
         char bufferRequest[MAX];
 
         bytesRead = read(sockfd, (void*) bufferRequest, MAX);
+        printf("%.*s\n\n\n\n", bytesRead, bufferRequest);
+        fflush(stdout);
         struct boardRequest reply;
 
         if(parseRequest(bufferRequest, (size_t) bytesRead, &reply) == 0){
@@ -44,9 +46,10 @@ void func(int sockfd)
             if((bytesToWrite = dumpHttpResponse(bufferReply, &reply)) > 0){
                 int bytesWritten = 0;
                 do{
-                    write(sockfd, (void*) (bufferReply + bytesWritten), bytesToWrite - bytesWritten);
+                    bytesWritten += write(sockfd, (void*) (bufferReply + bytesWritten), bytesToWrite - bytesWritten);
                 }while(bytesWritten < bytesToWrite);
                 printf("\n\n%s\n\n", bufferReply);
+                fflush(stdout);
             }else{
                 printf("Unsuccessful response.\n");
             }

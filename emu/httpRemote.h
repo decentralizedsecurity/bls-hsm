@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "../cli/include/common.h"
 
 #define signatureOffset 12//due to  Signature: \n
 
@@ -129,20 +130,21 @@ void getBody(char* buffer, size_t bufferSize, struct httpRequest* request){
 
     //14 is the size of content-length
     for(bodyLengthPosition = 0; 
-    (bodyLengthPosition < (int) request->numHeaders) && 
-    !((request->headers[bodyLengthPosition].name_len == (size_t) 14) 
+    (bodyLengthPosition < (int) request->numHeaders) && (request->headers[bodyLengthPosition].name != NULL) &&
+    !((request->headers[bodyLengthPosition].name_len == contentLengthStrSize) 
     && (strncmp(contentLengthStr, request->headers[bodyLengthPosition].name, contentLengthStrSize))); 
-    ++bodyLengthPosition);
+    ++bodyLengthPosition){}
 
     if(bodyLengthPosition < request->numHeaders){
         char bodyLenChar[(int) request->headers[bodyLengthPosition].value_len + 1];
-        strcpy(bodyLenChar, request->headers[bodyLengthPosition].value);
+        strncpy(bodyLenChar, request->headers[bodyLengthPosition].value, request->headers[bodyLengthPosition].value_len);
         bodyLenChar[(int) request->headers[bodyLengthPosition].value_len] = '\0';
 
         request->bodyLen = (size_t) atoi(bodyLenChar);
 
         if((int) request->bodyLen > 0){
             request->body = buffer + (int) bufferSize - (int) request->bodyLen;
+            printf("%s", request->body);
         }else{
             request->body = NULL;
         }
@@ -179,7 +181,7 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
     request.requestLen = phr_parse_request(buffer, bufferSize, (const char**) &(request.method), &(request.methodLen), 
     (const char**) &(request.path), &(request.pathLen), &(request.minorVersion), request.headers, &(request.numHeaders), 0);
 
-    if(request.requestLen < 0){
+    if((int) request.requestLen < 0){
         return -1;
     }
 
@@ -215,7 +217,7 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
     Returns size of buffer
 */
 int upcheckResponseStr(char* buffer){
-    strncpy(buffer, upcheckResponse, strlen(upcheckResponse));
+    strcpy(buffer, upcheckResponse);
     return strlen(upcheckResponse);
 }
 
