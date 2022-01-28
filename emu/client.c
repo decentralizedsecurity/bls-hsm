@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#define MAX 1400 //Tamaño maximo MTU - cabeceras (hay un margen)
+#define MAX 1400
 #define PORT 8080
 #define SA struct sockaddr
+
 void func(int sockfd)
 {
     char buff[MAX];
