@@ -1,0 +1,10 @@
+import { SecretKey } from "./secretKey";
+import { PublicKey } from "./publicKey";
+import { Signature } from "./signature";
+import { IBls } from "../interface";
+export * from "../constants";
+export { SecretKey, PublicKey, Signature };
+export declare function init(): Promise<void>;
+export declare function destroy(): void;
+export declare const bls: IBls;
+export default bls;

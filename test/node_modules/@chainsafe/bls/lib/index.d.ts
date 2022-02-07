@@ -1,0 +1,13 @@
+import { IBls } from "./interface";
+export declare type Implementation = "herumi" | "blst-native";
+export * from "./interface";
+export declare const bls: IBls;
+export default bls;
+export declare function init(impl: Implementation): Promise<void>;
+export declare let sign: IBls["sign"];
+export declare let aggregateSignatures: IBls["aggregateSignatures"];
+export declare let aggregatePublicKeys: IBls["aggregatePublicKeys"];
+export declare let verify: IBls["verify"];
+export declare let verifyAggregate: IBls["verifyAggregate"];
+export declare let verifyMultiple: IBls["verifyMultiple"];
+export declare let secretKeyToPublicKey: IBls["secretKeyToPublicKey"];

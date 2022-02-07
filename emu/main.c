@@ -15,7 +15,7 @@
 #include <sys/types.h>
 
 #include "../blst/bindings/blst.h"
-#include "../cli/include/common.h"
+#include "../cli/include/commonBoard.h"
 
 #include "./httpRemote.h"
 
@@ -26,9 +26,17 @@
 
 void func(int sockfd)
 {
-    char* argv[4];
-    int argc;
+    if(import("0x93357422d0fd7d2419a906e5f849080649a08b98783683fda9d346fbef4382d7") == -1){
+        print_error();
+    }
 
+    if(import("0xd97e61a1990796fbcd522ce4bc24d2c268af2e69b1e669eee208dd20fd5d5ced") == -1){
+        print_error();
+    }
+
+    if(import("0x3604f89dbd5161c5b214dd15afab350048a9c74ca1f657d93b02d14088f55ad0") == -1){
+        print_error();
+    }
     // infinite loop for chat
     for (;;) {
         int bytesRead;

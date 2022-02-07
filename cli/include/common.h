@@ -467,16 +467,16 @@ void get_keys(int argc, char** argv, char* buff){
         printf("There are no keys stored\n");
     }
 #else
-        strcat(buff, "{'keys':['");
+        strcat(buff, "{\"keys\":[\"");
         for(int i = 0; i < 96 * cont + 96; i++){
             char str[2] = {public_keys_hex_store[i], '\0'};
             strcat(buff, str);
             j++;
             if (j == 96){
                 if(counter > 1) {
-                    strcat(buff, "'\n'");
+                    strcat(buff, "\",\"");
                 } else {
-                    strcat(buff, "']}\n");
+                    strcat(buff, "\"]}\n");
                 }               
                 j = 0;
                 counter--;

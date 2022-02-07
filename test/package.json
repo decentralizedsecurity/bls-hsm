@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@myetherwallet/eth2-keystore": "^0.2.3",
+    "eth2-keystore-js": "^1.0.8"
+  }
+}
