@@ -15,13 +15,17 @@
 #include <pm_config.h>
 #include <fw_info.h>
 #include <drivers/uart.h>
+#include <cJSON.h>
+#include <string.h>
 #ifdef CONFIG_USB
 #include <usb/usb_device.h>
 #endif
 
 #include <blst.h>
 #include <common.h>
+#include <bls_hsm.h>
 
+char buffer[2048] = "";
 
 #define CONFIG_SPM_SERVICE_RNG
 
@@ -29,30 +33,44 @@ LOG_MODULE_REGISTER(app);
 
 static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
 {
-    keygen(argc, argv, NULL);
+    keygen(argc, argv, buffer);
+    printf(buffer);
+    memset(buffer, 0, 2048);
     return 0;
 }
 
 static int cmd_signature_message(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
-    signature(argc, argv, NULL);
+    if(signature(argv[1], argv[2], buffer) == 0){
+        printf("Signature: \n");
+        printf("%s%s\n", "0x", buffer);
+    }else{
+        printf(buffer);
+    }
+    memset(buffer, 0, 2048);
 	return 0;
 }
 
 static int cmd_signature_verification(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
-    verify(argc, argv, NULL);
+    verify(argv, buffer);
+    printf(buffer);
+    memset(buffer, 0, 2048);
 	return 0;
 }
 
 static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
-    get_keys(argc, argv, NULL);
+    dump_keys(buffer);
+    printf(buffer);
+    memset(buffer, 0, 2048);
 	return 0;
 }
 
 static int cmd_reset(const struct shell *shell, size_t argc, char **argv, char* buff){
-    resetc(argc, argv, NULL);
+    resetc(buffer);
+    printf(buffer);
+    memset(buffer, 0, 2048);
     return 0;
 }
 
@@ -70,7 +88,9 @@ static int cmd_prompt(const struct shell *shell, size_t argc, char **argv){
 }
 
 static int cmd_import(const struct shell *shell, size_t argc, char **argv){
-    import(argc, argv, NULL);
+    import(argv[1], buffer);
+    printf(buffer);
+    memset(buffer, 0, 2048);
     return 0;
 }
 

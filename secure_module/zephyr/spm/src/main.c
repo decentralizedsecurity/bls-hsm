@@ -55,14 +55,13 @@
 #include <sys/printk.h>
 #include <secure_services.h>
 #include <bl_crypto.h>
-#include <common.h>
 #endif
 
 
 blst_scalar sk;
 blst_scalar secret_keys_store[10];
 blst_scalar sk_sign;
-char public_keys_hex_store[960];
+char public_keys_hex_store[10][96];
 int keystore_size = 0;
 
 #ifndef EMU
@@ -78,16 +77,18 @@ __TZ_NONSECURE_ENTRY_FUNC
 void store_pk(char* public_key_hex){
         int cont = keystore_size - 1;
         for(int i = 0; i < 96; i++){
-            public_keys_hex_store[i+96*cont] = public_key_hex[i];
+            public_keys_hex_store[cont][i] = public_key_hex[i];
         }
 }
 
 #ifndef EMU
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
-void getkeys(char* public_keys_hex_store_ns){
-        for(int i = 0; i < keystore_size*96; i++){
-            public_keys_hex_store_ns[i] = public_keys_hex_store[i];
+void getkeys(char public_keys_hex_store_ns[keystore_size][96]){
+        for(int i = 0; i < keystore_size; i++){
+            for(int j = 0; j < 96; j++){
+                public_keys_hex_store_ns[i][j] = public_keys_hex_store[i][j];
+            }
         }
 }
 
@@ -99,15 +100,14 @@ int pk_in_keystore(char * public_key_hex, int offset){
         int ret = 0;
 
         int c = 0;
-        int cont = 0;
 
         if(keystore_size == 0){
                 ret = -1;
         }
 
         for(int i = 0; i < keystore_size; i++){
-            for(int x = 0; x < 96; x++){
-                if(public_key_hex[x + offset] != public_keys_hex_store[x + cont]){
+            for(int j = 0; j < 96; j++){
+                if(public_key_hex[j + offset] != public_keys_hex_store[i][j]){
                     c = 1;
                     break;
                 }
@@ -117,7 +117,6 @@ int pk_in_keystore(char * public_key_hex, int offset){
                 break;
             } else {
                 if((i+1) < keystore_size){
-                    cont += 96;
                     c = 0;
                 }else{
                     ret = -1;

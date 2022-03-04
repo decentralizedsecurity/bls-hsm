@@ -7,7 +7,10 @@ list(APPEND ZEPHYR_EXTRA_MODULES
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(cli)
 
-target_sources(app PRIVATE src/main.c)
+target_sources(app PRIVATE src/main.c
+./include/bls_hsm.c
+./include/common.c
+)
 
 zephyr_library_include_directories(
   ./include/

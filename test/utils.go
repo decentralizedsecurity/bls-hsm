@@ -118,7 +118,7 @@ func getkeys(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool) {
 		if verb {
 			fmt.Println(scanner.Text())
 		}
-		if strings.HasSuffix(scanner.Text(), "}") {
+		if strings.HasSuffix(scanner.Text(), "}\r") {
 			passed[2] = true
 			if verb {
 				color.HiGreen("PASSED")
@@ -126,7 +126,7 @@ func getkeys(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool) {
 			break
 		}
 	}
-	if !strings.HasSuffix(scanner.Text(), "}") {
+	if !strings.HasSuffix(scanner.Text(), "}\r") {
 		passed[2] = false
 		if verb {
 			color.Red("FAILED")
@@ -190,7 +190,7 @@ func keygenext(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool)
 		if verb {
 			fmt.Println(scanner.Text())
 		}
-		if strings.HasSuffix(scanner.Text(), ".") {
+		if strings.HasSuffix(scanner.Text(), ".\r") {
 			passed[4] = true
 			if verb {
 				color.HiGreen("PASSED")
@@ -198,7 +198,7 @@ func keygenext(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool)
 			break
 		}
 	}
-	if !strings.HasSuffix(scanner.Text(), ".") {
+	if !strings.HasSuffix(scanner.Text(), ".\r") {
 		passed[4] = false
 		if verb {
 			color.Red("FAILED")
@@ -218,7 +218,8 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 		fmt.Println("Public key: " + str[0])
 		fmt.Println("Message: " + msg)
 	}
-	n, err := s.Write([]byte("signature " + str[0] + " " + msg + "\n"))
+	pk := str[0][:98]
+	n, err := s.Write([]byte("signature " + pk + " " + msg + "\n"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -261,7 +262,8 @@ func signature(s *serial.Port, scanner *bufio.Scanner, msg string, sign *string,
 	}
 }
 func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str []string, verb bool, passed []bool, times []time.Duration) {
-	n, err := s.Write([]byte("verify " + str[0] + " " + msg + " " + sign + "\n"))
+	pk := str[0][:98]
+	n, err := s.Write([]byte("verify " + pk + " " + msg + " " + sign + "\n"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -399,7 +401,7 @@ func imp(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, test 
 			if verb {
 				fmt.Println(scanner.Text())
 			}
-			if (strings.HasPrefix(scanner.Text(), "0x")) && (scanner.Text() == pkhex) {
+			if (strings.HasPrefix(scanner.Text(), "0x")) && (scanner.Text() == pkhex+"\r") {
 				passed[test] = true
 				break
 			} else if strings.HasPrefix(scanner.Text(), "Incorrect") || strings.Contains(scanner.Text(), "reached") {

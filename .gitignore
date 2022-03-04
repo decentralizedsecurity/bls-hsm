@@ -1,5 +1,5 @@
 cli/build_nrf5340dk_nrf5340_cpuappns
-cli/build
+cli/build*
 cli/lib/**
 cli/include/blst.h
 cli/include/blst_aux.h
@@ -11,3 +11,4 @@ test/go.mod
 test/go.sum
 .vscode/settings.json
 server/*
+remote_signer/build
