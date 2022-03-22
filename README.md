@@ -10,7 +10,7 @@ It's also provided a script `linux_dependencies.sh` for Linux as an alternative,
 
 [Blst library](https://github.com/supranational/blst) is also needed in order to build both projects. `build_blst.sh` script will clone and build the library in Linux providing the ARM compiler as a parameter.
 
-Once the dependencies are available, to build the project you can either follow this [steps](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_programming.html#gs-programming-cmd) or use the `build.sh` script. There is also a `flash.sh` script to flash the board with a previously built project.
+Once the dependencies are available, to build the project you can either follow these [steps](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_programming.html#gs-programming-cmd) or use the `build.sh` script. There is also a `flash.sh` script to flash the board with a previously built project.
 
 ## Emulation
 It is also possible to compile the project to run in Linux and MacOS directly without the board. The "emu" directory contains a simple socket server that by default exports all the funcionality of the cli project over the 8080 port, if you need to change the port simply modify the value of PORT in [main.c](emu/main.c). It also contains a simple socket client to comsume this API and do some testing ([client.c](emu/client.c)).
