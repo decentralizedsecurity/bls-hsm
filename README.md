@@ -1,32 +1,16 @@
 # bls-hsm
 
 ## Design :page_with_curl:
-This project implements a command line interface (cli) that internally uses [blst library](https://github.com/supranational/blst#blst). It has been implemented using the Nordic Connect SDK for the execution in Nordic Semiconductor nRF9160DK and rRF5340DK boards. The cli can be accessed using the serial port of the board.
+  This project implements a command line interface (cli) that internally uses [blst library](https://github.com/supranational/blst#blst) and a remote signer module which is currently under development. It has been implemented using the Nordic Connect SDK for the execution in Nordic Semiconductor nRF9160DK and rRF5340DK boards. The cli can be accessed using the serial port of the board.
 We take advantage of ARM TrustZone technology to protect cryptographic material. All critical parts of the code that require access to private keys are run in the secure world.
 
-## Installation in Linux
-You can run `./setup.sh [-c "compiler path"] [-i] -b "board identifier"` to build the project.
-`-c "compiler path"` option will define the path of the arm compiler. `-i` option is used to automatically check if the compiler is installed and install it otherwise, using it in the building process.
-`setup.sh` will run sequentially `build_blst.sh`, `dependencies.sh`, `build.sh` and `flash.sh`. After running `build_blst.sh` and `dependencies.sh` once, only `build.sh` and `flash.sh` are needed.
+## Installation
+In order to install the required dependencies it is recommended to follow this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html). For now, only 1.8.0 version of the toolchain or lower is supported.
+It's also provided a script `linux_dependencies.sh` for Linux as an alternative, but proper functioning is not guaranteed.
 
-Output example:
-```
-user@user:~/bls-hsm$ ./setup.sh -c /usr/bin/arm-none-eabi-gcc -b nrf5340dk_nrf5340_cpuapp_ns
-Compiler selected: /usr/bin/arm-none-eabi-gcc
-+ /usr/bin/arm-none-eabi-gcc -O -fno-builtin-memcpy -fPIC -Wall -Wextra -Werror -mcpu=cortex-m33 -fno-pie -c ./blst/src/server.c
-+ /usr/bin/arm-none-eabi-gcc -O -fno-builtin-memcpy -fPIC -Wall -Wextra -Werror -mcpu=cortex-m33 -fno-pie -c ./blst/build/assembly.S
-+ /usr/bin/arm-none-eabi-gcc -O -fno-builtin-memcpy -fPIC -Wall -Wextra -Werror -mcpu=cortex-m33 -fno-pie -nostdlib -r assembly.o server.o -o blst.o
-+ /usr/bin/arm-none-eabi-objcopy --localize-symbols=/tmp/localize.blst.11736 blst.o
-+ /usr/bin/arm-none-eabi-ar rc libblst.a blst.o
-Blst library built
-.
-.
-.
--- runners.nrfjprog: Board with serial number xxxxxxxxx flashed successfully.
-user@user:~/bls-hsm$
-```
+[Blst library](https://github.com/supranational/blst) is also needed in order to build both projects. `build_blst.sh` script will clone and build the library in Linux providing the ARM compiler as a parameter.
 
-It's also possible to install the nRF Connect SDK manually following this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html).
+Once the dependencies are available, to build the project you can either follow this [steps](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_programming.html#gs-programming-cmd) or use the `build.sh` script. There is also a `flash.sh` script to flash the board with a previously built project.
 
 ## Emulation
 It is also possible to compile the project to run in Linux and MacOS directly without the board. The "emu" directory contains a simple socket server that by default exports all the funcionality of the cli project over the 8080 port, if you need to change the port simply modify the value of PORT in [main.c](emu/main.c). It also contains a simple socket client to comsume this API and do some testing ([client.c](emu/client.c)).
@@ -40,7 +24,7 @@ Enter command:
 ```
 
 
-## Usage
+## CLI usage
 The commands that are supported are:
 - :warning:*import*:warning:: imports secrets key and derives public key (NOTE: this is currently an INSECURE implementation).
   ```
@@ -83,11 +67,11 @@ The commands that are supported are:
 
 
 ## Implementations :pick:
-**1. cli**: This project uses blst static library that has been compiled for Cortex-M33 architecture.
+**1. cli**: This project uses blst static library that has been compiled for Cortex-M33 architecture and contains basic bls signing operations.
 
-PS. The *prj.conf* file has been modified because default size caused stack overflow from the UART thread. Current size is 49152 bytes.
+**2. Remote Signer (under development)**
 
-**2. secure_module**: This module contains blst function calls that involve usage and storage of secret keys, using Secure Partition Manager (SPM).
+**3. secure_module**: This module contains blst function calls that involve usage and storage of secret keys, using Secure Partition Manager (SPM).
 
 ## Test
 "test" folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go mod init test`, `go mod tidy` and then either `go run ./main.go ./utils.go [-v] COMport` if you want to run it right away or `go build` and then `./test [-v] COMport` if you want to generate an executable. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4, /dev/ttyS3).
@@ -129,7 +113,7 @@ RESULTS:
 Total.........................11/11
 ----------------------------------------
 ```
-## :warning:Remote signer interface:warning: (UNSTABLE)
+## :warning:Remote signer interface (Go):warning: (UNSTABLE)
 [remote](remote) folder implements a HTTP server which follows the same spec as [Web3Signer](https://github.com/ConsenSys/web3signer), which is based on [EIP-3030 spec](https://eips.ethereum.org/EIPS/eip-3030). This module is currently in development and only supports signing of [`Phase0 Beacon Blocks`](https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#beacon-blocks), [`AttestationData`](https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#attestationdata), `Aggregation Slot` and `Aggregate and Proof` (info about these two in [Web3Signer API REST](https://consensys.github.io/web3signer/web3signer-eth2.html)).
 
 To run the server use `go mod init remote`, `go mod tidy` and `go run ./main.go <comPort> <keystore_path> <keystore_password> [-v]` to run it directly or, if you prefer to build it first, run `go build` and then launch it by running `./remote <comPort> <keystore_path> <keystore_password> [-v]`. This will import the secret key obtained from the given keystore in `keystore_path` and wait for requests. `[-v]` parameter will give information about each signing request received.
@@ -152,3 +136,6 @@ curl -X POST localhost:80/sign/ae249bcf645e7470cdd10c546de97ea87f70a93dbf8a99e2b
 }
 ```
 The body used in the HTTP request is the block json found in [samples](samples) folder.
+
+## Remote signer
+This project is a simple remote signer which also follows the Web3Signer spec. It's currently under development.
