@@ -138,4 +138,4 @@ curl -X POST localhost:80/sign/ae249bcf645e7470cdd10c546de97ea87f70a93dbf8a99e2b
 The body used in the HTTP request is the block json found in [samples](samples) folder.
 
 ## Remote signer
-This project is a simple remote signer which also follows the Web3Signer spec. It's currently under development.
+This project is a simple remote signer which also follows the Web3Signer spec. It's currently under development and supports signing, retrieval of keys and status check using a HTTP interface through a COM tunnel between the board's serial port and an IP port.
