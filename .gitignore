@@ -12,3 +12,4 @@ test/go.sum
 .vscode/settings.json
 server/*
 remote_signer/build
+lib/*
