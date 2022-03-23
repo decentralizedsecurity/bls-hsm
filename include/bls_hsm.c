@@ -37,14 +37,14 @@ int pk_parse(char* pk_hex, blst_p1_affine* pk, char* buff){
 
         if(offset == BADLEN){
             strcat(buff, "Incorrect public key length. It must be 96 characters long.\n");
-            error = 1;
+            error = BADPKLEN;
         }else if(offset == BADFORMAT){
                 strcat(buff, "Public key contains incorrect characters.\n");
-                error = 1;
+                error = offset;
         }else{
             if(hex2bin(pk_hex + offset, 96, pk_bin, 48) == 0) {
                 strcat(buff, "Failed converting public key to binary array\n");
-                error = 1;
+                error = HEX2BINERR;
             }else{
                 blst_p1_uncompress(pk, pk_bin);
             }
@@ -63,14 +63,14 @@ int msg_parse(char* msg, uint8_t* msg_bin, int len, char* buff){
         int error = 0;
         if(offset == BADFORMAT){
             strcat(buff, "Message contains incorrect characters.\n");
-            error = 1;
+            error = offset;
         }else if(offset == BADLEN){
             strcat(buff, "Message contains incorrect characters.\n");
-            error = 1;
+            error = offset;
         }else{
             if(hex2bin(msg + offset, len, msg_bin, len/2 + len%2) == 0) {
                 strcat(buff, "Incorrect message length.\n");
-                error = 1;
+                error = HEX2BINERR;
             }
         }
 
@@ -88,14 +88,14 @@ int sig_parse(char* sig_hex, blst_p2_affine* sig, char* buff){
 
         if(offset == BADLEN){
             strcat(buff, "Incorrect signature length. It must be 192 characters long.\n");
-            error = 1;
+            error = BADSIGLEN;
         }else if(offset == BADFORMAT){
             strcat(buff, "Signature contains incorrect characters.\n");
-            error = 1;
+            error = offset;
         }else{
             if(hex2bin(sig_hex + offset, 192, sig_bin, 96) == 0) {
                 strcat(buff, "Failed converting signature to binary array\n");
-                error = 1;
+                error = HEX2BINERR;
             }else{
                 blst_p2_uncompress(sig, sig_bin);
             }
@@ -203,7 +203,7 @@ int signature(char* pk, char* msg, char* buff){
         }
     }else if(offset == BADLEN){
         strcat(buff, "Incorrect public key length. It must be 96 characters long\n");
-        return BADLEN;
+        return BADPKLEN;
     }else{
         strcat(buff, "Public key contains incorrect characters.\n");
         return BADFORMAT;
@@ -221,7 +221,7 @@ void verify(char** argv, char* buff){
     blst_p2_affine sig;
     int len = msg_len(argv[2]);
     uint8_t msg_bin[len/2 + len%2];
-    if((pk_parse(argv[1], &pk, buff) || msg_parse(argv[2], msg_bin, len, buff) || sig_parse(argv[3], &sig, buff)) != 1){
+    if((pk_parse(argv[1], &pk, buff) || msg_parse(argv[2], msg_bin, len, buff) || sig_parse(argv[3], &sig, buff)) == 0){
         if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, len/2 + len%2, dst, sizeof(dst)-1, NULL, 0) != BLST_SUCCESS){
             strcat(buff, "Error\n");
         }
