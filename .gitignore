@@ -13,3 +13,4 @@ test/go.sum
 server/*
 remote_signer/build
 lib/*
+blst/*
