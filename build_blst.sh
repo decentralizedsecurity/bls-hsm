@@ -18,22 +18,20 @@ if [ -z $comp ]; then
 fi
 
 #Use working version of blst module
-cd ./blst
-git checkout master
-cd ..
+git clone https://github.com/supranational/blst.git
 
 ./blst/build.sh CC=$comp -mcpu=cortex-m33 flavour=elf -fno-pie
 ret=$?
 
 if [ $ret -eq 0 ]; then
   echo "Blst library built"
-  sudo rm -f ./cli/include/blst.h
-  sudo rm -f ./cli/include/blst_aux.h
-  sudo rm -f ./cli/lib/libblst.a
-  sudo mkdir -p ./cli/lib
-  sudo mv ./libblst.a ./cli/lib/
-  sudo mkdir -p ./cli/include
-  sudo cp ./blst/bindings/blst.h ./blst/bindings/blst_aux.h ./cli/include/
+  sudo rm -f ./include/blst.h
+  sudo rm -f ./include/blst_aux.h
+  sudo rm -f ./lib/libblst.a
+  sudo mkdir -p ./lib
+  sudo mv ./libblst.a ./lib/
+  sudo mkdir -p ./include
+  sudo cp ./blst/bindings/blst.h ./blst/bindings/blst_aux.h ./include/
 else
   echo "Error building blst library"
 fi
