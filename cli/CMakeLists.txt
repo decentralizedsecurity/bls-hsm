@@ -8,12 +8,12 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(cli)
 
 target_sources(app PRIVATE src/main.c
-../include/bls_hsm.c
-../include/common.c
+../lib/bls_hsm.c
+../lib/common.c
 )
 
 zephyr_library_include_directories(
-  ../include/
+  ../lib/
   )
 
 add_library(testlib STATIC IMPORTED)

@@ -12,5 +12,14 @@ test/go.sum
 .vscode/settings.json
 server/*
 remote_signer/build
-lib/*
 blst/*
+blst
+picohttpparser/*
+picohttpparser
+cJSON/*
+cJSON
+lib/picohttpparser*
+lib/cJSON*
+lib/libblst.a
+lib/blst*
+.vscode*

@@ -15,7 +15,7 @@ zephyr_include_directories(
 
 zephyr_library_sources(src/main.c)
 zephyr_library_include_directories(
-  ../../../include/
+  ../../../lib/
   )
 
 add_library(testlib STATIC IMPORTED)
