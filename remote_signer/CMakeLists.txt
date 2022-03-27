@@ -9,14 +9,14 @@ project(remote_signer)
 
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources}
-  ../cli/include/picohttpparser.c
-  ../cli/include/bls_hsm.c
-  ../cli/include/common.c
+  ../lib/picohttpparser.c
+  ../lib/bls_hsm.c
+  ../lib/common.c
 )
 
 zephyr_library_include_directories(
-  ../cli/include/
+  ../lib/
 )
 
 add_library(testlib STATIC IMPORTED)
-target_link_libraries(app PUBLIC ${APPLICATION_SOURCE_DIR}/../cli/lib/libblst.a)
+target_link_libraries(app PUBLIC ${APPLICATION_SOURCE_DIR}/../lib/libblst.a)

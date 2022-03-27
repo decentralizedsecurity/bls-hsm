@@ -15,7 +15,7 @@
 #include <sys/types.h>
 
 #include "../blst/bindings/blst.h"
-#include "../cli/include/common.h"
+#include "../include/common.h"
 
 #include "../secure_module/zephyr/spm/src/main.c"
 

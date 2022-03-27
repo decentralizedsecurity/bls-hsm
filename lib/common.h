@@ -3,8 +3,18 @@
 
 #include <stdlib.h>
 #include <string.h>
+
 #define BADLEN -1
 #define BADFORMAT -2
+#define NOKEYS 1
+#define PKNOTFOUND 2
+#define BADPKLEN 3
+#define EXISTINGKEY 4
+#define BADSKLEN 5
+#define KEYSLIMIT 6
+#define HEX2BINERR 7
+#define BIN2HEXERR 8
+#define BADSIGLEN 9
 
 #ifdef EMU
 

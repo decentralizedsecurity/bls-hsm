@@ -1,7 +1,6 @@
 #ifndef bls_hsm_h
 #define bls_hsm_h
 #include "blst.h"
-#define PKNOTFOUND 1
 
 int pk_in_keystore(char * public_key_hex, int offset);
 void ikm_sk(char* info);
