@@ -29,6 +29,7 @@
 #define sign 0
 #define upcheck 1
 #define getKeys 2
+#define importKey 4
 
 #define textPlain 0
 #define applicationJson 1
@@ -37,6 +38,7 @@ char upcheckStr[] = "/upcheck";
 char getKeysStr[] = "/api/v1/eth2/publicKeys";
 char signRequestStr[] = "/api/v1/eth2/sign/0x";
 char contentLengthStr[] = "content-length";
+char keymanagerStr[] = "/eth/v1/keystores";
 char acceptStr[] = "Accept";
 
 char textPlainStr[] = "text/plain";
@@ -231,14 +233,20 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
     }else if((request.methodLen == 4) && (strncmp(request.method, "POST", 4) == 0)){
         getBody(buffer, bufferSize, &request);
         if((request.pathLen == (strlen(signRequestStr) + keySize)) && (strncmp(request.path, signRequestStr, strlen(signRequestStr)) == 0)){
-            getAcceptOptions(&request);
-            reply->acceptType = request.acceptType;
-            reply->keyToSign = request.path + strlen(signRequestStr);
+            reply->keyToSign[0] = '0';
+            reply->keyToSign[1] = 'x';
+            strncpy(reply->keyToSign + 2, request.path + strlen(signRequestStr), keySize);
+            reply->keyToSign[keySize + 2] = '\0';
                         
             reply->json = request.body;
             reply->jsonLen = request.bodyLen;
 
             reply->method = sign;        
+        }else if((request.pathLen == strlen(keymanagerStr)) && (strncmp(request.path, keymanagerStr, strlen(keymanagerStr) == 0))){
+            reply->json = request.body;
+            reply->jsonLen = request.bodyLen;
+
+            reply->method = importKey;
         }else{
             return -1;
         }
@@ -336,6 +344,77 @@ int signResponseStr(char* buffer, struct boardRequest* request){
 }
 
 /*
+    Returns 0 on success
+    -1 on error and set the variable errno to the type of error
+*/
+
+int httpImportFromKeystore(char* body){
+    cJSON* json= cJSON_Parse(body);
+    if(json == NULL){
+        return -1;
+    }
+
+    cJSON* keystoresJson = cJSON_GetObjectItemCaseSensitive(json, "keystores");
+    if((keystoresJson == NULL) || (keystoresJson->child == NULL)){
+        return -1;
+    }
+
+    cJSON* passwordsJson = cJSON_GetObjectItemCaseSensitive(json, "passwords");
+    if((passwordsJson == NULL) || (passwordsJson->child == NULL)){
+        return -1;
+    }
+
+    int nKeysAlreadyStored = get_keystore_size();
+
+    int nKeystores = 0;
+    int nPasswords = 0;
+
+    keystoresJson = keystoresJson->child;
+    passwordsJson = passwordsJson->child;
+
+    char keystores[MAXKeys][1000];//maximum size of keystores 1000
+    char passwords[MAXKeys][200];//maximum size of passwords 200
+
+    while(keystoresJson != NULL){
+        if(nKeystores < (MAXKeys + nKeysAlreadyStored)){
+            if(strlen(keystoresJson->valuestring) > (((int) sizeof(keystores[nKeystores])) - 1)){
+                return -1;
+            }else{
+                keystores[nKeystores][0] = '\0';
+                strncpy(keystores[nKeystores], keystoresJson->valuestring, (int) sizeof(keystores[nKeystores]));
+            }
+
+            ++nKeystores;
+            keystoresJson = keystoresJson->next;
+        }else{
+            return -1;
+        }
+    }
+
+    while(passwordsJson!= NULL){
+        if(nPasswords < (MAXKeys + nKeysAlreadyStored)){
+            if(strlen(passwordsJson->valuestring) > (((int) sizeof(passwords[nPasswords])) - 1)){
+                return -1;
+            }else{
+                passwords[nPasswords][0] = '\0';
+                strncpy(passwords[nPasswords], passwordsJson->valuestring, (int) sizeof(passwords[nPasswords]));
+            }
+
+            ++nPasswords;
+            passwordsJson = passwordsJson->next;
+        }else{
+            return -1;
+        }
+    }
+
+    if(nKeystores != nPasswords){
+        return -1;
+    }
+
+    return import_from_keystore((char**) keystores, (char**) passwords, nKeystores);
+}
+
+/*
     On succes returns the number of bytes in buffer
     On error retuns -1
 */
@@ -354,6 +433,10 @@ int dumpHttpResponse(char* buffer, struct boardRequest* request){//boardRequest 
             copyKeys(request);
             return getKeysResponseStr(buffer, request);
             break;
+        case importKey:
+            if(httpImportFromKeystore(request->json) == -1){
+                return -1;
+            }
         default:
             return -1;
     }

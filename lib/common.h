@@ -15,6 +15,7 @@
 #define HEX2BINERR 7
 #define BIN2HEXERR 8
 #define BADSIGLEN 9
+#define BADJSON 10
 
 #ifdef EMU
 

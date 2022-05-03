@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+
 
 usage(){
   echo "Usage: $0 [-c \"compiler path\"] [-h]

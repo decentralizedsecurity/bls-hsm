@@ -3,8 +3,6 @@ cli/build*
 cli/lib/**
 cli/include/blst.h
 cli/include/blst_aux.h
-emu/build
-emu/lib
 test/test.exe
 test/test
 test/go.mod
@@ -23,3 +21,8 @@ lib/cJSON*
 lib/libblst.a
 lib/blst*
 .vscode*
+lib/aes.h
+lib/libwolfssl.a
+lib/pwdbased.h
+lib/sha256.h
+remote-c/build

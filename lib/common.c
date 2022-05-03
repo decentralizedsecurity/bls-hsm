@@ -1,8 +1,8 @@
 #include "common.h"
 #include <stdlib.h>
 #include <string.h>
+#include "blst.h"
 
-#ifdef EMU
 
 int char2hex(char c, uint8_t *x)
 {
@@ -85,7 +85,6 @@ size_t hex2bin(const char *hex, size_t hexlen, uint8_t *buf, size_t buflen)
 	return hexlen / 2 + hexlen % 2;
 }
 
-#endif
 
 /*
 Get offset to first char of hex string 'str' with expected length 'len'

@@ -15,7 +15,6 @@
 #include <sys/types.h>
 
 #include "../blst/bindings/blst.h"
-#include "../include/common.h"
 
 #include "./httpRemote.h"
 

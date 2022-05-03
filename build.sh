@@ -1,4 +1,3 @@
-#!/usr/bin/bash
 
 usage(){
   echo "Usage: $0 [-c <compiler path>] [-b <board identifier>] [-p <project>]

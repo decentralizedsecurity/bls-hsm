@@ -25,4 +25,9 @@ void verify(char** argv, char* buff);
 void dump_keys(char* buff);
 void resetc(char* buff);
 void import(char* sk, char* buff);
+
+int get_decryption_key(char* keystore, char* decryption_key);
+int verificate_password(char* keystore, char* password);
+int get_private_key(char* keystore, char* decription_key);
+int import_from_keystore(char** keystores, char** passwords, int nKeys);
 #endif

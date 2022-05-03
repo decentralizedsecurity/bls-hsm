@@ -2,6 +2,7 @@
 #include "common.h"
 #include <stdlib.h>
 #include <string.h>
+//#include <wolfssl/wolfcrypt/pwdbased.h>
 
 /*
 Converts input 'pk' to binary 'out'
@@ -303,4 +304,35 @@ void import(char* sk, char* buff){
     }else{
             strcat(buff, "Limit reached\n");
     }
+}
+
+/*
+    Returns 0 on succes and error number on error
+*/
+int get_decryption_key(char* keystore, char* decryption_key){
+    return 0;
+}
+
+/*
+    Returns 0 on succes and error number on error
+*/
+int verificate_password(char* keystore, char* password){
+    return 0;
+}
+
+/*
+    Returns 0 on succes and error number on error
+*/
+int get_private_key(char* keystore, char* decription_key){
+    return 0;
+}
+
+int import_from_keystore(char** keystores, char** passwords, int nKeys){
+    for(int i = 0; i < nKeys; ++i){
+        if(verificate_password(keystores[i], passwords[i]) == -1){
+            return -1;
+        }
+    }
+    
+    return 0;
 }

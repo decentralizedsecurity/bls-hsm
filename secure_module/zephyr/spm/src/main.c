@@ -44,7 +44,7 @@
  *        |  SRAM (BSD Library) |
  *  64 kB |---------------------|
  *        |      Secure         |
- *        |       SRAM          |
+ *        |       SRAM          |get_keys
  *  0 kB  |---------------------|
  */
 
@@ -84,7 +84,7 @@ void store_pk(char* public_key_hex){
 #ifndef EMU
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
-void getkeys(char public_keys_hex_store_ns[keystore_size][96]){
+void getkeys(char** public_keys_hex_store_ns){
         for(int i = 0; i < keystore_size; i++){
             for(int j = 0; j < 96; j++){
                 public_keys_hex_store_ns[i][j] = public_keys_hex_store[i][j];
