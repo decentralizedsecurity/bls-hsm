@@ -19,7 +19,7 @@
 #include <zephyr.h>
 #include <picohttpparser.h>
 #include <common.h>
-#include <bls_hsm.h>
+#include <bls_hsm_ns.h>
 #include <httpRemote.h>
 
 #include <usb/usb_device.h>
@@ -95,75 +95,44 @@ void main(void)
 				len += recv_len;
 			}
 		}
-		if((strncmp(buf, "POST", 4) != 0) && (strncmp(buf, "GET", 3) != 0)){
-			len = 0;
-		}else if (strncmp(buf, "POST", 4) == 0){
-			char* p = strstr(buf, "Content-Length: ");
-			if(p != NULL){
-				char* q = strchr(p, '\r');
-				if(q != NULL){
-					int clen = atoi(p + 16);
-					int headlen = q - (char*) buf;
-					int explen = clen + 4 + headlen;
-					if(len == explen){
-						uart_irq_rx_disable(dev);
-						int pr = parseRequest(buf, len, &reply);
-						if(pr != -1){
-							len = dumpHttpResponse(buf, &reply);
-						}
-						if((pr == -1) || (len == -1)){
-							memset(buf, 0, MAXBUF);
-							strcpy(buf, badRequest);
-							len = strlen(badRequest);
-						}
-						uart_irq_tx_enable(dev);
-						while (uart_irq_update(dev) && uart_irq_is_pending(dev)) {
-							if (uart_irq_tx_ready(dev)) {
-								int send_len = uart_fifo_fill(dev, buf, len);
-								LOG_INF("len: %d | send_len: %d | %d", len, send_len, len == send_len);
-								len -= send_len;
-								if(len == 0){
-									uart_irq_tx_disable(dev);
-									memset(buf, 0, MAXBUF);
-								}
-							}
-						}
-					}else if (len > explen){
-						len = 0;
-					}
-				}else if(len > 300){ // Arbitrary limit to consider request malformed.
-					len = 0;
-				}
-			}else if(len > 300){
-				len = 0;
+		uart_irq_rx_disable(dev);
+		int pr = parseRequest(buf, len, &reply);
+		if(pr == 0){
+			len = dumpHttpResponse(buf, &reply);
+			if(len == -1){
+				memset(buf, 0, MAXBUF);
+				strcpy(buf, badRequest);
+				len = strlen(badRequest);
 			}
-		}else{
-			char* p = strstr(buf, "\r\n\r\n");
-			if(p != NULL){
-				uart_irq_rx_disable(dev);
-				int pr = parseRequest(buf, len, &reply);
-				if(pr != -1){
-					len = dumpHttpResponse(buf, &reply);
-				}
-				if((pr == -1) || (len == -1)){
-					memset(buf, 0, MAXBUF);
-					strcpy(buf, badRequest);
-					len = strlen(badRequest);
-				}
-				uart_irq_tx_enable(dev);
-				while (uart_irq_update(dev) && uart_irq_is_pending(dev)) {
-					if (uart_irq_tx_ready(dev)) {
-						int send_len = uart_fifo_fill(dev, buf, len);
-						LOG_INF("len: %d | send_len: %d | %d", len, send_len, len == send_len);
-						len -= send_len;
-						if(len == 0){
-							uart_irq_tx_disable(dev);
-							memset(buf, 0, MAXBUF);
-						}
+			uart_irq_tx_enable(dev);
+			while (uart_irq_update(dev) && uart_irq_is_pending(dev)) {
+				if (uart_irq_tx_ready(dev)) {
+					int send_len = uart_fifo_fill(dev, buf, len);
+					LOG_INF("len: %d | send_len: %d | %d", len, send_len, len == send_len);
+					len -= send_len;
+					if(len == 0){
+						uart_irq_tx_disable(dev);
+						memset(buf, 0, MAXBUF);
 					}
 				}
-			}else if(len > 300){ // Arbitrary limit to consider request malformed.
-				len = 0;
+			}
+		}else if(pr == -1){
+			len = 0;
+		}else if(pr == -3){
+			memset(buf, 0, MAXBUF);
+			strcpy(buf, badRequest);
+			len = strlen(badRequest);
+			uart_irq_tx_enable(dev);
+			while (uart_irq_update(dev) && uart_irq_is_pending(dev)) {
+				if (uart_irq_tx_ready(dev)) {
+					int send_len = uart_fifo_fill(dev, buf, len);
+					LOG_INF("len: %d | send_len: %d | %d", len, send_len, len == send_len);
+					len -= send_len;
+					if(len == 0){
+						uart_irq_tx_disable(dev);
+						memset(buf, 0, MAXBUF);
+					}
+				}
 			}
 		}
 	}

@@ -1,0 +1,15 @@
+{
+    "signingRoot": "0x952537e75b316f1ba8c5b4a7ff5ad9e5adc5e1165f06e10395a2e7e83093bdea",
+    "type": "aggregation_slot",
+    "fork_info": {
+        "genesis_validators_root": "0x043db0d9a83813551ee2f33450d23797757d430911a9320530ad8a0eabc43efb",
+        "fork": {
+            "previous_version": "0x00001020",
+            "current_version": "0x01001020",
+            "epoch": "36660"
+        }
+    },
+    "aggregation_slot": {
+        "slot": "2180714"
+    }
+}

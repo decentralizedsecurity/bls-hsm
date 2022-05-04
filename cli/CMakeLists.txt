@@ -8,7 +8,7 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(cli)
 
 target_sources(app PRIVATE src/main.c
-../lib/bls_hsm.c
+../lib/bls_hsm_ns.c
 ../lib/common.c
 )
 

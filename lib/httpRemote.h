@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "common.h"
-#include "bls_hsm.h"
+#include "bls_hsm_ns.h"
 
 #define signatureOffset 12//due to  Signature: \n
 
@@ -105,7 +105,7 @@ struct httpRequest{
     char* path;
     char* body;
     int acceptType;
-    size_t requestLen;
+    int requestLen;
     size_t methodLen;
     size_t pathLen;
     size_t bodyLen;
@@ -209,17 +209,55 @@ int checkKey(struct boardRequest* request){
 /*   
     On succes returns 0
     On error returns -1
+    On incomplete request returns -2
+    On bad format returns -3
     We are only going to support GET and POST requests, so if we get another type of request we are going to handle it like an error.
 */
 int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//boardRequest out, buffer in
+
+    if((strncmp(buffer, "POST", 4) != 0) && (strncmp(buffer, "GET", 3) != 0)){
+        return -1;
+    }else if (strncmp(buffer, "POST", 4) == 0){
+        char* p = strstr(buffer, "Content-Length: ");
+        if(p != NULL){
+            char* q = strchr(p, '\r');
+            if(q != NULL){
+                int clen = atoi(p + 16);
+                int headlen = q - (char*) buffer;
+                int explen = clen + 4 + headlen;
+                if(bufferSize > explen){
+                    return -1;
+                }else if (bufferSize < explen){
+                    return -2;
+                }
+            }else{
+                if(bufferSize < 300){ // Arbitrary limit to discard request
+                    return -2;
+                }
+                return -1;
+            }
+        }else{
+            if(bufferSize < 300){ // Arbitrary limit to discard request
+                return -2;
+            }
+        }
+    }else{
+        char* p = strstr(buffer, "\r\n\r\n");
+        if(p == NULL){
+            if(bufferSize < 300){ // Arbitrary limit to discard request
+                return -2;
+            }
+            return -1;
+        }
+    }
     buffer[bufferSize] = '\0';
     struct httpRequest request;
 
     request.requestLen = phr_parse_request(buffer, bufferSize, (const char**) &(request.method), &(request.methodLen), 
     (const char**) &(request.path), &(request.pathLen), &(request.minorVersion), request.headers, &(request.numHeaders), 0);
 
-    if((int) request.requestLen < 0){
-        return -1;
+    if(request.requestLen < 0){
+        return request.requestLen;
     }
 
     if((request.methodLen == 3) && (strncmp(request.method, "GET", 3) == 0)){
@@ -228,7 +266,7 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
         }else if((request.pathLen == strlen(getKeysStr)) && (strncmp(request.path, getKeysStr, strlen(getKeysStr)) == 0)){
             reply->method = getKeys;
         }else{
-            return -1;
+            return -3;
         }
     }else if((request.methodLen == 4) && (strncmp(request.method, "POST", 4) == 0)){
         getBody(buffer, bufferSize, &request);
@@ -248,10 +286,10 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
 
             reply->method = importKey;
         }else{
-            return -1;
+            return -3;
         }
     }else{
-        return -1;
+        return -3;
     }
 
     return 0;

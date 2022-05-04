@@ -10,7 +10,7 @@ project(remote_signer)
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources}
   ../lib/picohttpparser.c
-  ../lib/bls_hsm.c
+  ../lib/bls_hsm_ns.c
   ../lib/common.c
 )
 
