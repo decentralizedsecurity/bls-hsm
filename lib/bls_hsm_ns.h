@@ -1,5 +1,6 @@
 #ifndef bls_hsm_ns_h
 #define bls_hsm_ns_h
+
 #include "blst.h"
 
 int pk_in_keystore(char * public_key_hex, int offset);

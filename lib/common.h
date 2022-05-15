@@ -6,6 +6,7 @@
 
 #define BADLEN -1
 #define BADFORMAT -2
+#define OK  0
 #define NOKEYS 1
 #define PKNOTFOUND 2
 #define BADPKLEN 3
@@ -16,6 +17,8 @@
 #define BIN2HEXERR 8
 #define BADSIGLEN 9
 #define BADJSON 10
+#define BLSTSUCCESS 11
+#define BLSTFAIL 12
 
 #ifdef EMU
 
