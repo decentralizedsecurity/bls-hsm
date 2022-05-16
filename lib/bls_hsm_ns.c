@@ -106,6 +106,7 @@ int sig_parse(char* sig_hex, blst_p2_affine* sig, char* buff){
 /*
 Generates random key. Response is dumped to 'buff'
 */
+/*
 void keygen(int argc, char** argv, char* buff){
     int keystore_size = get_keystore_size();
 
@@ -145,8 +146,9 @@ void keygen(int argc, char** argv, char* buff){
         strcat(buff, "Can't generate more keys. Limit reached.\n");
     }
 }
+*/
 
-int keygen_v2(char* data, char* buff){
+int keygen(char* data, char* buff){
     int keystore_size = get_keystore_size();
 
     if(keystore_size < 10){
@@ -195,6 +197,7 @@ int keygen_v2(char* data, char* buff){
 /*
 Gets hexadecimal string 'signature' from given public key 'pk' and message 'msg' 
 */
+/*
 void get_signature(char* pk, char* msg, char* signature){
     int offset = parse_hex(pk, 96);
     pk_in_keystore(pk, offset);
@@ -213,7 +216,7 @@ void get_signature(char* pk, char* msg, char* signature){
     sig_serialize(sig_bin, sig);
     bin2hex(sig_bin, sizeof(sig_bin), signature, 192);
 }
-
+*/
 /*
 Signs message with given public key. Public key must be stored. Response is dumped to 'buff'
 */
@@ -260,6 +263,7 @@ return OK;
 /*
 Verifies signature of given message and public key
 */
+/*
 void verify(char** argv, char* buff){
     char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"; //IETF BLS Signature V4
 
@@ -276,11 +280,11 @@ void verify(char** argv, char* buff){
         }
     }
 }
-
+*/
 /*
 Verifies signature of given message and public key
 */
-int verify_v2(char* pk, char* msg, char* sig, char* buff){
+int verify(char* pk, char* msg, char* sig, char* buff){
     char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"; //IETF BLS Signature V4
 
     blst_p1_affine pk_bin;
@@ -326,6 +330,13 @@ void dump_keys(char* buff){
 /*
 Delete all stored public and secret keys. Response is dumped to 'buff'
 */
+/*
+void resetc(char* buff){
+    reset();
+    strcat(buff, "Keys deleted\n");
+}
+*/
+
 void resetc(char* buff){
     reset();
     strcat(buff, "Keys deleted\n");
@@ -334,6 +345,7 @@ void resetc(char* buff){
 /*
 Import given secret key. Derived public key and errors are dumped to 'buff'
 */
+/*
 void import(char* sk, char* buff){
     if(get_keystore_size() < 10){
         int offset = parse_hex(sk, 64);
@@ -372,11 +384,12 @@ void import(char* sk, char* buff){
            
     }
 }
+*/
 
 /*
 Import given secret key. Derived public key and errors are dumped to 'buff'
 */
-int import_v2(char* sk, char* buff){
+int import(char* sk, char* buff){
     if(get_keystore_size() < 10){
         int offset = parse_hex(sk, 64);
 

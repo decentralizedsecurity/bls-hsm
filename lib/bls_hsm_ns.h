@@ -19,11 +19,13 @@ void get_point_from_msg(blst_p2* hash, uint8_t* msg_bin, int len);
 int pk_parse(char* pk_hex, blst_p1_affine* pk, char* buff);
 int msg_parse(char* msg, uint8_t* msg_bin, int len, char* buff);
 int sig_parse(char* sig_hex, blst_p2_affine* sig, char* buff);
-void keygen(int argc, char** argv, char* buff);
+int keygen(char* data, char* buff);
 void get_signature(char* pk, char* msg, char* signature);
 int signature(char* pk, char* msg, char* buff);
-void verify(char** argv, char* buff);
+int verify(char* pk, char* msg, char* sig, char* buff);
 void dump_keys(char* buff);
+
 void resetc(char* buff);
-void import(char* sk, char* buff);
+
+int import(char* sk, char* buff);
 #endif

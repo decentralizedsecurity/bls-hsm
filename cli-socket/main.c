@@ -16,7 +16,7 @@
 
 #include "../blst/bindings/blst.h"
 #include "../lib/common.h"
-
+#include "../lib/bls_hsm_ns.h"
 //#include "../secure_module/zephyr/spm/src/main.c"
 
 #define MAX 1024
@@ -84,7 +84,7 @@ void func(int sockfd)
 
 
         }else if(strstr(argv[0], "reset") != NULL){
-            resetc(argc, argv, buff);
+            resetc(buff);
         }else if(strstr(argv[0], "import") != NULL){
             import(argv[1], buff);
         }else{
