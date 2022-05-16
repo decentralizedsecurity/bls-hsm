@@ -23,8 +23,8 @@ int keygen(char* data, char* buff);
 void get_signature(char* pk, char* msg, char* signature);
 int signature(char* pk, char* msg, char* buff);
 int verify(char* pk, char* msg, char* sig, char* buff);
-void dump_keys(char* buff);
-
+// Replacing the function "void dump_keys(char* buff)" with "int print_keys_Json(char* buff)"
+int print_keys_Json(char* buff);
 void resetc(char* buff);
 
 int import(char* sk, char* buff);

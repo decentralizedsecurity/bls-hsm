@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#define EMU
+//#define EMU   // for the Nordic Mode
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,7 +14,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#include "../blst/bindings/blst.h"
+#include "../lib/blst.h"
 #include "../lib/common.h"
 #include "../lib/bls_hsm_ns.h"
 //#include "../secure_module/zephyr/spm/src/main.c"
@@ -27,7 +27,7 @@ void func(int sockfd)
 {
     char buff[MAX];
     char* argv[4];
-    char *public_keys_hex_store_ns[10][96];
+   
     int argc;
     // infinite loop for chat
     for (;;) {
@@ -80,7 +80,7 @@ void func(int sockfd)
             //getkeys: returns the public keys that have been generated.
             //  get_keys(argc, argv, buff); 
 
-            getkeys_v2(public_keys_hex_store_ns, buff); 
+            print_keys_Json(buff);
 
 
         }else if(strstr(argv[0], "reset") != NULL){

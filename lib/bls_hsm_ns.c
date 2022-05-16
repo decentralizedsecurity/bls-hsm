@@ -305,6 +305,8 @@ int verify(char* pk, char* msg, char* sig, char* buff){
 /*
 Get array of stored public keys in buffer 'buff'
 */
+/*
+
 void dump_keys(char* buff){
     int keystore_size = get_keystore_size();
     char public_keys_hex_store[keystore_size][96];
@@ -327,18 +329,37 @@ void dump_keys(char* buff){
     }
 }
 
+*/
+
+
+int print_keys_Json(char* buff){
+    int keystore_size = get_keystore_size();
+    char public_keys_hex_store[keystore_size][96];
+    getkeys(public_keys_hex_store);
+    
+        strcat(buff, "{\"keys\":[\"");
+        for(int i = 0; i < keystore_size; i++){
+            for(int j = 0; j < 96; j++){
+                char str[2] = {public_keys_hex_store[i][j], '\0'};
+                strcat(buff, str);
+            }
+            if (i + 1 < keystore_size){
+                strcat(buff, "\",\n\"");
+            }                     
+        
+        }
+        strcat(buff, "\"]}\n");
+               
+    return keystore_size;
+}
+
 /*
 Delete all stored public and secret keys. Response is dumped to 'buff'
 */
-/*
-void resetc(char* buff){
-    reset();
-    strcat(buff, "Keys deleted\n");
-}
-*/
+
 
 void resetc(char* buff){
-    reset();
+     reset();
     strcat(buff, "Keys deleted\n");
 }
 
