@@ -80,7 +80,7 @@ void func(int sockfd)
             //getkeys: returns the public keys that have been generated.
             //  get_keys(argc, argv, buff); 
 
-            print_keys_Json(buff);
+           print_keys_Json(buff);
 
 
         }else if(strstr(argv[0], "reset") != NULL){

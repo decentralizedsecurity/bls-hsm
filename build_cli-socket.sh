@@ -9,7 +9,7 @@
 #gcc cli-socket/client.c -o cli-socket/build/client -Wno-implicit-function-declaration
 
 
-build_libs.sh
-mkdir cli-socket/build
+./build_libs.sh
+#mkdir cli-socket/build
 gcc cli-socket/main.c  lib/libblst.a -o cli-socket/build/server -Wno-implicit-function-declaration
 gcc cli-socket/client.c -o cli-socket/build/client -Wno-implicit-function-declaration

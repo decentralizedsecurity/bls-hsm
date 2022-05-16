@@ -10,7 +10,6 @@ void sign_pk(blst_p2* sig, blst_p2* hash);
 void reset();
 void store_pk(char* public_key_hex);
 int get_keystore_size();
-void getkeys(char** public_keys_hex_store_ns);
 int import_sk(blst_scalar* sk_imp);
 
 void pk_serialize(byte* out, blst_p1 pk);
