@@ -16,7 +16,7 @@
 #include "../lib/blst.h"
 #include "../lib/common.h"
 #include "../lib/bls_hsm_ns.h"
-
+#include "../lib/bls_hsm.h"
 
 //#include "../secure_module/zephyr/spm/src/main.c"
 
@@ -64,8 +64,13 @@ void func(int sockfd)
         
         if(strstr(argv[0], "keygen") != NULL){// comprobar que el primer argumento de entrada  contiene la subcadena "keygen", Devuelve NULL si no la contiene
            // keygen(argc, argv, buff);
-
-            keygen(argv[1], buff);
+   if(argc  == 2)
+       {keygen(argv[1], buff);}
+   else
+            {
+                keygen("", buff);
+            }
+            
           
         }else if(strstr(argv[0], "signature") != NULL){// comprobar que el primer argumento de entrada  contiene la subcadena "signature", Devuelve NULL si no la contiene
             if(argc != 3){
