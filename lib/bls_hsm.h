@@ -1,7 +1,7 @@
 #ifndef bls_hsm_h
 #define bls_hsm_h
 #include "blst.h"
-#include<string.h>
+
 blst_scalar sk;
 blst_scalar secret_keys_store[10];
 blst_scalar sk_sign;
