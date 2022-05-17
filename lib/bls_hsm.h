@@ -43,7 +43,7 @@ void hash(uint8_t* out, uint8_t* in, size_t size){
       //  unsigned char ikm[32];
 #ifdef NRF
 	    ocrypto_sha256(out, in, size);
-#else // to do:  implement hash in c
+#else // TODO:  implement hash in c
         for(int i = 0; i < 32; i++){
             out[i] = in[i];
         }

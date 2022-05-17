@@ -20,7 +20,8 @@
 #define BLSTSUCCESS 11
 #define BLSTFAIL 12
 
-#ifdef EMU
+#ifndef NRF
+#include "blst.h"
 
 int char2hex(char c, uint8_t *x);
 
