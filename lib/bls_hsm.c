@@ -1,8 +1,8 @@
 #include "bls_hsm.h"
 #include "common.h"
 #include <stdlib.h>
-#include <string.h>
-//#include <wolfssl/wolfcrypt/pwdbased.h>
+
+
 
 /*
 Converts input 'pk' to binary 'out'

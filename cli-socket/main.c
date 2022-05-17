@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#define EMU
+//#define EMU   // for the Nordic Mode
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,25 +13,29 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include "../lib/blst.h"
+#include "../lib/common.h"
+#include "../lib/bls_hsm_ns.h"
+#include "../lib/bls_hsm.h"
 
-#include "../blst/bindings/blst.h"
-#include "../include/common.h"
-
-#include "../secure_module/zephyr/spm/src/main.c"
+//#include "../secure_module/zephyr/spm/src/main.c"
 
 #define MAX 1024
 #define PORT 8080
 #define SA struct sockaddr
 
+
+
 void func(int sockfd)
 {
     char buff[MAX];
     char* argv[4];
+   
     int argc;
     // infinite loop for chat
     for (;;) {
         bzero(buff, MAX);
-   
+       
         // read the message from client and copy it in buffer
         read(sockfd, buff, sizeof(buff));
         // print buffer which contains the client contents
@@ -57,26 +61,42 @@ void func(int sockfd)
             argc++;
         }
         bzero(buff, MAX);
+        
         if(strstr(argv[0], "keygen") != NULL){
-            keygen(argc, argv, buff);
+          
+            if(argc  == 2)
+                {
+                    keygen(argv[1], buff);}
+            else
+                {
+                    keygen("", buff);
+                }
+            
+          
         }else if(strstr(argv[0], "signature") != NULL){
             if(argc != 3){
                 strcat(buff, "Incorrect arguments\n");
             }else{
-                signature(argc, argv, buff);
+              
+              signature(argv[1],argv[2], buff);
+              
             }
         }else if(strstr(argv[0], "verify") != NULL){
             if(argc != 4){
                 strcat(buff, "Incorrect arguments\n");
             }else{
-                verify(argc, argv, buff);
+                 verify(argv[1],argv[2],argv[3], buff);
             }
         }else if(strstr(argv[0], "getkeys") != NULL){
-            get_keys(argc, argv, buff);
+            //getkeys: returns the public keys that have been generated.
+
+           print_keys_Json(buff);
+
+
         }else if(strstr(argv[0], "reset") != NULL){
-            resetc(argc, argv, buff);
+            resetc(buff);
         }else if(strstr(argv[0], "import") != NULL){
-            import(argc, argv, buff);
+            import(argv[1], buff);
         }else{
             strcat(buff, "Command not found\n");
         }
@@ -121,6 +141,7 @@ void main(void)
         exit(0);
     }
     else
+     
         printf("Server listening..\n");
     len = sizeof(cli);
    

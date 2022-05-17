@@ -106,7 +106,9 @@ int sig_parse(char* sig_hex, blst_p2_affine* sig, char* buff){
 /*
 Generates random key. Response is dumped to 'buff'
 */
-void keygen(int argc, char** argv, char* buff){
+
+
+int keygen(char* data, char* buff){
     int keystore_size = get_keystore_size();
 
     if(keystore_size < 10){
@@ -117,13 +119,14 @@ void keygen(int argc, char** argv, char* buff){
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    
-        if(argc == 2){
-                if(strlen(argv[1]) <= strlen(info)){
-                        strcpy(info, argv[1]);
-                }else{
-                        strncpy(info, argv[1], sizeof(info));
-                }
+
+       //check if data string is empty
+        if(strlen(data) != 0){
+            if(strlen(data) <= strlen(info)){
+                    strcpy(info, data);
+            }else{
+                    strncpy(info, data, sizeof(info));
+            }
         }
 
         ikm_sk(info);
@@ -136,37 +139,24 @@ void keygen(int argc, char** argv, char* buff){
         pk_serialize(out, pk);
         strcat(buff, "Public key: \n");
         if(bin2hex(out, sizeof(out), public_key_hex, sizeof(public_key_hex)) == 0) {
-            strcat(buff, "Failed converting binary key to string\n");
+          strcat(buff, "Failed converting binary key to string\n");
+        return BIN2HEXERR;
         }
-    
+        else
+        {
         store_pk(public_key_hex);
         print_pk(public_key_hex, buff);
+        }
+        
     }else{
         strcat(buff, "Can't generate more keys. Limit reached.\n");
+        return KEYSLIMIT;
     }
 }
 
 /*
 Gets hexadecimal string 'signature' from given public key 'pk' and message 'msg' 
 */
-void get_signature(char* pk, char* msg, char* signature){
-    int offset = parse_hex(pk, 96);
-    pk_in_keystore(pk, offset);
-    int len = msg_len(msg);
-    uint8_t msg_bin[len/2 + len%2];
-    offset = parse_hex(msg, len);
-    hex2bin(msg + offset, len, msg_bin, len/2 + len%2);
-    blst_p2 hash;
-    get_point_from_msg(&hash, msg_bin, len/2 + len%2);
-
-    blst_p2 sig;
-    byte sig_bin[96];
-    char sig_hex[192];
-
-    sign_pk(&sig, &hash);
-    sig_serialize(sig_bin, sig);
-    bin2hex(sig_bin, sizeof(sig_bin), signature, 192);
-}
 
 /*
 Signs message with given public key. Public key must be stored. Response is dumped to 'buff'
@@ -208,37 +198,42 @@ int signature(char* pk, char* msg, char* buff){
         strcat(buff, "Public key contains incorrect characters.\n");
         return BADFORMAT;
     }
-    return 0;
+return OK;
 }
 
 /*
 Verifies signature of given message and public key
 */
-void verify(char** argv, char* buff){
+
+int verify(char* pk, char* msg, char* sig, char* buff){
     char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"; //IETF BLS Signature V4
 
-    blst_p1_affine pk;
-    blst_p2_affine sig;
-    int len = msg_len(argv[2]);
+    blst_p1_affine pk_bin;
+    blst_p2_affine sig_bin;
+    int len = msg_len(msg);
     uint8_t msg_bin[len/2 + len%2];
-    if((pk_parse(argv[1], &pk, buff) || msg_parse(argv[2], msg_bin, len, buff) || sig_parse(argv[3], &sig, buff)) == 0){
-        if(blst_core_verify_pk_in_g1(&pk, &sig, 1, msg_bin, len/2 + len%2, dst, sizeof(dst)-1, NULL, 0) != BLST_SUCCESS){
-            strcat(buff, "Error\n");
+    if((pk_parse(pk, &pk_bin, buff) || msg_parse(msg, msg_bin, len, buff) || sig_parse(sig, &sig_bin, buff)) == 0){
+        if(blst_core_verify_pk_in_g1(&pk_bin, &sig_bin, 1, msg_bin, len/2 + len%2, dst, sizeof(dst)-1, NULL, 0) != BLST_SUCCESS){
+            strcat(buff, "BLSTFAIL\n");
+            return BLSTFAIL;
         }
         else {
-            strcat(buff, "Success\n");
+            strcat(buff, "BLSTSUCCESS\n");
+            return BLSTSUCCESS;
         }
     }
 }
-
 /*
 Get array of stored public keys in buffer 'buff'
 */
-void dump_keys(char* buff){
+
+
+
+int print_keys_Json(char* buff){
     int keystore_size = get_keystore_size();
     char public_keys_hex_store[keystore_size][96];
     getkeys(public_keys_hex_store);
-    if(keystore_size != 0){
+    
         strcat(buff, "{\"keys\":[\"");
         for(int i = 0; i < keystore_size; i++){
             for(int j = 0; j < 96; j++){
@@ -247,27 +242,32 @@ void dump_keys(char* buff){
             }
             if (i + 1 < keystore_size){
                 strcat(buff, "\",\n\"");
-            } else {
-                strcat(buff, "\"]}\n");
-            }                        
+            }                     
+        
         }
-    }else{
-        strcat(buff, "There are no keys stored\n");
-    }
+        strcat(buff, "\"]}\n");
+               
+    return keystore_size;
 }
 
 /*
 Delete all stored public and secret keys. Response is dumped to 'buff'
 */
+
+
 void resetc(char* buff){
-    reset();
+     reset();
     strcat(buff, "Keys deleted\n");
 }
 
 /*
 Import given secret key. Derived public key and errors are dumped to 'buff'
 */
-void import(char* sk, char* buff){
+
+/*
+Import given secret key. Derived public key and errors are dumped to 'buff'
+*/
+int import(char* sk, char* buff){
     if(get_keystore_size() < 10){
         int offset = parse_hex(sk, 64);
 
@@ -275,6 +275,7 @@ void import(char* sk, char* buff){
             byte sk_bin[32];
             if(hex2bin(sk + offset, 64, sk_bin, 32) == 0){
                 strcat(buff, "Failed converting hex to bin\n");
+
             }else{
                 blst_scalar sk_imp;
                 blst_scalar_from_bendian(&sk_imp, sk_bin);
@@ -290,6 +291,8 @@ void import(char* sk, char* buff){
                     }else{
                         store_pk(pk_hex);
                         print_pk(pk_hex, buff);
+                        return OK;
+
                     }
                 }else{
                         strcat(buff, "Key already imported\n");
@@ -299,8 +302,14 @@ void import(char* sk, char* buff){
             strcat(buff, "Incorrect characters\n");
         }else{
             strcat(buff, "Incorrect secret key length\n");
+            return BADSKLEN;  
+
         }
     }else{
             strcat(buff, "Limit reached\n");
+            return KEYSLIMIT;
+
     }
 }
+
+
