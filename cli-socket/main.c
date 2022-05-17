@@ -13,15 +13,18 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-
 #include "../lib/blst.h"
 #include "../lib/common.h"
 #include "../lib/bls_hsm_ns.h"
+
+
 //#include "../secure_module/zephyr/spm/src/main.c"
 
 #define MAX 1024
 #define PORT 8080
 #define SA struct sockaddr
+
+
 
 void func(int sockfd)
 {
@@ -32,7 +35,7 @@ void func(int sockfd)
     // infinite loop for chat
     for (;;) {
         bzero(buff, MAX);
-   
+       
         // read the message from client and copy it in buffer
         read(sockfd, buff, sizeof(buff));
         // print buffer which contains the client contents
@@ -61,7 +64,9 @@ void func(int sockfd)
         
         if(strstr(argv[0], "keygen") != NULL){// comprobar que el primer argumento de entrada  contiene la subcadena "keygen", Devuelve NULL si no la contiene
            // keygen(argc, argv, buff);
+
             keygen(argv[1], buff);
+          
         }else if(strstr(argv[0], "signature") != NULL){// comprobar que el primer argumento de entrada  contiene la subcadena "signature", Devuelve NULL si no la contiene
             if(argc != 3){
                 strcat(buff, "Incorrect arguments\n");
@@ -74,7 +79,7 @@ void func(int sockfd)
             if(argc != 4){
                 strcat(buff, "Incorrect arguments\n");
             }else{
-                verify(argv[1],argv[2],argv[3], buff);
+          //      verify(argv[1],argv[2],argv[3], buff);
             }
         }else if(strstr(argv[0], "getkeys") != NULL){
             //getkeys: returns the public keys that have been generated.
@@ -131,6 +136,7 @@ void main(void)
         exit(0);
     }
     else
+     
         printf("Server listening..\n");
     len = sizeof(cli);
    

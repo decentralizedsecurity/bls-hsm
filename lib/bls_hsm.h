@@ -1,7 +1,7 @@
 #ifndef bls_hsm_h
 #define bls_hsm_h
 #include "blst.h"
-
+#include<string.h>
 blst_scalar sk;
 blst_scalar secret_keys_store[10];
 blst_scalar sk_sign;
@@ -40,7 +40,15 @@ void getkeys(char public_keys_hex_store_ns[keystore_size][96]){
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
 void hash(uint8_t* out, uint8_t* in, size_t size){
-        ocrypto_sha256(out, in, size);
+      //  unsigned char ikm[32];
+#ifdef NRF
+	    ocrypto_sha256(out, in, size);
+#else // to do:  implement hash in c
+        for(int i = 0; i < 32; i++){
+            out[i] = in[i];
+        }
+#endif
+       
 }
 
 #ifdef NRF

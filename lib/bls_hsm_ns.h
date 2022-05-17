@@ -1,6 +1,8 @@
+
 #ifndef bls_hsm_ns_h
 #define bls_hsm_ns_h
 
+  
 #include "blst.h"
 
 int pk_in_keystore(char * public_key_hex, int offset);
@@ -27,4 +29,5 @@ int print_keys_Json(char* buff);
 void resetc(char* buff);
 
 int import(char* sk, char* buff);
+
 #endif
