@@ -62,21 +62,22 @@ void func(int sockfd)
         }
         bzero(buff, MAX);
         
-        if(strstr(argv[0], "keygen") != NULL){// comprobar que el primer argumento de entrada  contiene la subcadena "keygen", Devuelve NULL si no la contiene
-           // keygen(argc, argv, buff);
-   if(argc  == 2)
-       {keygen(argv[1], buff);}
-   else
-            {
-                keygen("", buff);
-            }
+        if(strstr(argv[0], "keygen") != NULL){
+          
+            if(argc  == 2)
+                {
+                    keygen(argv[1], buff);}
+            else
+                {
+                    keygen("", buff);
+                }
             
           
-        }else if(strstr(argv[0], "signature") != NULL){// comprobar que el primer argumento de entrada  contiene la subcadena "signature", Devuelve NULL si no la contiene
+        }else if(strstr(argv[0], "signature") != NULL){
             if(argc != 3){
                 strcat(buff, "Incorrect arguments\n");
             }else{
-              //  signature(argc, argv, buff);
+              
               signature(argv[1],argv[2], buff);
               
             }
@@ -84,11 +85,10 @@ void func(int sockfd)
             if(argc != 4){
                 strcat(buff, "Incorrect arguments\n");
             }else{
-          //      verify(argv[1],argv[2],argv[3], buff);
+                 verify(argv[1],argv[2],argv[3], buff);
             }
         }else if(strstr(argv[0], "getkeys") != NULL){
             //getkeys: returns the public keys that have been generated.
-            //  get_keys(argc, argv, buff); 
 
            print_keys_Json(buff);
 
