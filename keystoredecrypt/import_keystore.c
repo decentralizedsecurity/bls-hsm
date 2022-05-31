@@ -3,9 +3,10 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../lib/pwdbased.h"
-#include "../lib/aes.h"
-#include "../lib/sha256.h"
+#include <wolfssl/wolfcrypt/pwdbased.h>
+#include <wolfssl/wolfcrypt/aes.h>
+#include <wolfssl/wolfcrypt/sha256.h>
+
 
 #define WOLFSSL_AES_COUNTER
 

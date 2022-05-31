@@ -30,4 +30,10 @@ void resetc(char* buff);
 
 int import(char* sk, char* buff);
 
+
+int get_decryption_key_scrypt(char* password, int dklen, int n,  int r, int p, char* salt_hex, unsigned char* decryption_key);
+//int get_decryption_key_pbkdf2(char* password, int dklen, int c, char* prf, char* salt_hex, unsigned char* decryption_key);
+int verificate_password(char* checksum_message_hex, char* cipher_message_hex, unsigned char* decription_key);
+int get_private_key(char* cipher_message, char* iv_str, unsigned char* decription_key, char* private_key);
+
 #endif

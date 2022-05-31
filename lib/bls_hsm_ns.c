@@ -1,7 +1,15 @@
 #include "bls_hsm_ns.h"
 #include "common.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+#include <wolfssl/wolfcrypt/pwdbased.h>
+#include <wolfssl/wolfcrypt/aes.h>
+#include <wolfssl/wolfcrypt/sha256.h>
+
+#define WOLFSSL_AES_COUNTER
+
 
 /*
 Converts input 'pk' to binary 'out'
@@ -280,7 +288,6 @@ int import(char* sk, char* buff){
                 blst_scalar sk_imp;
                 blst_scalar_from_bendian(&sk_imp, sk_bin);
                 if(import_sk(&sk_imp) == 0){
-
                     blst_p1 pk;
                     sk_to_pk(&pk);
                     byte pk_bin[48];
@@ -310,6 +317,102 @@ int import(char* sk, char* buff){
             return KEYSLIMIT;
 
     }
+}
+
+/*
+    Returns 0 on succes and error number on error
+*/
+int get_decryption_key_scrypt(char* password, int dklen, int n,  int r, int p, char* salt_hex, unsigned char* decryption_key){
+    int error;
+
+    int salt_len = strlen(salt_hex)/2;
+    unsigned char salt_bin[salt_len];
+
+    if(hex2bin(salt_hex, strlen(salt_hex), salt_bin, strlen(salt_hex)/2) != strlen(salt_hex)/2){
+        return HEX2BINERR;
+    }
+
+    //n are iteration, in this function they convert n to the power of 2, in the other function they take n as the exponent of 2
+    wc_scrypt_ex(decryption_key, password, strlen(password), salt_bin, salt_len, (word32) n, r, p, dklen);
+
+    return 0;
+}
+
+/*
+    Returns 0 on succes and error number on error
+*/
+int verificate_password(char* checksum_message_hex, char* cipher_message_hex, unsigned char* decription_key){
+    int error;
+  
+    int cipher_message_len = strlen(cipher_message_hex)/2;
+    unsigned char cipher_message_bin[cipher_message_len];
+    if(hex2bin(cipher_message_hex, strlen(cipher_message_hex), cipher_message_bin, strlen(cipher_message_hex)/2) != strlen(cipher_message_hex)/2){
+        return HEX2BINERR;
+    }
+
+    unsigned char pre_image[16 + cipher_message_len];
+    for(int i = 0; i < 16; ++i){
+        pre_image[i] = decription_key[16 + i];
+    }
+
+    for(int i = 16; i < (16 + cipher_message_len); ++i){
+        pre_image[i] = cipher_message_bin[i - 16];
+    }
+
+    char pre_image_str[(16 + cipher_message_len)*2 + 1];
+
+    unsigned char checksum_hash[32];
+
+    Sha256 sha;
+    wc_InitSha256(&sha);
+    wc_Sha256Update(&sha, pre_image, 16 + cipher_message_len);
+    wc_Sha256Final(&sha, checksum_hash);
+
+    char checksum_str[64];
+    if(bin2hex(checksum_hash, 32, checksum_str, 64) != 64){
+        return BIN2HEXERR;
+    }
+    
+    if(strncmp(checksum_message_hex, checksum_str, 64) == 0){
+        return 0;
+    }else{
+        return INVPASSWORD;
+    }
+}
+
+/*
+    Returns 0 on succes and error number on error
+*/
+int get_private_key(char* cipher_message, char* iv_str, unsigned char* decription_key, char* private_key){
+    int error;
+
+    int cipher_message_len = strlen(cipher_message)/2;
+    unsigned char cipher_message_bin[cipher_message_len];
+    if(hex2bin(cipher_message, strlen(cipher_message), cipher_message_bin, strlen(cipher_message)/2) != strlen(cipher_message)/2){
+        return HEX2BINERR;
+    }
+
+    int iv_len = strlen(iv_str)/2;
+    unsigned char iv_bin[iv_len];
+    if(hex2bin(iv_str, strlen(iv_str), iv_bin, strlen(iv_str)/2) != strlen(iv_str)/2){
+        return HEX2BINERR;
+    }
+
+    Aes aes;
+    wc_AesSetKey(&aes, decription_key, 16, iv_bin, AES_ENCRYPTION);
+    wc_AesCtrEncrypt(&aes, private_key, cipher_message_bin, cipher_message_len);
+
+    char private_key_str[65];
+    if(bin2hex(private_key, 32, private_key_str, 64) != 64){
+        return BIN2HEXERR;
+    }
+    private_key[64] = '\0';
+
+    char buff[6500];
+    printf("\n\n%s\n\n", private_key_str);
+    import(private_key_str, buff); //error justo despues de sk_to_pk
+
+    return 0;
 }
 
 
