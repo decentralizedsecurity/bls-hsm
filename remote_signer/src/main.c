@@ -83,8 +83,7 @@ void main(void)
 	}
 
 	struct boardRequest reply;
-	import("3604f89dbd5161c5b214dd15afab350048a9c74ca1f657d93b02d14088f55ad0", buf);
-	import("4604f89dbd5161c5b214dd15afab350048a9c74ca1f657d93b02d14088f55ad0", buf);
+	InitZeroHashes(64);
 
 	while(1){
 		uart_irq_rx_enable(dev);

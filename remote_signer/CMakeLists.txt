@@ -7,6 +7,8 @@ list(APPEND ZEPHYR_EXTRA_MODULES
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(remote_signer)
 
+add_definitions(-DNRF -DNRF_RS)
+
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources}
   ../lib/picohttpparser.c

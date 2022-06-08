@@ -387,7 +387,7 @@ func main() {
 			scanner := bufio.NewScanner(s)
 			e := true
 			for scanner.Scan() {
-				if ((strings.HasPrefix(scanner.Text(), "0x")) && (scanner.Text() == pkhex)) || (strings.Contains(scanner.Text(), "already")) {
+				if ((strings.HasPrefix(scanner.Text(), "0x")) && (strings.Contains(scanner.Text(), pkhex))) || (strings.Contains(scanner.Text(), "already")) {
 					e = false
 					break
 				} else if strings.HasPrefix(scanner.Text(), "Incorrect") || strings.Contains(scanner.Text(), "reached") {

@@ -279,7 +279,7 @@ func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str
 		if verb {
 			fmt.Println(scanner.Text())
 		}
-		if strings.Contains(scanner.Text(), "Success") {
+		if strings.Contains(scanner.Text(), "BLSTSUCCESS") {
 			passed[6] = true
 			times[2] = time.Since(t)
 			if verb {
@@ -288,7 +288,7 @@ func verify(s *serial.Port, scanner *bufio.Scanner, msg string, sign string, str
 			}
 			break
 		}
-		if strings.Contains(scanner.Text(), "Error") {
+		if strings.Contains(scanner.Text(), "BLSTFAIL") {
 			passed[6] = false
 			if verb {
 				color.Red("FAILED")

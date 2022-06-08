@@ -23,7 +23,7 @@
 
 #include <blst.h>
 #include <common.h>
-#include <bls_hsm.h>
+#include <bls_hsm_ns.h>
 
 char buffer[2048] = "";
 
@@ -33,7 +33,11 @@ LOG_MODULE_REGISTER(app);
 
 static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
 {
-    keygen(argc, argv, buffer);
+    if(argc == 1){
+        keygen("", buffer);
+    }else{
+        keygen(argv[1], buffer);
+    }
     printf(buffer);
     memset(buffer, 0, 2048);
     return 0;
@@ -53,7 +57,7 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
 
 static int cmd_signature_verification(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
-    verify(argv, buffer);
+    verify(argv[1], argv[2], argv[3], buffer);
     printf(buffer);
     memset(buffer, 0, 2048);
 	return 0;
@@ -61,7 +65,7 @@ static int cmd_signature_verification(const struct shell *shell, size_t argc, ch
 
 static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
-    dump_keys(buffer);
+    print_keys_Json(buffer);
     printf(buffer);
     memset(buffer, 0, 2048);
 	return 0;

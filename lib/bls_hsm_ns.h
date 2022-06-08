@@ -12,7 +12,10 @@ void sign_pk(blst_p2* sig, blst_p2* hash);
 void reset();
 void store_pk(char* public_key_hex);
 int get_keystore_size();
+void getkeys(char** public_keys_hex_store_ns);
 int import_sk(blst_scalar* sk_imp);
+int PBKDF2(uint8_t* salt, uint8_t* password, int it_cnt, uint8_t* key);
+void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out);
 
 void pk_serialize(byte* out, blst_p1 pk);
 void sig_serialize(byte* out2, blst_p2 sig);
@@ -33,7 +36,7 @@ int import(char* sk, char* buff);
 
 int get_decryption_key_scrypt(char* password, int dklen, int n,  int r, int p, char* salt_hex, unsigned char* decryption_key);
 //int get_decryption_key_pbkdf2(char* password, int dklen, int c, char* prf, char* salt_hex, unsigned char* decryption_key);
-int verificate_password(char* checksum_message_hex, char* cipher_message_hex, unsigned char* decription_key);
+int verify_password(char* checksum_message_hex, char* cipher_message_hex, unsigned char* decription_key);
 int get_private_key(char* cipher_message, char* iv_str, unsigned char* decription_key, char* private_key);
 
 #endif

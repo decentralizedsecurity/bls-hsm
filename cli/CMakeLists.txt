@@ -7,6 +7,8 @@ list(APPEND ZEPHYR_EXTRA_MODULES
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(cli)
 
+add_definitions(-DNRF)
+
 target_sources(app PRIVATE src/main.c
 ../lib/bls_hsm_ns.c
 ../lib/common.c
