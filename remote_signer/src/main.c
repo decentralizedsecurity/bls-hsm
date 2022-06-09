@@ -107,7 +107,6 @@ void main(void)
 			while (uart_irq_update(dev) && uart_irq_is_pending(dev)) {
 				if (uart_irq_tx_ready(dev)) {
 					int send_len = uart_fifo_fill(dev, buf, len);
-					LOG_INF("len: %d | send_len: %d | %d", len, send_len, len == send_len);
 					len -= send_len;
 					if(len == 0){
 						uart_irq_tx_disable(dev);
@@ -125,7 +124,6 @@ void main(void)
 			while (uart_irq_update(dev) && uart_irq_is_pending(dev)) {
 				if (uart_irq_tx_ready(dev)) {
 					int send_len = uart_fifo_fill(dev, buf, len);
-					LOG_INF("len: %d | send_len: %d | %d", len, send_len, len == send_len);
 					len -= send_len;
 					if(len == 0){
 						uart_irq_tx_disable(dev);

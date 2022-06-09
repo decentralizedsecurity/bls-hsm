@@ -77,6 +77,19 @@ char signResponse[] = "HTTP/1.1 200 OK\r\n"
    "\r\n"
    "Content-Length: ";
 
+char keystoreRespJson[] = "HTTP/1.1 200 Success response\r\n"
+   "Content-Type: application/json"
+   "\r\n"
+   "Content-Length: 48\r\n\r\n"
+   "{"
+        "\"data\": ["
+            "{"
+                "\"status\": \"imported\","
+                "\"message\": \"\""
+            "}"
+        "]"
+    "}";
+
 char signResponseText[] = "HTTP/1.1 200 OK\r\n"
    "Content-Type: text/plain"
    "\r\n"
@@ -343,6 +356,16 @@ int getKeysResponseStr(char* buffer, struct boardRequest* request){
         strcat(buffer, "\n");
     }
     strcat(buffer, "]");
+
+    return strlen(buffer);
+}
+
+/*
+    Returns size of buffer
+*/
+int keystoreResponse(char* buffer){
+
+    strcpy(buffer, keystoreRespJson);
 
     return strlen(buffer);
 }
@@ -829,8 +852,7 @@ int dumpHttpResponse(char* buffer, struct boardRequest* request){//boardRequest 
             break;
         case importKey:
             if((error = httpImportFromKeystore(request->json)) == 0){
-                copyKeys(request);
-                return getKeysResponseStr(buffer, request);
+                return keystoreResponse(buffer);
             }else{
                 return error;
             }
