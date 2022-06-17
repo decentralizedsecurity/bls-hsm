@@ -52,10 +52,10 @@ char applicationJsonStr[] = "application/json";
 **********************************************************RESPONSES****************************************************************
 */
 char upcheckResponse[] = "HTTP/1.1 200 OK\r\n"
-   "content-type: text/p"
+   "Content-Type: text/p"
    "lain; charset=utf-8"
    "\r\n"
-   "content-length: 0\r\n\r\n";
+   "Content-Length: 0\r\n\r\n";
 
 /*
 We got to add later the size of the json in text, 2 \n and the json with the publick Keys
@@ -333,9 +333,9 @@ int pknotfoundResponseStr(char* buffer){
     Returns size of buffer
 */
 int getKeysResponseStr(char* buffer, struct boardRequest* request){
-    int jsonKeysSize = 6*request->nKeys - 1 + request->nKeys*keySize + 3;
+    int jsonKeysSize = request->nKeys - 1 + request->nKeys*(keySize + 4) + 2;
     if(request->nKeys == 0){
-        jsonKeysSize = 3;
+        jsonKeysSize = 2;
     }
 
     strcpy(buffer, getKeysResponse);
@@ -344,7 +344,7 @@ int getKeysResponseStr(char* buffer, struct boardRequest* request){
     sprintf(nKeysStr, "%d", jsonKeysSize);
 
     strcat(buffer, nKeysStr);
-    strcat(buffer, "\n\n[\n");
+    strcat(buffer, "\r\n\r\n[");
 
     for(int i = 0; i < request->nKeys; ++i){
         strcat(buffer, "\"0x");
@@ -353,7 +353,6 @@ int getKeysResponseStr(char* buffer, struct boardRequest* request){
         if(i + 1 < request->nKeys){
             strcat(buffer, ",");
         }
-        strcat(buffer, "\n");
     }
     strcat(buffer, "]");
 
@@ -442,7 +441,7 @@ int signResponseStr(char* buffer, struct boardRequest* request){
     sprintf(signatureLenStr, "%d", signatureLen);
 
     strcat(buffer, signatureLenStr);
-    strcat(buffer, "\n\n");
+    strcat(buffer, "\r\n\r\n");
     strcat(buffer, reply);
 
     return strlen(buffer);
