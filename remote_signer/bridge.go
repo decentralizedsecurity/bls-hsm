@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -13,14 +14,22 @@ import (
 	"github.com/tarm/serial"
 )
 
-var flag bool = false
+var f bool = false
+
+var v bool
+var port string
+
+func init() {
+	flag.BoolVar(&v, "v", false, "display detailed output")
+	flag.StringVar(&port, "port", "8080", "Socket port")
+}
 
 func Handler(conn net.Conn, s *serial.Port) {
-	for flag {
+	for f {
 	}
-	flag = true
+	f = true
 	defer func() {
-		flag = false
+		f = false
 	}()
 	defer conn.Close()
 
@@ -32,7 +41,9 @@ func Handler(conn net.Conn, s *serial.Port) {
 	l += n
 
 	fmt.Println("REQUEST")
-	fmt.Println(string(buf) + "\r\n")
+	if v {
+		fmt.Println(string(buf) + "\r\n")
+	}
 
 	n, err = s.Write(buf[:l])
 	if err != nil {
@@ -72,15 +83,18 @@ func Handler(conn net.Conn, s *serial.Port) {
 	}
 
 	fmt.Println("RESPONSE")
-	fmt.Println(string(b.Bytes()) + "\r\n")
+	if v {
+		fmt.Println(string(b.Bytes()) + "\r\n")
+	}
 
 	n, err = conn.Write(b.Bytes())
 
 }
 
 func main() {
-	if len(os.Args) == 2 {
-		com := os.Args[1]
+	flag.Parse()
+	if len(os.Args) == 2 || len(os.Args) == 3 || len(os.Args) == 4 {
+		com := os.Args[len(os.Args)-1]
 
 		c := &serial.Config{Name: com, Baud: 115200}
 		s, err := serial.OpenPort(c)
@@ -90,13 +104,13 @@ func main() {
 		defer s.Close()
 		fmt.Println("Connected to serial port " + com)
 
-		l, err := net.Listen("tcp", "localhost:8080")
+		l, err := net.Listen("tcp", "localhost:"+port)
 		if err != nil {
 			fmt.Println("Error listening:", err.Error())
 			os.Exit(1)
 		}
 		defer l.Close()
-		fmt.Println("Listening on port 8080")
+		fmt.Println("Listening on port " + port)
 
 		for {
 			conn, err := l.Accept()
