@@ -125,9 +125,9 @@ Total.........................11/11
 
 ##  Trying out the CLI without the board
 
-It is also possible to test the project in Linux and MacOS directly without the board. The "emu" directory contains a simple socket server that by default exports all the functionality of the cli project over the 8080 port, if you need to change the port simply modify the value of PORT in [main.c](emu/main.c). It also contains a simple socket client to consume this API and do some testing ([client.c](emu/client.c)).
+It is also possible to test the project in Linux and MacOS directly without the board. The "cli-socket" directory contains a simple socket server that by default exports all the functionality of the cli project over the 8080 port, if you need to change the port simply modify the value of PORT in [main.c](cli-socket/main.c). It also contains a simple socket client to consume this API and do some testing ([client.c](cli-socket/client.c)).
 
-In order to compile those files you can use the script [build_emu.sh](build_emu.sh). Just run `./build_emu.sh`, start the server by running `./emu/build/server` and then in another terminal run `./emu/build/client`. You should see a prompt like this and will be able to enter any command supported by the cli project (see [Usage](#Usage)):
+In order to compile those files you can use the script [build_cli-socket.sh](build_cli-socket.sh). Just run `./build_emu.sh`, start the server by running `./cli-socket/build/server` and then in another terminal run `./cli-socket/build/client`. You should see a prompt like this and will be able to enter any command supported by the cli project (see [Usage](#Usage)):
 
 ```
 Socket successfully created..
