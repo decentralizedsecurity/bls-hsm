@@ -1,3 +1,4 @@
+git clone https://github.com/wolfssl/wolfssl.git
 cd wolfssl
 ./configure --enable-scrypt
 make

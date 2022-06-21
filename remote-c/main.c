@@ -16,12 +16,13 @@
 
 #include "../blst/bindings/blst.h"
 
-#include "./httpRemote.h"
+#include "../lib/httpRemote.h"
 
-#include "../secure_module/zephyr/spm/src/main.c"
+#include "../lib/bls_hsm.h"
 
 #define PORT 8080
 #define SA struct sockaddr
+#define MAX 65535
 
 void func(int sockfd)
 {
@@ -30,6 +31,8 @@ void func(int sockfd)
 
     // infinite loop for chat
     for (;;) {
+        char bu[6555];
+        import("0c512bb087a03ac827d63a8242d0e69d0692f5b86019bcd8fee0a1dcfcb5cdf7",bu);
         int bytesRead;
         char bufferRequest[MAX];
 

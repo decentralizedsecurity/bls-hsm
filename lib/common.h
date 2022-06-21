@@ -19,6 +19,8 @@
 #define BADJSON 10
 #define BLSTSUCCESS 11
 #define BLSTFAIL 12
+#define INVPASSWORD 13
+#define BADJSONFORMAT 14
 
 #ifndef NRF
 #include "blst.h"

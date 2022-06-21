@@ -4,6 +4,7 @@
 #include "blst.h"
 
 
+#ifndef NRF
 int char2hex(char c, uint8_t *x)
 {
 	if (c >= '0' && c <= '9') {
@@ -84,7 +85,7 @@ size_t hex2bin(const char *hex, size_t hexlen, uint8_t *buf, size_t buflen)
 
 	return hexlen / 2 + hexlen % 2;
 }
-
+#endif
 
 /*
 Get offset to first char of hex string 'str' with expected length 'len'
@@ -157,4 +158,3 @@ int msg_len(char* msg){
     }
     return len;
 }
-

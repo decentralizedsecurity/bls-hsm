@@ -40,7 +40,6 @@ void getkeys(char public_keys_hex_store_ns[keystore_size][96]){
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
 void hash(uint8_t* out, uint8_t* in, size_t size){
-      //  unsigned char ikm[32];
 #ifdef NRF
 	    ocrypto_sha256(out, in, size);
 #else // TODO:  implement hash in c
@@ -48,8 +47,17 @@ void hash(uint8_t* out, uint8_t* in, size_t size){
             out[i] = in[i];
         }
 #endif
-       
 }
+
+
+#ifdef NRF
+__TZ_NONSECURE_ENTRY_FUNC
+void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
+    ocrypto_aes_ctr_ctx ctx;
+    ocrypto_aes_ctr_init(&ctx, key, 16, iv);
+    ocrypto_aes_ctr_decrypt(&ctx, out, in, 32);
+}
+#endif
 
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC

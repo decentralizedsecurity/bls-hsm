@@ -55,6 +55,7 @@
 #include <sys/printk.h>
 #include <secure_services.h>
 #include <bl_crypto.h>
+#include <ocrypto_aes_ctr.h>
 #include <bls_hsm.h>
 
 void main(void)
