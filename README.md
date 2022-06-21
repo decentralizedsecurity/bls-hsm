@@ -84,7 +84,7 @@ The commands that are supported are:
 
 ### CLI tests
 
-`test` folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go mod init test`, `go mod tidy` and then either `go run ./main.go ./utils.go [-v] COMport` if you want to run it right away or `go build` and then `./test [-v] COMport` if you want to generate an executable. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4, /dev/ttyS3).
+[cli/test](./cli/test) folder contains a test coded in [Go](https://golang.org/) language. In order to run it, you must install Go and run `go mod init test`, `go mod tidy` and then either `go run ./main.go ./utils.go [-v] COMport` if you want to run it right away or `go build` and then `./test [-v] COMport` if you want to generate an executable. Optional argument `-v` will show a detailed output of the tests. `COMport` is the board's serial port name (e.g. COM4, /dev/ttyS3).
 This test will do the following:
 - Generate 10 keypairs (the maximum allowed by the board) and check that all keys are different.
 - Attempt to generate an extra key pair and confirm the board refuses to do that.
@@ -127,7 +127,7 @@ Total.........................11/11
 
 ### Remote Signer tests
 
-[test_rs](./test_rs) also contains some test in Go to try some basic remote signer API methods. You need to run, as in the previous tests, `go mod init test_rs`, `go mod tidy` and then `go test -com=COMPORT`. You can add the `-v` flag to show detailed info of each test.
+[remote-signer/test_rs](./remote-signer/test_rs) also contains some test in Go to try some basic remote signer API methods. You need to run, as in the previous tests, `go mod init test_rs`, `go mod tidy` and then `go test -com=COMPORT`. You can add the `-v` flag to show detailed info of each test.
 Output example:
 
 ```
@@ -164,7 +164,7 @@ We are currently in the process of implementing a full C/C++ implementation of t
 
 ## Usage
 
-This is still work in progress and there are still some missing features. For example, the validator doesn't support all the eth2 blocks and cannot import scrypt keystores, only pbkdf2. Apart from the signature method, we also implement the methods to retrieve keys and check the status. The remote signer listen for HTTP requests over a serial port, process them and sends the response over serial too. If you want to test it with a Eth 2.0 client you first need to setup a Socket to Serial bridge, which is provided by [bridge.go](remote_signer/bridge.go). In order to build it you have to run `go mod init bridge`, `go mod tidy` and `go build`. You must specify the serial port when launching it (`./bridge [-port=SOCKETPORT] [-v] <COMport>`). Here are some output examples:
+This is still work in progress and there are still some missing features. For example, the validator doesn't support all the eth2 blocks and cannot import scrypt keystores, only pbkdf2. Apart from the signature method, we also implement the methods to retrieve keys and check the status. The remote signer listen for HTTP requests over a serial port, process them and sends the response over serial too. If you want to test it with a Eth 2.0 client you first need to setup a Socket to Serial bridge, which is provided by [bridge.go](remote-signer/bridge.go). In order to build it you have to run `go mod init bridge`, `go mod tidy` and `go build`. You must specify the serial port when launching it (`./bridge [-port=SOCKETPORT] [-v] <COMport>`). Here are some output examples:
 
 <details>
   <summary>Expand</summary>

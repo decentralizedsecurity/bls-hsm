@@ -23,8 +23,9 @@ func TestImportKeystore(t *testing.T) {
 		t.Error("Failed opening serial port")
 	}
 	_ = s
+	defer s.Close()
 
-	keystore, err := os.ReadFile("../test/eip2335/keystore_request.json")
+	keystore, err := os.ReadFile("../../samples/eip2335/keystore_request.json")
 	if err != nil {
 		t.Error("Failed reading request body")
 	}
@@ -46,11 +47,9 @@ func TestImportKeystore(t *testing.T) {
 	go func() {
 		for scanner.Scan() {
 			if strings.Contains(scanner.Text(), "200 Success response") {
-				s.Close()
 				ch <- ""
 				break
 			} else if strings.Contains(scanner.Text(), "400 Bad request") {
-				s.Close()
 				t.Error("Failed importing keystore")
 				ch <- ""
 				break
@@ -72,8 +71,9 @@ func TestSignBlock(t *testing.T) {
 		t.Error("Failed opening serial port")
 	}
 	_ = s
+	defer s.Close()
 
-	block, err := os.ReadFile("../samples/block.json")
+	block, err := os.ReadFile("../../samples/block.json")
 	if err != nil {
 		t.Error("Failed reading request body")
 	}
@@ -95,11 +95,9 @@ func TestSignBlock(t *testing.T) {
 	go func() {
 		for scanner.Scan() {
 			if strings.Contains(scanner.Text(), "200 OK") {
-				s.Close()
 				ch <- ""
 				break
 			} else if strings.Contains(scanner.Text(), "404") {
-				s.Close()
 				t.Error("Failed")
 				ch <- ""
 				break
@@ -121,8 +119,9 @@ func TestSignAggregateAndProof(t *testing.T) {
 		t.Error("Failed opening serial port")
 	}
 	_ = s
+	defer s.Close()
 
-	block, err := os.ReadFile("../samples/aggregate_and_proof.json")
+	block, err := os.ReadFile("../../samples/aggregate_and_proof.json")
 	if err != nil {
 		t.Error("Failed reading request body")
 	}
@@ -144,11 +143,9 @@ func TestSignAggregateAndProof(t *testing.T) {
 	go func() {
 		for scanner.Scan() {
 			if strings.Contains(scanner.Text(), "200 OK") {
-				s.Close()
 				ch <- ""
 				break
 			} else if strings.Contains(scanner.Text(), "404") {
-				s.Close()
 				t.Error("Failed")
 				ch <- ""
 				break
@@ -170,8 +167,9 @@ func TestSignAggregationSlot(t *testing.T) {
 		t.Error("Failed opening serial port")
 	}
 	_ = s
+	defer s.Close()
 
-	block, err := os.ReadFile("../samples/aggregation_slot.json")
+	block, err := os.ReadFile("../../samples/aggregation_slot.json")
 	if err != nil {
 		t.Error("Failed reading request body")
 	}
@@ -193,11 +191,9 @@ func TestSignAggregationSlot(t *testing.T) {
 	go func() {
 		for scanner.Scan() {
 			if strings.Contains(scanner.Text(), "200 OK") {
-				s.Close()
 				ch <- ""
 				break
 			} else if strings.Contains(scanner.Text(), "404") {
-				s.Close()
 				t.Error("Failed")
 				ch <- ""
 				break
@@ -219,8 +215,9 @@ func TestSignAttestation(t *testing.T) {
 		t.Error("Failed opening serial port")
 	}
 	_ = s
+	defer s.Close()
 
-	block, err := os.ReadFile("../samples/attestation.json")
+	block, err := os.ReadFile("../../samples/attestation.json")
 	if err != nil {
 		t.Error("Failed reading request body")
 	}
@@ -242,11 +239,9 @@ func TestSignAttestation(t *testing.T) {
 	go func() {
 		for scanner.Scan() {
 			if strings.Contains(scanner.Text(), "200 OK") {
-				s.Close()
 				ch <- ""
 				break
 			} else if strings.Contains(scanner.Text(), "404") {
-				s.Close()
 				t.Error("Failed")
 				ch <- ""
 				break

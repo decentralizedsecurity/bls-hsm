@@ -365,7 +365,7 @@ func imp(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, test 
 	var pkhex string
 	if test == 7 {
 		ks := new(ks.Keystore)
-		keys, err := ks.GetKey("./web3/keystore-m_12381_3600_0_0_0-1642162977.json", "123456789")
+		keys, err := ks.GetKey("../../samples/web3/keystore-m_12381_3600_0_0_0-1642162977.json", "123456789")
 		if err == nil {
 			sk = hex.EncodeToString(keys.SecretKey.Marshal())
 			pkhex = "0x" + hex.EncodeToString(keys.PublicKey.Marshal())
@@ -377,7 +377,7 @@ func imp(s *serial.Port, scanner *bufio.Scanner, verb bool, passed []bool, test 
 		} else {
 			pass = ""
 		}
-		ksjson, err := os.ReadFile("./eip2335/keystore-m_12381_3600_0_0_0-1642162977.json")
+		ksjson, err := os.ReadFile("../../samples/eip2335/keystore-m_12381_3600_0_0_0-1642162977.json")
 		var ks keystorev4.Keystore
 		err = json.Unmarshal(ksjson, &ks)
 		skbin, err := ks.Decrypt([]byte(pass))
