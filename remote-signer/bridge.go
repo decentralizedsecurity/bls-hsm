@@ -10,11 +10,12 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/tarm/serial"
 )
 
-var f bool = false
+var mutex sync.Mutex
 
 var v bool
 var port string
@@ -25,42 +26,70 @@ func init() {
 }
 
 func Handler(conn net.Conn, s *serial.Port) {
-	for f {
-	}
-	f = true
-	defer func() {
-		f = false
-	}()
+	mutex.Lock()
+	defer mutex.Unlock()
 	defer conn.Close()
 
 	buf := make([]byte, 65535)
 
 	l := 0
-
-	n, err := conn.Read(buf)
-	l += n
-
+	cl := 0
+	readingBody := false
+	var index int
+	var index2 int
+	for {
+		n, err := conn.Read(buf[l:])
+		if err != nil {
+			break
+		}
+		l += n
+		if !readingBody {
+			if strings.Contains(string(buf), "\r\n\r\n") {
+				if !strings.Contains(string(buf), "Content-Length:") {
+					break
+				} else {
+					index = strings.Index(string(buf), "Content-Length:")
+					index2 = strings.Index(string(buf), "\r\n\r\n")
+					indexcl := strings.Index(string(buf[index:]), "\r\n")
+					cl, err = strconv.Atoi(string(buf[index+16 : index+indexcl]))
+					if cl == 0 {
+						break
+					}
+					readingBody = true
+					if l-cl == index2+4 {
+						break
+					}
+				}
+			}
+		} else {
+			if l-cl == index2+4 {
+				break
+			}
+		}
+	}
 	fmt.Println("REQUEST")
 	if v {
 		fmt.Println(string(buf) + "\r\n")
 	}
 
-	n, err = s.Write(buf[:l])
+	n, err := s.Write(buf[:l])
 	if err != nil {
 		s.Close()
 		log.Fatal(err)
 	}
+	_ = n
 
 	scanner := bufio.NewScanner(s)
 	scanner.Split(bufio.ScanRunes)
 	var b bytes.Buffer
 
-	cl := 0
-	readingBody := false
-	var index int
-	var index2 int
+	l = 0
+	cl = 0
+	readingBody = false
+
 	for scanner.Scan() {
 		b.Write([]byte(scanner.Text()))
+		l++
 		if !readingBody {
 			if strings.Contains(b.String(), "\r\n\r\n") {
 				if !strings.Contains(b.String(), "Content-Length:") {
@@ -73,10 +102,13 @@ func Handler(conn net.Conn, s *serial.Port) {
 						break
 					}
 					readingBody = true
+					if l-cl == index2+4 {
+						break
+					}
 				}
 			}
 		} else {
-			if len(b.Bytes()[index2+4:])-cl == 0 {
+			if l-cl == index2+4 {
 				break
 			}
 		}

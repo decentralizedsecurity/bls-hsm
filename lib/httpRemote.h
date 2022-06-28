@@ -240,7 +240,7 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
     }else if (strncmp(buffer, "POST", 4) == 0){
         char* p = strstr(buffer, "Content-Length: ");
         if(p != NULL){
-            char* q = strchr(p, '\r');
+            char* q = strstr(p, "\r\n\r\n");
             if(q != NULL){
                 int clen = atoi(p + 16);
                 int headlen = q - (char*) buffer;
