@@ -20,11 +20,11 @@
 #include <picohttpparser.h>
 #include <common.h>
 #include <bls_hsm_ns.h>
+#include <logging/log.h>
+LOG_MODULE_REGISTER(remote_signer, LOG_LEVEL_INF);
 #include <httpRemote.h>
 
 #include <usb/usb_device.h>
-#include <logging/log.h>
-LOG_MODULE_REGISTER(remote_signer, LOG_LEVEL_INF);
 
 uint8_t buf[MAXBUF];
 int len = 0;
@@ -103,6 +103,7 @@ void main(void)
 				strcpy(buf, badRequest);
 				len = strlen(badRequest);
 			}
+			LOG_INF("REQUEST PROCESSED");
 			uart_irq_tx_enable(dev);
 			while (uart_irq_update(dev) && uart_irq_is_pending(dev)) {
 				if (uart_irq_tx_ready(dev)) {

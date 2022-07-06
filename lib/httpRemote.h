@@ -290,6 +290,9 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
         }
     }else if((request.methodLen == 4) && (strncmp(request.method, "POST", 4) == 0)){
         getBody(buffer, bufferSize, &request);
+        #ifdef NRF
+        LOG_INF("Body parsed\n");
+        #endif
         if((request.pathLen == (strlen(signRequestStr) + keySize)) && (strncmp(request.path, signRequestStr, strlen(signRequestStr)) == 0)){
             getAcceptOptions(&request);
             reply->acceptType = request.acceptType;
@@ -298,7 +301,10 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
             reply->json = request.body;
             reply->jsonLen = request.bodyLen;
 
-            reply->method = sign;        
+            reply->method = sign;
+            #ifdef NRF
+            LOG_INF("Signing method requested\n");
+            #endif        
         }else if((request.pathLen == strlen(keymanagerStr)) && (strncmp(request.path, keymanagerStr, strlen(keymanagerStr)) == 0)){
             reply->json = request.body;
             reply->jsonLen = request.bodyLen;
@@ -402,22 +408,51 @@ int getSR(cJSON* json, char* signingRoot){
 */
 int signResponseStr(char* buffer, struct boardRequest* request){
     cJSON* json = cJSON_Parse(request->json);
+    #ifdef NRF
+    if(json == NULL){
+        LOG_INF("Failed parsing request body\n");
+        return -1;
+    }
+    #endif
     cJSON* signingroot = cJSON_GetObjectItemCaseSensitive(json, "signingRoot");
+    #ifdef NRF
+        LOG_INF("SR parsed\n");
+    #endif
     char sr[32];
     char srhex[65] = "";
     if(signingroot == NULL){
+        #ifdef NRF
+        LOG_INF("Computing SR\n");
+        #endif
         if(getSR(json, sr) == -1){
+            cJSON_Delete(json);
             return -1;
         }
         bin2hex(sr, 32, srhex, 64);
     }else{
         memcpy(srhex, signingroot->valuestring + 2, 64);
+        #ifdef NRF
+        LOG_INF("SR copied\n");
+        #endif
     }
+    #ifdef NRF
+    LOG_INF("Signing root: %s\n", srhex);
+    #endif
 
-    char* key = strndup(request->keyToSign, 96);
+    char key[97] = "";
+    memcpy(key, request->keyToSign, 96);
     char signat[MAXSizeEthereumSignature];//¿Maximum size of ethereum siganture?
     //signature(key, signingroot->valuestring, signat);
-    signature(key, srhex, signat);
+    #ifdef NRF
+    LOG_INF("PK: %s\n", key);
+    #endif
+    if(signature(key, srhex, signat) != 0){
+        cJSON_Delete(json);
+        return -1;
+    }
+    #ifdef NRF
+    LOG_INF("Signature: %s\n", signat);
+    #endif
 
     char reply[256] = "";
     switch(request->acceptType){
@@ -433,6 +468,7 @@ int signResponseStr(char* buffer, struct boardRequest* request){
             strcpy(buffer, signResponse);
             break;
         default:
+            cJSON_Delete(json);
             return -1;
     }
 
@@ -444,6 +480,7 @@ int signResponseStr(char* buffer, struct boardRequest* request){
     strcat(buffer, "\r\n\r\n");
     strcat(buffer, reply);
 
+    cJSON_Delete(json);
     return strlen(buffer);
 }
 
@@ -463,6 +500,12 @@ void del(char str[], char ch) {
       }
    }
    str1[j] = '\0';
+}
+
+void delete_keystores(int nkeys){
+    for(int i=0; i<nkeys; i++){
+        cJSON_Delete(keystores[i]);
+    }
 }
 
 /*
@@ -776,11 +819,13 @@ int httpImportFromKeystore(char* body){
 
     cJSON* keystoresJson = cJSON_GetObjectItemCaseSensitive(json, "keystores");
     if((keystoresJson == NULL) || (keystoresJson->child == NULL)){
+        cJSON_Delete(json);
         return -1;
     }
 
     cJSON* passwordsJson = cJSON_GetObjectItemCaseSensitive(json, "passwords");
     if((passwordsJson == NULL) || (passwordsJson->child == NULL)){
+        cJSON_Delete(json);
         return -1;
     }
 
@@ -800,6 +845,8 @@ int httpImportFromKeystore(char* body){
             ++nKeystores;
             keystoresJson = keystoresJson->next;
         }else{
+            delete_keystores(nKeystores);
+            cJSON_Delete(json);
             return -1;
         }
     }
@@ -807,6 +854,8 @@ int httpImportFromKeystore(char* body){
     while(passwordsJson != NULL){
         if(nPasswords < (MAXKeys + nKeysAlreadyStored)){
             if(passwordsJson->type != cJSON_String){
+                delete_keystores(nKeystores);
+                cJSON_Delete(json);
                 return -1;
             }else{
                 passwords[nPasswords] = passwordsJson->valuestring;
@@ -814,18 +863,26 @@ int httpImportFromKeystore(char* body){
             ++nPasswords;
             passwordsJson = passwordsJson->next;
         }else{
+            delete_keystores(nKeystores);
+            cJSON_Delete(json);
             return -1;
         }
     }
 
     if(nKeystores != nPasswords){
+        delete_keystores(nKeystores);
+        cJSON_Delete(json);
         return -1;
     }
 
     if(import_from_keystore(nKeystores) != 0){
+        delete_keystores(nKeystores);
+        cJSON_Delete(json);
         return -1;
     }
 
+    delete_keystores(nKeystores);
+    cJSON_Delete(json);
     return 0;
 }
 
@@ -840,6 +897,9 @@ int dumpHttpResponse(char* buffer, struct boardRequest* request){//boardRequest 
             if(checkKey(request) == -1){
                 return pknotfoundResponseStr(buffer);
             }
+            #ifdef NRF
+            LOG_INF("Key found\n");
+            #endif
             return signResponseStr(buffer, request);
             break;
         case upcheck:
