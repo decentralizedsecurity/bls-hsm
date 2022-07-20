@@ -222,7 +222,6 @@ int signature(char* pk, char* msg, char* buff){
                 blst_p2 sig;
                 byte sig_bin[96];
                 char sig_hex[192];
-
                 sign_pk(&sig, &hash);
                 sig_serialize(sig_bin, sig);
                 if(bin2hex(sig_bin, sizeof(sig_bin), sig_hex, sizeof(sig_hex)) == 0) {
@@ -452,7 +451,7 @@ int get_private_key(char* cipher_message, char* iv_str, unsigned char* decriptio
     private_key[64] = '\0';
 
     char buff[6500];
-    printf("\n\n%s\n\n", private_key_str);
+    //printf("\n\n%s\n\n", private_key_str);
     import(private_key_str, buff);
 
     return 0;
