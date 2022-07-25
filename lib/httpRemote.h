@@ -134,6 +134,27 @@ struct httpRequest{
 cJSON* keystores[MAXKeys];
 char* passwords[MAXKeys];
 
+#ifdef NRF
+static uint32_t GetFreeMemorySize()
+{
+  uint32_t  i;
+  uint32_t  len;
+  uint8_t*  ptr;
+ 
+  for(i=1;;i++)
+  {
+    len = i * 1024;
+    ptr = (uint8_t*)malloc(len);
+    if(!ptr){
+      break;
+    }
+    free(ptr);
+  }
+ 
+  return i;
+}
+#endif
+
 /*
     On success returns 0
     On empty keystore returns -1
@@ -324,7 +345,17 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
 */
 int upcheckResponseStr(char* buffer){
     strcpy(buffer, upcheckResponse);
-    return strlen(upcheckResponse);
+    #ifdef NRF
+    uint32_t mem = GetFreeMemorySize();
+    char buf[4] = "";
+    sprintf(buf, "%d\0", mem);
+    int cl = strlen(buf);
+    char len[2] = "";
+    itoa(cl, len, 10);
+    buffer[74] = len[0];
+    strcat(buffer, buf);
+    #endif
+    return strlen(buffer);
 }
 
 /*
@@ -441,7 +472,7 @@ int signResponseStr(char* buffer, struct boardRequest* request){
 
     char key[97] = "";
     memcpy(key, request->keyToSign, 96);
-    char signat[MAXSizeEthereumSignature];//¿Maximum size of ethereum siganture?
+    char signat[MAXSizeEthereumSignature+1] = "";//¿Maximum size of ethereum siganture?
     //signature(key, signingroot->valuestring, signat);
     #ifdef NRF
     LOG_INF("PK: %s\n", key);
@@ -463,7 +494,7 @@ int signResponseStr(char* buffer, struct boardRequest* request){
             break;
         case applicationJson:
             strcat(reply, "{\"signature\": \"0x");
-            strncat(reply, signat, 192);
+            strncat(reply, signat, MAXSizeEthereumSignature);
             strcat(reply, "\"}");
             strcpy(buffer, signResponse);
             break;
