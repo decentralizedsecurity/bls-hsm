@@ -5,7 +5,7 @@
 #
 
 add_library(tfm_app_rot_partition_sp STATIC)
-
+add_definitions(-DNRF -DNRF_RS)
 target_include_directories(tfm_app_rot_partition_sp
     INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -15,6 +15,7 @@ target_include_directories(tfm_app_rot_partition_sp
 target_include_directories(tfm_partitions
     INTERFACE
         ${CMAKE_BINARY_DIR}/secure_partition
+        ${CMAKE_BINARY_DIR}/lib
 )
 
 target_sources(tfm_app_rot_partition_sp
@@ -35,6 +36,7 @@ target_sources(tfm_partitions
 )
 
 target_link_libraries(tfm_app_rot_partition_sp
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../lib/libblst.a
     PRIVATE
         tfm_secure_api
         psa_interface

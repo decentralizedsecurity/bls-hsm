@@ -43,6 +43,55 @@
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_GETKEYS",
+      "signal": "TFM_GETKEYS_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_HASH",
+      "signal": "TFM_HASH_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_AES128CTR",
+      "signal": "TFM_AES128CTR_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_PK_IN_KEYSTORE",
+      "signal": "TFM_PK_IN_KEYSTORE_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_SIGN_PK",
+      "signal": "TFM_SIGN_PK_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_RESET",
+      "signal": "TFM_RESET_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_IMPORT_SK",
+      "signal": "TFM_IMPORT_SK_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
     }
   ],
 
