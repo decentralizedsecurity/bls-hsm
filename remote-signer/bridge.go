@@ -26,11 +26,13 @@ var LOG_FILE string = "./log.txt"
 var v bool
 var port string
 var d bool
+var p string
 
 func init() {
 	flag.BoolVar(&v, "v", false, "display detailed output")
 	flag.StringVar(&port, "port", "8080", "Socket port")
 	flag.BoolVar(&d, "d", false, "log requests in log.txt")
+	flag.StringVar(&p, "p", LOG_FILE, "Path to log file")
 }
 
 func Handler(conn net.Conn, s *serial.Port) {
@@ -183,10 +185,10 @@ func Handler(conn net.Conn, s *serial.Port) {
 
 func main() {
 	flag.Parse()
-	if len(os.Args) >= 2 && len(os.Args) <= 5 {
+	if len(os.Args) >= 2 && len(os.Args) <= 6 {
 
 		if d {
-			logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+			logFile, err := os.OpenFile(p, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 			if err != nil {
 				log.Println(err)
 				return
