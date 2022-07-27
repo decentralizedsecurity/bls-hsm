@@ -6,12 +6,13 @@
 #include "blst.h"
 
 int pk_in_keystore(char * public_key_hex, int offset);
-void ikm_sk(char* info);
+int ikm_sk(char* info);
 void sk_to_pk(blst_p1* pk);
 void sign_pk(blst_p2* sig, blst_p2* hash);
 void reset();
 void store_pk(char* public_key_hex);
 int get_keystore_size();
+int getkey(int index, char* public_key_hex);
 void getkeys(char** public_keys_hex_store_ns);
 int import_sk(blst_scalar* sk_imp);
 int PBKDF2(uint8_t* salt, uint8_t* password, int it_cnt, uint8_t* key);
