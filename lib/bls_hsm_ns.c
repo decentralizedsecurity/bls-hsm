@@ -187,8 +187,8 @@ int keygen(char* data, char* buff){
             strcat(buff, "Error when converting public key from binary to hexadecimal.\n");
             return pk_index;
         }
-        if(getkey(pk_index, pk) != 0){
-            strcat(buff, "getkey: error\n");
+        if(get_key(pk_index, pk) != 0){
+            strcat(buff, "get_key: error\n");
         }
         print_pk(pk, buff);
         
@@ -269,7 +269,7 @@ Get array of stored public keys in buffer 'buff'
 int print_keys_Json(char* buff){
     int keystore_size = get_keystore_size();
     char public_keys_hex_store[keystore_size][96];
-    getkeys(public_keys_hex_store);
+    get_keys(public_keys_hex_store);
     
         strcat(buff, "{\"keys\":[\"");
         for(int i = 0; i < keystore_size; i++){
