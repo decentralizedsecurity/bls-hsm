@@ -6,7 +6,7 @@
 #include "blst.h"
 
 int pk_in_keystore(char * public_key_hex, int offset);
-int ikm_sk(char* info);
+int secure_keygen(char* info);
 void sk_to_pk(blst_p1* pk);
 void sign_pk(blst_p2* sig, blst_p2* hash);
 void reset();

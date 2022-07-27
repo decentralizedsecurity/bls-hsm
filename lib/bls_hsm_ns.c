@@ -179,7 +179,7 @@ int keygen(char* data, char* buff){
         }
 
         // Generate sk and pk
-        pk_index = ikm_sk(info);
+        pk_index = secure_keygen(info);
         if(pk_index == -KEYSLIMIT){
             strcat(buff, "Can't generate more keys. Limit reached.\n");
             return pk_index;
