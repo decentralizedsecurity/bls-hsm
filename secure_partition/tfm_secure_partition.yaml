@@ -1,0 +1,101 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+# Copyright (c) 2021, Nordic Semiconductor ASA. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+{
+  "psa_framework_version": 1.0,
+  "name": "TFM_SP",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "entry_point": "tfm_req_mngr_init",
+  "stack_size": "0x800",
+
+  # Service definitions for library mode.
+  "secure_functions": [
+    {
+      "name": "TFM_GET_KEYSTORE_SIZE",
+      "signal": "TFM_GET_KEYSTORE_SIZE_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_STORE_PK",
+      "signal": "TFM_STORE_PK_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_IKM_SK",
+      "signal": "TFM_IKM_SK_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_SK_TO_PK",
+      "signal": "TFM_SK_TO_PK_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_GETKEYS",
+      "signal": "TFM_GETKEYS_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_HASH",
+      "signal": "TFM_HASH_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_AES128CTR",
+      "signal": "TFM_AES128CTR_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_PK_IN_KEYSTORE",
+      "signal": "TFM_PK_IN_KEYSTORE_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_SIGN_PK",
+      "signal": "TFM_SIGN_PK_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_RESET",
+      "signal": "TFM_RESET_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_IMPORT_SK",
+      "signal": "TFM_IMPORT_SK_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    }
+  ],
+
+  "dependencies": [
+    "TFM_CRYPTO"
+  ]
+}
