@@ -1,10 +1,7 @@
 #include <tfm_veneers.h>
 #include <tfm_ns_interface.h>
 
-#include "secure_partition.h"
-#include "blst.h"
-#include "bls_hsm.h"
-
+#include "secure_partition_interface.h"
 
 psa_status_t tfm_get_keystore_size(int* size)
 {
@@ -149,7 +146,7 @@ psa_status_t tfm_pk_in_keystore(char * public_key_hex, int offset, int* ret)
 	return status;
 }
 
-psa_status_t tfm_sign_pk(blst_p2* sig, blst_p2* hash)
+psa_status_t tfm_sign_pk(char* sig, char* hash, char* pk)
 {
 	psa_status_t status;
 

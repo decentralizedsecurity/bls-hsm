@@ -21,7 +21,7 @@
 #include <usb/usb_device.h>
 #endif
 
-#include <blst.h>
+//#include <blst.h>
 #include <common.h>
 #include <bls_hsm_ns.h>
 
@@ -43,7 +43,7 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
     return 0;
 }
 
-static int cmd_signature_message(const struct shell *shell, size_t argc, char **argv, char* buff)
+/*static int cmd_signature_message(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
     if(signature(argv[1], argv[2], buffer) == 0){
         printf("Signature: \n");
@@ -96,11 +96,11 @@ static int cmd_import(const struct shell *shell, size_t argc, char **argv){
     printf(buffer);
     memset(buffer, 0, 2048);
     return 0;
-}
+}*/
 
 SHELL_CMD_ARG_REGISTER(keygen, NULL, "Generates secret key and public key", cmd_keygen, 1, 1);
 
-SHELL_CMD_ARG_REGISTER(signature, NULL, "Signs a message with a specific public key", cmd_signature_message, 3, 0);
+/*SHELL_CMD_ARG_REGISTER(signature, NULL, "Signs a message with a specific public key", cmd_signature_message, 3, 0);
 
 SHELL_CMD_ARG_REGISTER(verify, NULL, "Verifies the signature", cmd_signature_verification, 4, 0);
 
@@ -110,7 +110,7 @@ SHELL_CMD_ARG_REGISTER(reset, NULL, "Deletes all generated keys", cmd_reset, 1, 
 
 SHELL_CMD_ARG_REGISTER(prompt, NULL, "Toggle prompt", cmd_prompt, 2, 0);
 
-SHELL_CMD_ARG_REGISTER(import, NULL, "Import secret key", cmd_import, 2, 0);
+SHELL_CMD_ARG_REGISTER(import, NULL, "Import secret key", cmd_import, 2, 0);*/
 
 void main(void)
 {
