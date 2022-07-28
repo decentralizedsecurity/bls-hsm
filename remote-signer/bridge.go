@@ -25,10 +25,14 @@ var LOG_FILE string = "./log.txt"
 
 var v bool
 var port string
+var d bool
+var p string
 
 func init() {
 	flag.BoolVar(&v, "v", false, "display detailed output")
 	flag.StringVar(&port, "port", "8080", "Socket port")
+	flag.BoolVar(&d, "d", false, "log requests in log.txt")
+	flag.StringVar(&p, "p", LOG_FILE, "Path to log file")
 }
 
 func Handler(conn net.Conn, s *serial.Port) {
@@ -181,19 +185,21 @@ func Handler(conn net.Conn, s *serial.Port) {
 
 func main() {
 	flag.Parse()
-	if len(os.Args) == 2 || len(os.Args) == 3 || len(os.Args) == 4 {
+	if len(os.Args) >= 2 && len(os.Args) <= 6 {
 
-		logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-		if err != nil {
-			log.Println(err)
-			return
+		if d {
+			logFile, err := os.OpenFile(p, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			log.SetOutput(logFile)
+			log.SetFlags(log.Lshortfile | log.LstdFlags)
+			log.Println("Log file opened")
+			defer fmt.Println("Log file closed")
+			defer logFile.Close()
+			defer log.Println("Closing log file")
 		}
-		log.SetOutput(logFile)
-		log.SetFlags(log.Lshortfile | log.LstdFlags)
-		log.Println("Log file opened")
-		defer fmt.Println("Log file closed")
-		defer logFile.Close()
-		defer log.Println("Closing log file")
 
 		com := os.Args[len(os.Args)-1]
 
