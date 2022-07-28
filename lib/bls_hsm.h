@@ -14,6 +14,9 @@ int keystore_size = 0;
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
+/**
+ * @brief Returns the number of stored keys
+*/
 int get_keystore_size(){
         return keystore_size;
 }
@@ -21,6 +24,11 @@ int get_keystore_size(){
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
+/**
+ * @brief Store given public key
+ * 
+ * @param public_key_hex Public key to be stored. Length must be 96
+*/
 void store_pk(char* public_key_hex){
         int cont = keystore_size - 1;
         for(int i = 0; i < 96; i++){
@@ -31,6 +39,12 @@ void store_pk(char* public_key_hex){
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
+/**
+ * @brief Gets the key stored at the given index. Returns 0 on success and -1 if index is incorrect
+ * 
+ * @param index Index of the key to be obtained
+ * @param public_key_hex String that contains public key
+*/
 int get_key(int index, char* public_key_hex){
         if(index >= keystore_size) return -1;
         for(int i = 0; i < 96; i++){
@@ -42,6 +56,11 @@ int get_key(int index, char* public_key_hex){
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
+/**
+ * @brief Gets all stored keys
+ * 
+ * @param public_key_hex String array that contains public keys
+*/
 void get_keys(char public_keys_hex_store_ns[keystore_size][96]){
         for(int i = 0; i < keystore_size; i++){
             for(int j = 0; j < 96; j++){
@@ -110,6 +129,11 @@ int pk_in_keystore(char * public_key_hex, int offset){
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
+/**
+ * @brief Generates a new pair of public key and secret key. Returns index of the generated pair
+ * 
+ * @param info Optional parameter. This parameter is used to derive multiple independent keys from the same ikm
+*/
 int secure_keygen(char* info){
         if(keystore_size >= MAX_KEYSTORE_SIZE) return -KEYSLIMIT;
 
@@ -118,6 +142,11 @@ int secure_keygen(char* info){
         unsigned char ikm[32];
         blst_p1 pk;
         byte out[48];
+        char default_info[] = {
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 #ifdef NRF
 	    const int random_number_len = 144;     
         uint8_t random_number[random_number_len];
@@ -132,6 +161,10 @@ int secure_keygen(char* info){
             ikm[i] = rand();
         }
 #endif
+
+        // key_info is an optional parameter.  This parameter MAY be used to derive
+        // multiple independent keys from the same IKM.  By default, key_info is the empty string.
+        if (info == NULL) info = default_info;
 
         // Secret key (256-bit scalar)
         blst_keygen(secret_keys_store + keystore_size*sizeof(blst_scalar), ikm, sizeof(ikm), info, sizeof(info));
@@ -166,6 +199,9 @@ void sign_pk(blst_p2* sig, blst_p2* hash){
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
+/**
+ * @brief Deletes all keys
+*/
 void reset(){
         memset(secret_keys_store, 0, sizeof(secret_keys_store));
         memset(public_keys_hex_store, 0, 960);
@@ -175,6 +211,12 @@ void reset(){
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
+// WIP
+/**
+ * @brief (WIP) Generates a public key from given secret and store both. Returns index of the generated pair
+ * 
+ * @param sk_imp (WIP) Secret key
+*/
 int import_sk(blst_scalar* sk_imp){
         int ret = 0;
 
