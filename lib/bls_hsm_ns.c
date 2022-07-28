@@ -157,7 +157,7 @@ Generates random key. Response is dumped to 'buff'
 
 int keygen(char* data, char* buff){
     int keystore_size = get_keystore_size();
-
+    
     if(keystore_size < 10){
         // key_info is an optional parameter.  This parameter MAY be used to derive
         // multiple independent keys from the same IKM.  By default, key_info is the empty string.
@@ -166,8 +166,10 @@ int keygen(char* data, char* buff){
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        int pk_index;
+        char pk[96];
 
-       //check if data string is empty
+        // Check if data string is empty
         if(strlen(data) != 0){
             if(strlen(data) <= strlen(info)){
                     strcpy(info, data);
@@ -176,24 +178,19 @@ int keygen(char* data, char* buff){
             }
         }
 
-        ikm_sk(info);
-    
-        //The secret key allow us to generate the associated public key
-        blst_p1 pk;
-        byte out[48];
-        char public_key_hex[96];
-        sk_to_pk(&pk);
-        pk_serialize(out, pk);
-        strcat(buff, "Public key: \n");
-        if(bin2hex(out, sizeof(out), public_key_hex, sizeof(public_key_hex)) == 0) {
-          strcat(buff, "Failed converting binary key to string\n");
-        return BIN2HEXERR;
+        // Generate sk and pk
+        pk_index = secure_keygen(info);
+        if(pk_index == -KEYSLIMIT){
+            strcat(buff, "Can't generate more keys. Limit reached.\n");
+            return pk_index;
+        }else if(pk_index == -BIN2HEXERR){
+            strcat(buff, "Error when converting public key from binary to hexadecimal.\n");
+            return pk_index;
         }
-        else
-        {
-        store_pk(public_key_hex);
-        print_pk(public_key_hex, buff);
+        if(get_key(pk_index, pk) != 0){
+            strcat(buff, "get_key: error\n");
         }
+        print_pk(pk, buff);
         
     }else{
         strcat(buff, "Can't generate more keys. Limit reached.\n");
@@ -272,7 +269,7 @@ Get array of stored public keys in buffer 'buff'
 int print_keys_Json(char* buff){
     int keystore_size = get_keystore_size();
     char public_keys_hex_store[keystore_size][96];
-    getkeys(public_keys_hex_store);
+    get_keys(public_keys_hex_store);
     
         strcat(buff, "{\"keys\":[\"");
         for(int i = 0; i < keystore_size; i++){
