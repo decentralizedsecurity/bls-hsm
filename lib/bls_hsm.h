@@ -95,6 +95,12 @@ void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
+/**
+ * @brief Searchs given public key. If found, returns index. If not found, returns-1
+ * 
+ * @param public_key_hex String that contains public key
+ * @param offset Offset to first char to hex string
+*/
 int pk_in_keystore(char * public_key_hex, int offset){
 
         int ret = 0;
