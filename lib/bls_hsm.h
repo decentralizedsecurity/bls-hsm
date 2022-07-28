@@ -198,8 +198,29 @@ void sk_to_pk(blst_p1* pk){
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
-void sign_pk(blst_p2* sig, blst_p2* hash){
-        blst_sign_pk_in_g1(sig, hash, &sk_sign);
+int sign_pk(char* pk, char* msg, char* sign){
+        if(pk_in_keystore(pk, 0) != -1){
+            int len = msg_len(msg);
+            uint8_t msg_bin[len/2 + len%2];
+            if(msg_parse(msg, msg_bin, len, sign) != 1){
+                blst_p2 hash;
+                get_point_from_msg(&hash, msg_bin, len/2 + len%2);
+
+                blst_p2 sig;
+                byte sig_bin[96];
+                char sig_hex[192];
+                blst_sign_pk_in_g1(&sig, &hash, &sk_sign);
+                sig_serialize(sig_bin, sig);
+                if(bin2hex(sig_bin, sizeof(sig_bin), sig_hex, sizeof(sig_hex)) == 0) {
+                    return BIN2HEXERR;
+                }
+                strcpy(sign, sig_hex);
+                return 0;
+            }
+        }else{
+            return PKNOTFOUND;
+        }
+        
 }
 
 #ifdef NRF
