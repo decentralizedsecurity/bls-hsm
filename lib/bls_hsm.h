@@ -2,6 +2,9 @@
 #define bls_hsm_h
 #include "blst.h"
 #include <string.h>
+#include "common.h"
+
+#define MAX_KEYSTORE_SIZE 10
 
 void pk_serialize(byte* out, blst_p1 pk);
 void sig_serialize(byte* out2, blst_p2 sig);
@@ -127,6 +130,14 @@ void store_pk(char* public_key_hex){
         }
 }
 
+int get_key(int index, char* public_key_hex){
+        if(index >= keystore_size) return -1;
+        for(int i = 0; i < 96; i++){
+            public_key_hex[i] = public_keys_hex_store[index][i];
+        }
+        return 0;
+}
+
 void getkeys(char public_keys_hex_store_ns[keystore_size][96]){
         for(int i = 0; i < keystore_size; i++){
             for(int j = 0; j < 96; j++){
@@ -204,9 +215,13 @@ int secure_keygen(char* info){
         size_t olen = random_number_len;
         int ret;
 
-        ret = nrf_cc3xx_platform_ctr_drbg_get(NULL, random_number, random_number_len, &olen);
+        // TODO:
+        /*ret = nrf_cc3xx_platform_ctr_drbg_get(NULL, random_number, random_number_len, &olen);
         
-        ocrypto_sha256(ikm, random_number, random_number_len);
+        ocrypto_sha256(ikm, random_number, random_number_len);*/
+        for(int i = 0; i < 32; i++){
+            ikm[i] = rand();
+        }
 #else
         for(int i = 0; i < 32; i++){
             ikm[i] = rand();
