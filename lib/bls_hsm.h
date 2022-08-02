@@ -192,9 +192,6 @@ void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
 }
 #endif
 
-#ifdef NRF
-__TZ_NONSECURE_ENTRY_FUNC
-#endif
 /**
  * @brief Searchs given public key. If found, returns index. If not found, returns-1
  * 
@@ -319,8 +316,7 @@ int sign_pk(char* pk, char* msg, char* sign){
             }
         }else{
             return PKNOTFOUND;
-        }
-        
+        }        
 }
 
 #ifdef NRF
