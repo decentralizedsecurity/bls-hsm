@@ -217,7 +217,7 @@ int pk_in_keystore(char * public_key_hex, int offset){
             }
             if (c == 0){
                 sk_sign = secret_keys_store[i];
-                break;
+                return i;
             } else {
                 if((i+1) < keystore_size){
                     c = 0;
@@ -295,8 +295,16 @@ void sk_to_pk(blst_p1* pk){
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
+/**
+ * @brief Signs given message with given public key. This public key must be stored (with its corresponding secret key). Returns 0 if success
+ * 
+ * @param pk Public key
+ * @param msg Message to be signed
+ * @param sign Resulting signature
+*/
 int sign_pk(char* pk, char* msg, char* sign){
-        if(pk_in_keystore(pk, 0) != -1){
+        int pk_index = pk_in_keystore(pk, 0);
+        if( pk_index != -1){
             int len = msg_len(msg);
             uint8_t msg_bin[len/2 + len%2];
             if(msg_parse(msg, msg_bin, len, sign) != 1){
@@ -306,7 +314,7 @@ int sign_pk(char* pk, char* msg, char* sign){
                 blst_p2 sig;
                 byte sig_bin[96];
                 char sig_hex[192];
-                blst_sign_pk_in_g1(&sig, &hash, &sk_sign);
+                blst_sign_pk_in_g1(&sig, &hash, secret_keys_store + pk_index*sizeof(blst_scalar));
                 sig_serialize(sig_bin, sig);
                 if(bin2hex(sig_bin, sizeof(sig_bin), sig_hex, sizeof(sig_hex)) == 0) {
                     return BIN2HEXERR;

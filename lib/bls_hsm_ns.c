@@ -227,38 +227,6 @@ int signature(char* pk, char* msg, char* buff){
     }
     
     return ret;
-    /*int offset = parse_hex(pk, 96);
-
-    if(offset >= 0){
-        if(pk_in_keystore(pk, offset) != -1){
-            int len = msg_len(msg);
-            uint8_t msg_bin[len/2 + len%2];
-            if(msg_parse(msg, msg_bin, len, buff) != 1){
-                blst_p2 hash;
-                get_point_from_msg(&hash, msg_bin, len/2 + len%2);
-
-                blst_p2 sig;
-                byte sig_bin[96];
-                char sig_hex[192];
-                sign_pk(&sig, &hash);
-                sig_serialize(sig_bin, sig);
-                if(bin2hex(sig_bin, sizeof(sig_bin), sig_hex, sizeof(sig_hex)) == 0) {
-                    strcat(buff, "Failed converting binary signature to string\n");
-                }
-                strcpy(buff, sig_hex);
-            }
-        }else{
-            strcat(buff, "Public key isn't stored\n");
-            return PKNOTFOUND;
-        }
-    }else if(offset == BADLEN){
-        strcat(buff, "Incorrect public key length. It must be 96 characters long\n");
-        return BADPKLEN;
-    }else{
-        strcat(buff, "Public key contains incorrect characters.\n");
-        return BADFORMAT;
-    }*/
-return OK;
 }
 
 /*
