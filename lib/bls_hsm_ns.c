@@ -205,13 +205,12 @@ int signature(char* pk, char* msg, char* buff){
     //Message examples
     //char * msg_hex = "5656565656565656565656565656565656565656565656565656565656565656";
     //char * msg_hex = "b6bb8f3765f93f4f1e7c7348479289c9261399a3c6906685e320071a1a13955c";
-    char sign[96];
     int ret;
 
     int offset = parse_hex(pk, 96);
 
     if(offset >= 0){
-        ret = sign_pk(pk+offset, msg, sign);
+        ret = sign_pk(pk+offset, msg, buff);
         if(ret == BIN2HEXERR){
             strcat(buff, "Failed converting binary signature to string\n");
             return BIN2HEXERR;

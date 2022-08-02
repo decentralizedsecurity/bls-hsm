@@ -316,7 +316,7 @@ int sign_pk(char* pk, char* msg, char* sign){
             }
         }else{
             return PKNOTFOUND;
-        }        
+        }      
 }
 
 #ifdef NRF
