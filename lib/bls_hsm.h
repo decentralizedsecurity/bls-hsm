@@ -216,7 +216,6 @@ int pk_in_keystore(char * public_key_hex, int offset){
                 }
             }
             if (c == 0){
-                sk_sign = secret_keys_store[i];
                 return i;
             } else {
                 if((i+1) < keystore_size){
