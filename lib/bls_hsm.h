@@ -399,39 +399,6 @@ int import_sk(char* sk_){
         }
         
         keystore_size++;
-        return OK;
-
-        /*int ret = 0;
-
-        int c = 0;
-
-        if(keystore_size == 0){
-                secret_keys_store[keystore_size] = *sk_imp;
-                keystore_size++;
-                sk = *sk_imp;
-        }else{
-            for(int i = 0; i < keystore_size; i++){
-                for(int x = 0; x < 32; x++){
-                    if(secret_keys_store[i].b[x] != (*sk_imp).b[x]){
-                        c = 1;
-                        break;
-                    }
-            }
-                if (c == 0){
-                    ret = -1;
-                    break;
-                } else {
-                    if((i+1) < keystore_size){
-                        c = 0;
-                    }else{
-                        secret_keys_store[keystore_size] = *sk_imp;
-                        keystore_size++;
-                        sk = *sk_imp;
-                        break;
-                    }
-                }
-            }
-        }
-        return ret;*/
+        return keystore_size - 1;
 }
 #endif
