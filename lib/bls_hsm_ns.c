@@ -298,32 +298,17 @@ int import(char* sk, char* buff){
         int offset = parse_hex(sk, 64);
 
         if(offset >= 0){
-            import_sk(sk + offset);
-            /*byte sk_bin[32];
-            if(hex2bin(sk + offset, 64, sk_bin, 32) == 0){
+            int ret = import_sk(sk + offset);
+            if(ret == -KEYSLIMIT){
+                strcat(buff, "Limit reached\n");
+                return KEYSLIMIT;
+            }else if(ret == -HEX2BINERR){
                 strcat(buff, "Failed converting hex to bin\n");
-
-            }else{
-                /*blst_scalar sk_imp;
-                blst_scalar_from_bendian(&sk_imp, sk_bin);
-                if(import_sk(&sk_imp) == 0){
-                    blst_p1 pk;
-                    sk_to_pk(&pk);
-                    byte pk_bin[48];
-                    pk_serialize(pk_bin, pk);
-                    char pk_hex[96];
-                    if(bin2hex(pk_bin, 48, pk_hex, 96) == 0){
-                        strcat(buff, "Failed converting bin to hex\n");
-                    }else{
-                        store_pk(pk_hex);
-                        print_pk(pk_hex, buff);
-                        return OK;
-
-                    }
-                }else{
-                        strcat(buff, "Key already imported\n");
-                }
-            }*/
+                return HEX2BINERR;
+            }else if(ret == -EXISTINGKEY){
+                strcat(buff, "Key already imported\n");
+                return EXISTINGKEY;
+            }
         }else if(offset == BADFORMAT){
             strcat(buff, "Incorrect characters\n");
         }else{

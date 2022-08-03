@@ -5,9 +5,7 @@
 
 #define MAX_KEYSTORE_SIZE 10
 
-blst_scalar sk;
 blst_scalar secret_keys_store[MAX_KEYSTORE_SIZE];
-blst_scalar sk_sign;
 char public_keys_hex_store[MAX_KEYSTORE_SIZE][96];
 int keystore_size = 0;
 
@@ -192,6 +190,9 @@ void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
 }
 #endif
 
+#ifdef NRF
+__TZ_NONSECURE_ENTRY_FUNC
+#endif
 /**
  * @brief Searchs given public key. If found, returns index. If not found, returns-1
  * 
@@ -341,18 +342,18 @@ void reset(){
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
-// WIP
 /**
  * @brief Generates a public key from given secret and store both. Returns index of stored pair
  * 
  * @param sk_ Secret key
 */
 int import_sk(char* sk_){
+        if(keystore_size >= MAX_KEYSTORE_SIZE) return -KEYSLIMIT;
+
         byte sk_bin[32];
 
         if(hex2bin(sk_, 64, sk_bin, 32) == 0){
-            //strcat(buff, "Failed converting hex to bin\n");
-            return HEX2BINERR;
+            return -HEX2BINERR;
         }
 
         blst_scalar sk_imp;
@@ -384,10 +385,10 @@ int import_sk(char* sk_){
                 }
             }
         }
-        //
+        
         // Public key
         if(ret != 0){
-            //strcat(buff, "Key already imported\n");
+            return EXISTINGKEY;
         }
 
         blst_p1 pk;
