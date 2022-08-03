@@ -343,9 +343,9 @@ __TZ_NONSECURE_ENTRY_FUNC
 #endif
 // WIP
 /**
- * @brief (WIP) Generates a public key from given secret and store both. Returns index of the generated pair
+ * @brief Generates a public key from given secret and store both. Returns index of stored pair
  * 
- * @param sk_imp (WIP) Secret key
+ * @param sk_ Secret key
 */
 int import_sk(char* sk_){
         byte sk_bin[32];
