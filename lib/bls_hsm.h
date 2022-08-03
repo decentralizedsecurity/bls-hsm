@@ -347,8 +347,61 @@ __TZ_NONSECURE_ENTRY_FUNC
  * 
  * @param sk_imp (WIP) Secret key
 */
-int import_sk(blst_scalar* sk_imp){
+int import_sk(char* sk_){
+        byte sk_bin[32];
+
+        if(hex2bin(sk_, 64, sk_bin, 32) == 0){
+            //strcat(buff, "Failed converting hex to bin\n");
+            return HEX2BINERR;
+        }
+
+        blst_scalar sk_imp;
+        blst_scalar_from_bendian(&sk_imp, sk_bin);
+        //
         int ret = 0;
+        int c = 0;
+
+        if(keystore_size == 0){
+                secret_keys_store[keystore_size] = sk_imp;
+        }else{
+            for(int i = 0; i < keystore_size; i++){
+                for(int x = 0; x < 32; x++){
+                    if(secret_keys_store[i].b[x] != (sk_imp).b[x]){
+                        c = 1;
+                        break;
+                    }
+                }
+                if (c == 0){
+                    ret = -1;
+                    break;
+                } else {
+                    if((i+1) < keystore_size){
+                        c = 0;
+                    }else{
+                        secret_keys_store[keystore_size] = sk_imp;
+                        break;
+                    }
+                }
+            }
+        }
+        //
+        // Public key
+        if(ret != 0){
+            //strcat(buff, "Key already imported\n");
+        }
+
+        blst_p1 pk;
+        blst_sk_to_pk_in_g1(&pk, secret_keys_store + keystore_size*sizeof(blst_scalar));
+        byte pk_bin[48];
+        blst_p1_compress(pk_bin, &pk);
+        if(bin2hex(pk_bin, sizeof(pk_bin), public_keys_hex_store[keystore_size], sizeof(public_keys_hex_store[keystore_size])) == 0){
+            return -BIN2HEXERR;
+        }
+        
+        keystore_size++;
+        return OK;
+
+        /*int ret = 0;
 
         int c = 0;
 
@@ -379,6 +432,6 @@ int import_sk(blst_scalar* sk_imp){
                 }
             }
         }
-        return ret;
+        return ret;*/
 }
 #endif

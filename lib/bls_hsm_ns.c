@@ -282,7 +282,7 @@ Delete all stored public and secret keys. Response is dumped to 'buff'
 
 
 void resetc(char* buff){
-     reset();
+    reset();
     strcat(buff, "Keys deleted\n");
 }
 
@@ -298,12 +298,13 @@ int import(char* sk, char* buff){
         int offset = parse_hex(sk, 64);
 
         if(offset >= 0){
-            byte sk_bin[32];
+            import_sk(sk + offset);
+            /*byte sk_bin[32];
             if(hex2bin(sk + offset, 64, sk_bin, 32) == 0){
                 strcat(buff, "Failed converting hex to bin\n");
 
             }else{
-                blst_scalar sk_imp;
+                /*blst_scalar sk_imp;
                 blst_scalar_from_bendian(&sk_imp, sk_bin);
                 if(import_sk(&sk_imp) == 0){
                     blst_p1 pk;
@@ -322,7 +323,7 @@ int import(char* sk, char* buff){
                 }else{
                         strcat(buff, "Key already imported\n");
                 }
-            }
+            }*/
         }else if(offset == BADFORMAT){
             strcat(buff, "Incorrect characters\n");
         }else{
