@@ -42,14 +42,14 @@ int pk_parse(char* pk_hex, blst_p1_affine* pk, char* buff){
         int error = 0;
 
         if(offset == BADLEN){
-            strcat(buff, "Incorrect public key length. It must be 96 characters long.\n");
+            if(buff != NULL) strcat(buff, "Incorrect public key length. It must be 96 characters long.\n");
             error = BADPKLEN;
         }else if(offset == BADFORMAT){
-                strcat(buff, "Public key contains incorrect characters.\n");
+                if(buff != NULL) strcat(buff, "Public key contains incorrect characters.\n");
                 error = offset;
         }else{
             if(hex2bin(pk_hex + offset, 96, pk_bin, 48) == 0) {
-                strcat(buff, "Failed converting public key to binary array\n");
+                if(buff != NULL) strcat(buff, "Failed converting public key to binary array\n");
                 error = HEX2BINERR;
             }else{
                 blst_p1_uncompress(pk, pk_bin);
@@ -68,14 +68,14 @@ int msg_parse(char* msg, uint8_t* msg_bin, int len, char* buff){
         int offset = parse_hex(msg, len);
         int error = 0;
         if(offset == BADFORMAT){
-            strcat(buff, "Message contains incorrect characters.\n");
+            if(buff != NULL) strcat(buff, "Message contains incorrect characters.\n");
             error = offset;
         }else if(offset == BADLEN){
-            strcat(buff, "Message contains incorrect characters.\n");
+            if(buff != NULL) strcat(buff, "Message contains incorrect characters.\n");
             error = offset;
         }else{
             if(hex2bin(msg + offset, len, msg_bin, len/2 + len%2) == 0) {
-                strcat(buff, "Incorrect message length.\n");
+                if(buff != NULL) strcat(buff, "Incorrect message length.\n");
                 error = HEX2BINERR;
             }
         }
@@ -93,14 +93,14 @@ int sig_parse(char* sig_hex, blst_p2_affine* sig, char* buff){
         int error = 0;
 
         if(offset == BADLEN){
-            strcat(buff, "Incorrect signature length. It must be 192 characters long.\n");
+            if(buff != NULL) strcat(buff, "Incorrect signature length. It must be 192 characters long.\n");
             error = BADSIGLEN;
         }else if(offset == BADFORMAT){
-            strcat(buff, "Signature contains incorrect characters.\n");
+            if(buff != NULL) strcat(buff, "Signature contains incorrect characters.\n");
             error = offset;
         }else{
             if(hex2bin(sig_hex + offset, 192, sig_bin, 96) == 0) {
-                strcat(buff, "Failed converting signature to binary array\n");
+                if(buff != NULL) strcat(buff, "Failed converting signature to binary array\n");
                 error = HEX2BINERR;
             }else{
                 blst_p2_uncompress(sig, sig_bin);
@@ -331,6 +331,34 @@ int sign_pk(char* pk, char* msg, char* sign){
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
 /**
+ * @brief Verifies signature of given message and public key. Returns BLSTSUCCESS if success and BLSTFAIL otherwise
+ * 
+ * @param pk Public key
+ * @param msg Message signed
+ * @param sign Signature
+*/
+int verify_sign(char* pk, char* msg, char* sign){
+        char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"; //IETF BLS Signature V4
+
+        blst_p1_affine pk_bin;
+        blst_p2_affine sig_bin;
+        int len = msg_len(msg);
+        uint8_t msg_bin[len/2 + len%2];
+        if((pk_parse(pk, &pk_bin, NULL) || msg_parse(msg, msg_bin, len, NULL) || sig_parse(sign, &sig_bin, NULL)) == 0){
+            if(blst_core_verify_pk_in_g1(&pk_bin, &sig_bin, 1, msg_bin, len/2 + len%2, dst, sizeof(dst)-1, NULL, 0) != BLST_SUCCESS){
+                return BLSTFAIL;
+            }else{
+                return BLSTSUCCESS;
+            }
+        }else{
+            return -1;
+        }
+}
+
+#ifdef NRF
+__TZ_NONSECURE_ENTRY_FUNC
+#endif
+/**
  * @brief Deletes all keys
 */
 void reset(){
@@ -351,16 +379,14 @@ int import_sk(char* sk_){
         if(keystore_size >= MAX_KEYSTORE_SIZE) return -KEYSLIMIT;
 
         byte sk_bin[32];
+        blst_scalar sk_imp;
+        blst_scalar_from_bendian(&sk_imp, sk_bin);        
+        int ret = 0;
+        int c = 0;
 
         if(hex2bin(sk_, 64, sk_bin, 32) == 0){
             return -HEX2BINERR;
-        }
-
-        blst_scalar sk_imp;
-        blst_scalar_from_bendian(&sk_imp, sk_bin);
-        //
-        int ret = 0;
-        int c = 0;
+        }        
 
         if(keystore_size == 0){
                 secret_keys_store[keystore_size] = sk_imp;
