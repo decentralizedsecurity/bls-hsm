@@ -284,14 +284,6 @@ int secure_keygen(char* info){
         return keystore_size-1;
 }
 
-// Public key is generated in ikm_sk. This function will be deprecated
-#ifdef NRF
-__TZ_NONSECURE_ENTRY_FUNC
-#endif
-void sk_to_pk(blst_p1* pk){
-        blst_sk_to_pk_in_g1(pk, secret_keys_store + keystore_size*sizeof(blst_scalar));
-}
-
 #ifdef NRF
 __TZ_NONSECURE_ENTRY_FUNC
 #endif
