@@ -234,23 +234,16 @@ Verifies signature of given message and public key
 */
 
 int verify(char* pk, char* msg, char* sig, char* buff){
-    char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"; //IETF BLS Signature V4
-
-    blst_p1_affine pk_bin;
-    blst_p2_affine sig_bin;
-    int len = msg_len(msg);
-    uint8_t msg_bin[len/2 + len%2];
-    if((pk_parse(pk, &pk_bin, buff) || msg_parse(msg, msg_bin, len, buff) || sig_parse(sig, &sig_bin, buff)) == 0){
-        if(blst_core_verify_pk_in_g1(&pk_bin, &sig_bin, 1, msg_bin, len/2 + len%2, dst, sizeof(dst)-1, NULL, 0) != BLST_SUCCESS){
-            strcat(buff, "BLSTFAIL\n");
-            return BLSTFAIL;
-        }
-        else {
-            strcat(buff, "BLSTSUCCESS\n");
-            return BLSTSUCCESS;
-        }
+    int ret = verify_sign(pk, msg, sig);
+    if(ret == BLSTFAIL){
+        strcat(buff, "BLSTFAIL\n");
+        return BLSTFAIL;
+    }else if(ret == BLSTSUCCESS){
+        strcat(buff, "BLSTSUCCESS\n");
+        return BLSTSUCCESS;
     }
 }
+
 /*
 Get array of stored public keys in buffer 'buff'
 */
