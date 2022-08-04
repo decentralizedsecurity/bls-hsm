@@ -351,7 +351,7 @@ int verify_sign(char* pk, char* msg, char* sign){
                 return BLSTSUCCESS;
             }
         }else{
-            // return ?
+            return -1;
         }
 }
 

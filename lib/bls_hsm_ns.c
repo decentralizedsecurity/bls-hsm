@@ -241,6 +241,9 @@ int verify(char* pk, char* msg, char* sig, char* buff){
     }else if(ret == BLSTSUCCESS){
         strcat(buff, "BLSTSUCCESS\n");
         return BLSTSUCCESS;
+    }else{
+        strcat(buff, "BLSTFAIL\n");
+        return ret;
     }
 }
 
