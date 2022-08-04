@@ -351,16 +351,14 @@ int import_sk(char* sk_){
         if(keystore_size >= MAX_KEYSTORE_SIZE) return -KEYSLIMIT;
 
         byte sk_bin[32];
+        blst_scalar sk_imp;
+        blst_scalar_from_bendian(&sk_imp, sk_bin);        
+        int ret = 0;
+        int c = 0;
 
         if(hex2bin(sk_, 64, sk_bin, 32) == 0){
             return -HEX2BINERR;
-        }
-
-        blst_scalar sk_imp;
-        blst_scalar_from_bendian(&sk_imp, sk_bin);
-        //
-        int ret = 0;
-        int c = 0;
+        }        
 
         if(keystore_size == 0){
                 secret_keys_store[keystore_size] = sk_imp;
