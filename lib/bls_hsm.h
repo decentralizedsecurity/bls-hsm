@@ -329,14 +329,14 @@ __TZ_NONSECURE_ENTRY_FUNC
  * @param msg Message signed
  * @param sign Signature
 */
-int verify_sign(char* pk, char* msg, char* sign){
+int verify_sign(char* pk, char* msg, char* sig){
         char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"; //IETF BLS Signature V4
 
         blst_p1_affine pk_bin;
         blst_p2_affine sig_bin;
         int len = msg_len(msg);
         uint8_t msg_bin[len/2 + len%2];
-        if((pk_parse(pk, &pk_bin, NULL) || msg_parse(msg, msg_bin, len, NULL) || sig_parse(sign, &sig_bin, NULL)) == 0){
+        if((pk_parse(pk, &pk_bin, NULL) || msg_parse(msg, msg_bin, len, NULL) || sig_parse(sig, &sig_bin, NULL)) == 0){
             if(blst_core_verify_pk_in_g1(&pk_bin, &sig_bin, 1, msg_bin, len/2 + len%2, dst, sizeof(dst)-1, NULL, 0) != BLST_SUCCESS){
                 return BLSTFAIL;
             }else{
