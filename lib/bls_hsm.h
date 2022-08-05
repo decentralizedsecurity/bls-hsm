@@ -365,9 +365,9 @@ __TZ_NONSECURE_ENTRY_FUNC
 /**
  * @brief Generates a public key from given secret and store both. Returns index of stored pair
  * 
- * @param sk_ Secret key
+ * @param sk Secret key
 */
-int import_sk(char* sk_){
+int import_sk(char* sk){
         if(keystore_size >= MAX_KEYSTORE_SIZE) return -KEYSLIMIT;
 
         byte sk_bin[32];
@@ -376,7 +376,7 @@ int import_sk(char* sk_){
         int ret = 0;
         int c = 0;
 
-        if(hex2bin(sk_, 64, sk_bin, 32) == 0){
+        if(hex2bin(sk, 64, sk_bin, 32) == 0){
             return -HEX2BINERR;
         }        
 
