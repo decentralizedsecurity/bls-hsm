@@ -51,110 +51,8 @@ int PBKDF2(uint8_t* salt, uint8_t* password, int it_cnt, uint8_t* key)
 #endif
 
 /*
-Converts input 'pk' to binary 'out'
-*/
-void pk_serialize(byte* out, blst_p1 pk){
-        blst_p1_compress(out, &pk);
-}
-
-/*
-Converts input 'sig' to binary 'out2'
-*/
-void sig_serialize(byte* out2, blst_p2 sig){
-        blst_p2_compress(out2, &sig);
-}
-
-/*
-Get 'hash' from binary string 'msg_bin' with length 'len'
-*/
-void get_point_from_msg(blst_p2* hash, uint8_t* msg_bin, int len){
-        char dst[] = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"; //IETF BLS Signature V4
-        //Obtain the point from a message
-        blst_hash_to_g2(hash, msg_bin, len, dst, sizeof(dst)-1, NULL, 0);
-}
-
-/*
-Derive 'pk' from hexadecimal string 'pk_hex'. Errors are dumped to 'buff'
-On error returns 1
-*/
-int pk_parse(char* pk_hex, blst_p1_affine* pk, char* buff){
-        byte pk_bin[48];
-        int offset = parse_hex(pk_hex, 96);
-        int error = 0;
-
-        if(offset == BADLEN){
-            strcat(buff, "Incorrect public key length. It must be 96 characters long.\n");
-            error = BADPKLEN;
-        }else if(offset == BADFORMAT){
-                strcat(buff, "Public key contains incorrect characters.\n");
-                error = offset;
-        }else{
-            if(hex2bin(pk_hex + offset, 96, pk_bin, 48) == 0) {
-                strcat(buff, "Failed converting public key to binary array\n");
-                error = HEX2BINERR;
-            }else{
-                blst_p1_uncompress(pk, pk_bin);
-            }
-        }
-        
-        return error;
-}
-
-/*
-Converts hexadecimal string 'msg' with length 'len' to binary string 'msg_bin'. Errors are dumped to 'buff'.
-On error returns 1
-*/
-int msg_parse(char* msg, uint8_t* msg_bin, int len, char* buff){
-
-        int offset = parse_hex(msg, len);
-        int error = 0;
-        if(offset == BADFORMAT){
-            strcat(buff, "Message contains incorrect characters.\n");
-            error = offset;
-        }else if(offset == BADLEN){
-            strcat(buff, "Message contains incorrect characters.\n");
-            error = offset;
-        }else{
-            if(hex2bin(msg + offset, len, msg_bin, len/2 + len%2) == 0) {
-                strcat(buff, "Incorrect message length.\n");
-                error = HEX2BINERR;
-            }
-        }
-
-        return error;
-}
-
-/*
-Derive 'sig' from hexadecimal string 'sig_hex'. Errors are dumped to 'buff'
-On error returns 1
-*/
-int sig_parse(char* sig_hex, blst_p2_affine* sig, char* buff){
-        byte sig_bin[96];
-        int offset = parse_hex(sig_hex, 192);
-        int error = 0;
-
-        if(offset == BADLEN){
-            strcat(buff, "Incorrect signature length. It must be 192 characters long.\n");
-            error = BADSIGLEN;
-        }else if(offset == BADFORMAT){
-            strcat(buff, "Signature contains incorrect characters.\n");
-            error = offset;
-        }else{
-            if(hex2bin(sig_hex + offset, 192, sig_bin, 96) == 0) {
-                strcat(buff, "Failed converting signature to binary array\n");
-                error = HEX2BINERR;
-            }else{
-                blst_p2_uncompress(sig, sig_bin);
-            }
-        }
-        return error;
-}
-
-/*
 Generates random key. Response is dumped to 'buff'
 */
-
-
 int keygen(char* data, char* buff){
     int keystore_size = get_keystore_size();
     
@@ -232,7 +130,6 @@ int signature(char* pk, char* msg, char* buff){
 /*
 Verifies signature of given message and public key
 */
-
 int verify(char* pk, char* msg, char* sig, char* buff){
     int ret = verify_sign(pk, msg, sig);
     if(ret == BLSTFAIL){
@@ -250,7 +147,6 @@ int verify(char* pk, char* msg, char* sig, char* buff){
 /*
 Get array of stored public keys in buffer 'buff'
 */
-
 int print_keys_Json(char* buff){
     int keystore_size = get_keystore_size();
     char public_keys_hex_store[keystore_size][96];
@@ -275,16 +171,10 @@ int print_keys_Json(char* buff){
 /*
 Delete all stored public and secret keys. Response is dumped to 'buff'
 */
-
-
 void resetc(char* buff){
     reset();
     strcat(buff, "Keys deleted\n");
 }
-
-/*
-Import given secret key. Derived public key and errors are dumped to 'buff'
-*/
 
 /*
 Import given secret key. Derived public key and errors are dumped to 'buff'
@@ -424,5 +314,3 @@ int get_private_key(char* cipher_message, char* iv_str, unsigned char* decriptio
 
     return 0;
 }
-
-
