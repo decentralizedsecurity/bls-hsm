@@ -237,6 +237,6 @@ func main() {
 		}
 		wg.Wait()
 	} else {
-		fmt.Println("Usage: " + os.Args[0] + " COMport")
+		fmt.Println("Usage: " + os.Args[0] + " [-v]" + " [-port=<port number>]" + " [-d]" + " [-p=<path to log file>]" + " COMport")
 	}
 }

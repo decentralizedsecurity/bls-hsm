@@ -9,7 +9,7 @@ test/go.mod
 test/go.sum
 .vscode/settings.json
 server/*
-remote-signer/build
+remote-signer/build*
 blst/*
 blst
 picohttpparser/*
