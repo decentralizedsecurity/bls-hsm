@@ -132,10 +132,7 @@ Verifies signature of given message and public key
 */
 int verify(char* pk, char* msg, char* sig, char* buff){
     int ret = verify_sign(pk, msg, sig);
-    if(ret == BLSTFAIL){
-        strcat(buff, "BLSTFAIL\n");
-        return BLSTFAIL;
-    }else if(ret == BLSTSUCCESS){
+    if(ret == BLSTSUCCESS){
         strcat(buff, "BLSTSUCCESS\n");
         return BLSTSUCCESS;
     }else{
