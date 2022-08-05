@@ -7,7 +7,6 @@
 
 int pk_in_keystore(char * public_key_hex, int offset);
 int secure_keygen(char* info);
-void sk_to_pk(blst_p1* pk);
 int sign_pk(char* pk, char* msg, char* sign);
 void reset();
 void store_pk(char* public_key_hex);
