@@ -13,7 +13,11 @@ zephyr_include_directories(
   ${ARCH_DIR}/${ARCH}/include
 )
 
-zephyr_library_sources(src/main.c)
+add_definitions(-DNRF)
+
+zephyr_library_sources(src/main.c
+    ../../../lib/common.c
+  )
 zephyr_library_include_directories(
   ../../../lib/
   )

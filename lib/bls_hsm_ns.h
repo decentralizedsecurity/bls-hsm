@@ -3,26 +3,20 @@
 #define bls_hsm_ns_h
 
   
-#include "blst.h"
+#include <stdint.h>
 
 int pk_in_keystore(char * public_key_hex, int offset);
-void ikm_sk(char* info);
-void sk_to_pk(blst_p1* pk);
-void sign_pk(blst_p2* sig, blst_p2* hash);
+int secure_keygen(char* info);
+int sign_pk(char* pk, char* msg, char* sign);
 void reset();
 void store_pk(char* public_key_hex);
 int get_keystore_size();
-void getkeys(char** public_keys_hex_store_ns);
-int import_sk(blst_scalar* sk_imp);
+int get_key(int index, char* public_key_hex);
+void get_keys(char** public_keys_hex_store_ns);
+int import_sk(char* sk);
 int PBKDF2(uint8_t* salt, uint8_t* password, int it_cnt, uint8_t* key);
 void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out);
 
-void pk_serialize(byte* out, blst_p1 pk);
-void sig_serialize(byte* out2, blst_p2 sig);
-void get_point_from_msg(blst_p2* hash, uint8_t* msg_bin, int len);
-int pk_parse(char* pk_hex, blst_p1_affine* pk, char* buff);
-int msg_parse(char* msg, uint8_t* msg_bin, int len, char* buff);
-int sig_parse(char* sig_hex, blst_p2_affine* sig, char* buff);
 int keygen(char* data, char* buff);
 void get_signature(char* pk, char* msg, char* signature);
 int signature(char* pk, char* msg, char* buff);
