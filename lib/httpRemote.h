@@ -166,7 +166,7 @@ int copyKeys(struct boardRequest* request){
         return -1;
     }else{
         char buffer[ksize][96];
-        getkeys(buffer);
+        get_keys(buffer);
         request->nKeys = 0;
         for(int i = 0; i < ksize; i++){
             ++(request->nKeys);
