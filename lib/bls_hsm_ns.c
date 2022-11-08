@@ -1,5 +1,7 @@
 #include "bls_hsm_ns.h"
+#include "../cli/src/secure_partition_interface.h"
 #include "common.h"
+#include "bls_hsm.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,10 +53,25 @@ int PBKDF2(uint8_t* salt, uint8_t* password, int it_cnt, uint8_t* key)
 #endif
 
 /*
+Returns number of keys stored
+*/
+int get_keystore_length(){
+    #ifndef TFM
+    return get_keystore_size();
+    #else
+    return tfm_get_keystore_size();
+    #endif
+}
+
+/*
 Generates random key. Response is dumped to 'buff'
 */
-int keygen(char* data, char* buff){
+int keygen(char* data, char* buff){    
+    #ifndef TFM
     int keystore_size = get_keystore_size();
+    #else
+    int keystore_size = tfm_get_keystore_size();
+    #endif
     
     if(keystore_size < 10){
         // key_info is an optional parameter.  This parameter MAY be used to derive
@@ -75,9 +92,14 @@ int keygen(char* data, char* buff){
                     strncpy(info, data, sizeof(info));
             }
         }
-
+        
         // Generate sk and pk
+        #ifndef TFM
         pk_index = secure_keygen(info);
+        #else
+        pk_index = tfm_secure_keygen(info, 32);
+        #endif
+        
         if(pk_index == -KEYSLIMIT){
             strcat(buff, "Can't generate more keys. Limit reached.\n");
             return pk_index;
@@ -85,10 +107,19 @@ int keygen(char* data, char* buff){
             strcat(buff, "Error when converting public key from binary to hexadecimal.\n");
             return pk_index;
         }
+        #ifndef TFM
         if(get_key(pk_index, pk) != 0){
             strcat(buff, "get_key: error\n");
+            return -3;
         }
-        print_pk(pk, buff);
+        #else
+        if(tfm_get_key(pk_index, pk) != 0){
+            strcat(buff, "get_key: error\n");
+            return -3;
+        }
+        #endif
+        print_pk(pk, buff);        
+        return pk_index;
         
     }else{
         strcat(buff, "Can't generate more keys. Limit reached.\n");
@@ -108,7 +139,11 @@ int signature(char* pk, char* msg, char* buff){
     int offset = parse_hex(pk, 96);
 
     if(offset >= 0){
+        #ifndef TFM
         ret = sign_pk(pk+offset, msg, buff);
+        #else
+        ret = tfm_sign_pk(pk+offset, msg, buff);
+        #endif
         if(ret == BIN2HEXERR){
             strcat(buff, "Failed converting binary signature to string\n");
             return BIN2HEXERR;
@@ -131,7 +166,11 @@ int signature(char* pk, char* msg, char* buff){
 Verifies signature of given message and public key
 */
 int verify(char* pk, char* msg, char* sig, char* buff){
+    #ifndef TFM
     int ret = verify_sign(pk, msg, sig);
+    #else
+    int ret = tfm_verify_sign(pk, msg, sig);
+    #endif
     if(ret == BLSTSUCCESS){
         strcat(buff, "BLSTSUCCESS\n");
         return BLSTSUCCESS;
@@ -142,12 +181,39 @@ int verify(char* pk, char* msg, char* sig, char* buff){
 }
 
 /*
+Get public key at given index
+*/
+int get_pk(int index, char* pk_hex){
+    int ret;
+    #ifndef TFM
+    ret = get_key(index, pk_hex);
+    #else
+    ret = tfm_get_key(index, pk_hex);
+    #endif
+    return ret;
+}
+
+/*
 Get array of stored public keys in buffer 'buff'
 */
 int print_keys_Json(char* buff){
+    #ifndef TFM
     int keystore_size = get_keystore_size();
+    #else
+    int keystore_size = tfm_get_keystore_size();
+    printf("keystore length: %d\n", keystore_size);
+    #endif
+
     char public_keys_hex_store[keystore_size][96];
+    #ifndef TFM
     get_keys(public_keys_hex_store);
+    #else
+    //tfm_get_keys(public_keys_hex_store);
+    for(int i = 0; i < keystore_size; i++){
+        tfm_get_key(i, public_keys_hex_store[i]);
+    }
+    #endif
+    //printk("print_keys_Json: %.96s\n", public_keys_hex_store);
     
         strcat(buff, "{\"keys\":[\"");
         for(int i = 0; i < keystore_size; i++){
@@ -161,7 +227,7 @@ int print_keys_Json(char* buff){
         
         }
         strcat(buff, "\"]}\n");
-               
+              
     return keystore_size;
 }
 
@@ -169,7 +235,11 @@ int print_keys_Json(char* buff){
 Delete all stored public and secret keys. Response is dumped to 'buff'
 */
 void resetc(char* buff){
+    #ifndef TFM
     reset();
+    #else
+    tfm_reset();
+    #endif
     strcat(buff, "Keys deleted\n");
 }
 
@@ -181,7 +251,11 @@ int import(char* sk, char* buff){
         int offset = parse_hex(sk, 64);
 
         if(offset >= 0){
+            #ifndef TFM
             int ret = import_sk(sk + offset);
+            #else
+            int ret = tfm_import_sk(sk + offset);
+            #endif
             if(ret == -KEYSLIMIT){
                 strcat(buff, "Limit reached\n");
                 return KEYSLIMIT;
@@ -194,16 +268,17 @@ int import(char* sk, char* buff){
             }
         }else if(offset == BADFORMAT){
             strcat(buff, "Incorrect characters\n");
+            return BADFORMAT;
         }else{
             strcat(buff, "Incorrect secret key length\n");
             return BADSKLEN;  
-
         }
     }else{
             strcat(buff, "Limit reached\n");
             return KEYSLIMIT;
-
     }
+
+    return -99; // TODO: Warning while building if there is no return at the end
 }
 
 /*
@@ -233,7 +308,6 @@ int get_decryption_key_scrypt(char* password, int dklen, int n,  int r, int p, c
     Returns 0 on succes and error number on error
 */
 int verify_password(char* checksum_message_hex, char* cipher_message_hex, unsigned char* decription_key){
-    int error;
   
     int cipher_message_len = strlen(cipher_message_hex)/2;
     unsigned char cipher_message_bin[cipher_message_len];
@@ -277,8 +351,6 @@ int verify_password(char* checksum_message_hex, char* cipher_message_hex, unsign
     Returns 0 on succes and error number on error
 */
 int get_private_key(char* cipher_message, char* iv_str, unsigned char* decription_key, char* private_key){
-    int error;
-
     int cipher_message_len = strlen(cipher_message)/2;
     unsigned char cipher_message_bin[cipher_message_len];
     if(hex2bin(cipher_message, strlen(cipher_message), cipher_message_bin, strlen(cipher_message)/2) != strlen(cipher_message)/2){
