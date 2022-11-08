@@ -1,0 +1,83 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+# Copyright (c) 2021, Nordic Semiconductor ASA. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+{
+  "psa_framework_version": 1.0,
+  "name": "TFM_SP",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "entry_point": "tfm_dp_req_mngr_init",
+  "stack_size": "0x800",
+
+  # Service definitions for library mode.
+  "secure_functions": [
+    {
+      "name": "TFM_DP_SECRET_DIGEST",
+      "signal": "TFM_DP_SECRET_DIGEST_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_GET_KEYSTORE_SIZE",
+      "signal": "TFM_GET_KEYSTORE_SIZE_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_GET_FREE_MEMORY_SIZE",
+      "signal": "TFM_GET_FREE_MEMORY_SIZE_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_SECURE_KEYGEN",
+      "signal": "TFM_SECURE_KEYGEN_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_SIGN_PK",
+      "signal": "TFM_SIGN_PK_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_VERIFY_SIGN_PK",
+      "signal": "TFM_VERIFY_SIGN_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_GET_KEY",
+      "signal": "TFM_GET_KEY_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_GET_KEYS",
+      "signal": "TFM_GET_KEYS_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_RESET",
+      "signal": "TFM_RESET_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    }
+  ]
+}
