@@ -35,14 +35,14 @@ size_t hex2bin(const char *hex, size_t hexlen, uint8_t *buf, size_t buflen);
 
 #endif
 
-int parse_hex(char* str, int len);
+int parse_hex(const char* str, int len);
 
-int char_chk(char* aux, int len);
+int char_chk(const char* aux, int len);
 
-void print_pk(char* public_key_hex, char* buff);
+void print_pk(const char* public_key_hex, char* buff);
 
 void print_sig(char* sig_hex, char* buff);
 
-int msg_len(char* msg);
+int msg_len(const char* msg);
 
 #endif

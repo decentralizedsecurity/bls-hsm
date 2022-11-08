@@ -91,7 +91,7 @@ size_t hex2bin(const char *hex, size_t hexlen, uint8_t *buf, size_t buflen)
 Get offset to first char of hex string 'str' with expected length 'len'
 If length is incorrect returns -1. If string contains not hexadecimal characters returns -2
 */
-int parse_hex(char* str, int len){
+int parse_hex(const char* str, int len){
         int offset;
 
         int strl = strlen(str);
@@ -122,7 +122,7 @@ int parse_hex(char* str, int len){
 Checks if string 'aux' with length 'len' contains hexadecimal characters.
 On error returns 1
 */
-int char_chk(char* aux, int len){
+int char_chk(const char* aux, int len){
         int error = 0;
 
         for(int i = 0; (i < len) && (error == 0); i++){
@@ -137,7 +137,7 @@ int char_chk(char* aux, int len){
 /*
 Adds public key 'public_key_hex' to given buffer 'buff'
 */
-void print_pk(char* public_key_hex, char* buff){
+void print_pk(const char* public_key_hex, char* buff){
         strcat(buff, "0x");
 		for(int i = 0; i < 96; i++) {
 			char str[2] = {public_key_hex[i], '\0'};
@@ -149,7 +149,7 @@ void print_pk(char* public_key_hex, char* buff){
 /*
 Get effective length of hexadecimal string 'msg'
 */
-int msg_len(char* msg){
+int msg_len(const char* msg){
     int len;
     if(msg[0] == '0' && msg[1] == 'x'){
         len = strlen(msg + 2);
