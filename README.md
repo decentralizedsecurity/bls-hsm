@@ -26,7 +26,7 @@ Lastly, we have also implemented a simple remote signer in Go that uses our CLI 
 
 We have developed this project using the [nRF Connect SDK](https://www.nordicsemi.com/Products/Development-software/nRF-Connect-SDK), which is based on the Zephyr RTOS. In order to install the required dependencies it is recommended to follow this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html). Currently, only 1.8.0 version of the toolchain or lower is supported. If you are using Linux, you can try the script `linux_dependencies.sh` to install all the required dependencies, although we recommend following the official guide.
 
-In order to build the [Blst](https://github.com/supranational/blst) library, we provide the script `build_blst.sh`, that clones and builds the library in Linux providing the ARM compiler as a parameter. If you are using other operating system you can try building the library using the scripts provided by suprational in their repo.
+In order to build the [Blst](https://github.com/supranational/blst) library, we provide the script `build_libs.sh`, that clones and builds the library in Linux providing the ARM compiler as a parameter. If you are using other operating system you can try building the library using the scripts provided by suprational in their repo.
 
 ## Building the tools :pick:
 
