@@ -22,7 +22,26 @@ if [[ ! -f ./lib/libblst.a ]] || [[ ! -f ./lib/blst.h ]] || [[ ! -f ./lib/blst_a
   git clone --depth 1 --branch v0.3.10 https://github.com/supranational/blst
 
   #Patch to use HEAP memory instead of STACK
-  printf -- "--- ./blst/src/e2.c     2022-11-03 13:49:53.282533000 +0100\n+++ e2.c        2022-11-03 13:49:25.006248700 +0100\n@@ -497,7 +497,8 @@\n\n     {\n         const byte *scalars[2] = { val.s, NULL };\n-        POINTonE2 table[4][1<<(5-1)];   /* 18KB */\n+        //POINTonE2 table[4][1<<(5-1)];   /* 18KB */\n+        POINTonE2 (*table)[1<<(5-1)] = malloc(4*(1<<(5-1))*sizeof(POINTonE2));\n         size_t i;\n\n         POINTonE2_precompute_w5(table[0], in);\n@@ -510,6 +511,7 @@\n         }\n\n         POINTonE2s_mult_w5(out, NULL, 4, scalars, 64, table);\n+        free(table);\n     }\n\n     vec_zero(val.l, sizeof(val));   /* scrub the copy of SK */" | patch blst/src/e2.c
+  printf -- "--- blst/src/e2.c       2022-11-10 12:20:17.768998400 +0100
++++ e2.c        2022-11-10 12:21:23.980661100 +0100
+@@ -45,7 +45,7 @@
+ },
+ { { ONE_MONT_P }, { 0 } }
+ };
+-
++POINTonE2 table[4][1<<(5-1)];
+ const POINTonE2 BLS12_381_NEG_G2 = { /* negative generator [in Montgomery] */
+ { /* (0x024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02
+         b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8 << 384) %% P */
+@@ -497,7 +497,7 @@
+
+     {
+         const byte *scalars[2] = { val.s, NULL };
+-        POINTonE2 table[4][1<<(5-1)];   /* 18KB */
++        //POINTonE2 table[4][1<<(5-1)];   /* 18KB */
+         size_t i;
+
+         POINTonE2_precompute_w5(table[0], in);" | patch blst/src/e2.c
 
   if [ -z $comp ]; then
 	  echo "No compiler was selected. Blst library will be built with default compiler."
