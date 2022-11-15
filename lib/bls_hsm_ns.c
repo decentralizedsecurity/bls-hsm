@@ -251,7 +251,6 @@ int import(char* sk, char* buff){
     #else
     if(tfm_get_keystore_size() < 10){
     #endif
-    if(get_keystore_size() < 10){
         int offset = parse_hex(sk, 64);
 
         if(offset >= 0){
