@@ -18,6 +18,11 @@
 #include "common.h"
 #include "bls_hsm_ns.h"
 #include <merkleization.h>
+#ifndef TFM
+#include "bls_hsm.h"
+#else
+#include "../cli/src/secure_partition_interface.h"
+#endif
 
 #define SCRYPTTYPE 1
 #define PBKDF2TYPE 2
@@ -160,13 +165,24 @@ static uint32_t GetFreeMemorySize()
     On empty keystore returns -1
 */
 int copyKeys(struct boardRequest* request){
+    #ifndef TFM
     int ksize = get_keystore_size();
+    #else
+    int ksize = tfm_get_keystore_size();
+    #endif
     if(ksize == 0){
         request->nKeys = 0;
         return -1;
     }else{
         char buffer[ksize][96];
+        #ifndef TFM
         get_keys(buffer);
+        #else
+        // tfm_get_keys(buffer);
+        for(int i = 0; i < ksize; i++){
+            tfm_get_key(i, buffer[i]);
+        }
+        #endif
         request->nKeys = 0;
         for(int i = 0; i < ksize; i++){
             ++(request->nKeys);
