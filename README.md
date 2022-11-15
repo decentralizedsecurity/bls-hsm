@@ -9,7 +9,7 @@ We have implemented the following tools:
 - `cli`. A command line interface to create BLS keypairs, sign and verify messages.
 - `remote-signer`. An Eth2.0 remote signer that protects private keys using ARM TrustZone.
 
-Those two tools are provided as separate nRF Connect projects and requiere a nRF5340DK or a nRF9160DK board to run. They relay in the `secure_module` project, that is run the secure world and contains blst function calls that involve private keys, using Secure Partition Manager (SPM).
+Those two tools are provided as separate nRF Connect projects and requiere a nRF5340DK or a nRF9160DK board to run. They relay in the `secure_partition` project, that is run the secure world and contains blst function calls that involve private keys, using Trusted Firmware-M (TF-M).
 
 Apart from those tools, we also provide a port of them that can be run without the need of ARM TrustZone and instead of exposing the functionality over the serial port, use a TCP socket:
 
