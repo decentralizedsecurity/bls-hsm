@@ -201,7 +201,6 @@ int print_keys_Json(char* buff){
     int keystore_size = get_keystore_size();
     #else
     int keystore_size = tfm_get_keystore_size();
-    printf("keystore length: %d\n", keystore_size);
     #endif
 
     char public_keys_hex_store[keystore_size][96];
@@ -247,6 +246,11 @@ void resetc(char* buff){
 Import given secret key. Derived public key and errors are dumped to 'buff'
 */
 int import(char* sk, char* buff){
+    #ifndef TFM
+    if(get_keystore_size() < 10){
+    #else
+    if(tfm_get_keystore_size() < 10){
+    #endif
     if(get_keystore_size() < 10){
         int offset = parse_hex(sk, 64);
 
