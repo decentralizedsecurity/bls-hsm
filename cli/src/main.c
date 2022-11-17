@@ -38,7 +38,7 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
     }else{
         keygen(argv[1], buffer);
     }
-    printf(buffer);
+    printf("%s", buffer);
     memset(buffer, 0, 2048);
     return 0;
 }
@@ -49,7 +49,7 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
         printf("Signature: \n");
         printf("%s%s\n", "0x", buffer);
     }else{
-        printf(buffer);
+        printf("%s", buffer);
     }
     memset(buffer, 0, 2048);
 	return 0;
@@ -58,7 +58,7 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
 static int cmd_signature_verification(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
     verify(argv[1], argv[2], argv[3], buffer);
-    printf(buffer);
+    printf("%s", buffer);
     memset(buffer, 0, 2048);
 	return 0;
 }
@@ -66,14 +66,14 @@ static int cmd_signature_verification(const struct shell *shell, size_t argc, ch
 static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
     print_keys_Json(buffer);
-    printf(buffer);
+    printf("%s", buffer);
     memset(buffer, 0, 2048);
 	return 0;
 }
 
 static int cmd_reset(const struct shell *shell, size_t argc, char **argv, char* buff){
     resetc(buffer);
-    printf(buffer);
+    printf("%s", buffer);
     memset(buffer, 0, 2048);
     return 0;
 }
@@ -93,7 +93,7 @@ static int cmd_prompt(const struct shell *shell, size_t argc, char **argv){
 
 static int cmd_import(const struct shell *shell, size_t argc, char **argv){
     import(argv[1], buffer);
-    printf(buffer);
+    printf("%s", buffer);
     memset(buffer, 0, 2048);
     return 0;
 }
