@@ -876,7 +876,11 @@ int httpImportFromKeystore(char* body){
         return -1;
     }
 
+    #ifndef TFM
     int nKeysAlreadyStored = get_keystore_size();
+    #else
+    int nKeysAlreadyStored = tfm_get_keystore_size();
+    #endif
 
     int nKeystores = 0;
     int nPasswords = 0;
