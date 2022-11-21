@@ -6,7 +6,7 @@
 
 add_library(tfm_app_rot_partition_sp STATIC)
 
-add_definitions(-DNRF)
+add_definitions(-DNRF -DTFM)
 
 target_include_directories(tfm_app_rot_partition_sp
     INTERFACE

@@ -319,26 +319,23 @@ int secure_keygen(const char* info){
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 #ifdef NRF
-        // TODO
 	    #ifndef TFM
-        // This 'for' should not be here
         for(int i = 0; i < 32; i++){
             ikm[i] = 0;
         }
         #else
-	    /*const int random_number_len = 144;     
-        uint8_t random_number[random_number_len];
-        size_t olen = random_number_len;
-        int ret;
-
-        ret = nrf_cc3xx_platform_ctr_drbg_get(NULL, random_number, random_number_len, &olen);
-        
-        ocrypto_sha256(ikm, random_number, random_number_len);*/
-        // TODO: This ikm generation causes warning. Provisionally, rand() will be used
-        // This 'for' should not be here
-        for(int i = 0; i < 32; i++){
-            ikm[i] = rand();
+	    // Generate the random number
+        psa_status_t status = psa_generate_random(ikm, sizeof(ikm));
+        if (status != PSA_SUCCESS) {
+            printf("psa_generate_random failed! (Error: %d)\n", status);
+            return (psa_status_t)-1;
         }
+        printf("bls_hsm.h: psa_generate_random success\r\n{");
+
+        for(int i = 0; i < 32; i++){
+            printf("%d ", ikm[i]);
+        }
+        printf("]\n");
         #endif
 #else
         for(int i = 0; i < 32; i++){
@@ -358,7 +355,7 @@ int secure_keygen(const char* info){
         blst_p1_compress(out, &pk);
         if(bin2hex_todo(out, sizeof(out), public_keys_hex_store[keystore_size], sizeof(public_keys_hex_store[keystore_size])) == 0){
             return -BIN2HEXERR;
-        }/**/
+        }
 
         keystore_size++;
 

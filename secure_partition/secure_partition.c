@@ -10,6 +10,8 @@
 //#include <sys/printk.h>
 #include "tfm_secure_api.h"
 #include "tfm_api.h"
+#include <psa/crypto.h>
+#include <psa/crypto_extra.h>
 
 #include "../lib/bls_hsm.h"
 
@@ -94,6 +96,12 @@ psa_status_t tfm_dp_secret_digest_req(psa_invec *in_vec, size_t in_len,
 
 
 psa_status_t tfm_dp_req_mngr_init(void){
+	psa_status_t status;
+
+	// Initialize PSA Crypto
+	status = psa_crypto_init();
+	if (status != PSA_SUCCESS) return (psa_status_t)-1;
+
 	return PSA_SUCCESS;
 }
 
