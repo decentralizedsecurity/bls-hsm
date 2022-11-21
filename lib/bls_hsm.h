@@ -330,12 +330,6 @@ int secure_keygen(const char* info){
             printf("psa_generate_random failed! (Error: %d)\n", status);
             return (psa_status_t)-1;
         }
-        printf("bls_hsm.h: psa_generate_random success\r\n{");
-
-        for(int i = 0; i < 32; i++){
-            printf("%d ", ikm[i]);
-        }
-        printf("]\n");
         #endif
 #else
         for(int i = 0; i < 32; i++){
