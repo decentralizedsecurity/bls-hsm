@@ -328,7 +328,7 @@ int secure_keygen(const char* info){
         psa_status_t status = psa_generate_random(ikm, sizeof(ikm));
         if (status != PSA_SUCCESS) {
             printf("psa_generate_random failed! (Error: %d)\n", status);
-            return (psa_status_t)-1;
+            return (psa_status_t)RNGERR;
         }
         #endif
 #else

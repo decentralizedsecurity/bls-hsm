@@ -6,6 +6,7 @@
 
 #define BADLEN -1
 #define BADFORMAT -2
+#define RNGERR -3
 #define OK  0
 #define NOKEYS 1
 #define PKNOTFOUND 2
