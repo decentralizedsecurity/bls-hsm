@@ -52,13 +52,6 @@
       "version_policy": "STRICT"
     },
     {
-      "name": "TFM_VERIFY_SIGN_PK",
-      "signal": "TFM_VERIFY_SIGN_REQ",
-      "non_secure_clients": true,
-      "version": 1,
-      "version_policy": "STRICT"
-    },
-    {
       "name": "TFM_GET_KEY",
       "signal": "TFM_GET_KEY_REQ",
       "non_secure_clients": true,
