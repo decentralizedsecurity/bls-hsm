@@ -147,9 +147,6 @@ psa_status_t tfm_secure_keygen_req(psa_invec *in_vec, size_t in_len,
 
 psa_status_t tfm_sign_pk_req(psa_invec *in_vec, size_t in_len,
 				      psa_outvec *out_vec, size_t size_len){
-	//int ret = sign_pk(in_vec[0].base, in_vec[1].base, (void*) out_vec[0].base);
-	//const char* pk = in_vec[0].base;
-	//const char* msg = in_vec[1].base;
 	char sign[193] = "";
 	int ret = sign_pk(in_vec[0].base, in_vec[1].base, sign);
 	tfm_memcpy((void*)out_vec[0].base, sign, out_vec[0].len);
@@ -167,16 +164,12 @@ psa_status_t tfm_get_key_req(psa_invec *in_vec, size_t in_len,
 
 psa_status_t tfm_get_keys_req(psa_invec *in_vec, size_t in_len,
 				      psa_outvec *out_vec, size_t size_len){
-	//char keys[1][96];
-	//get_keys(keys);
-	//char public_keys_hex_store[10][96];
-	//get_keys(public_keys_hex_store);
-	//tfm_memcpy((void*) out_vec[0].base, /*keys[0]*/"12345678901234567890", 15);
 	int keystore_size = get_keystore_size();
     char public_keys_hex_store[keystore_size][96];
 	get_keys(public_keys_hex_store);
-	printf("tfm_get_keys_req executed\n");
-	//get_keys((void*) out_vec[0].base);
+	for(int i = 0; i < keystore_size; i++){
+		tfm_memcpy((void*) out_vec[0].base+96*i, public_keys_hex_store[i], 96);
+	}
 	return PSA_SUCCESS;
 }
 
