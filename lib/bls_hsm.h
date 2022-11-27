@@ -14,6 +14,7 @@ void print_colored_error(const char * msg, int size, int msg_type){
     char buffer[size+12];
     if(msg_type == ERR_MSG) sprintf(buffer, "\033[1;31m%s\033[0m", msg);
     else if (msg_type == WRNG_MSG) sprintf(buffer, "\033[1;33m%s\033[0m", msg);
+    else sprintf(buffer, "%s", msg);
     SPMLOG_ERRMSG(buffer);
 } 
 #define ERR_LOG(msg) print_colored_error(msg, strlen(msg), ERR_MSG)
