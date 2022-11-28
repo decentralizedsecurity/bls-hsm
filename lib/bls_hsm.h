@@ -384,12 +384,17 @@ int secure_keygen(const char* info){
         // Public key
         blst_sk_to_pk_in_g1(&pk, secret_keys_store + keystore_size*sizeof(blst_scalar));
         blst_p1_compress(out, &pk);
+        printf("keystore_size = %d\r\n", keystore_size);
         if(bin2hex_todo(out, sizeof(out), public_keys_hex_store[keystore_size], sizeof(public_keys_hex_store[keystore_size])) == 0){
             ERR_LOG("BIN2HEX error\r\n");
             return -BIN2HEXERR;
         }
 
+        printf("keystore_size = %d\r\n", keystore_size);
+
         keystore_size++;
+
+        printf("keystore_size++. Now keystore_size = %d\r\n", keystore_size);
 
         INF_LOG("A new pair of secret and private key have been generated\r\n");
 
