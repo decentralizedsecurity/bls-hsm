@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #define BADLEN -1
 #define BADFORMAT -2
@@ -45,5 +46,14 @@ void print_pk(const char* public_key_hex, char* buff);
 void print_sig(char* sig_hex, char* buff);
 
 int msg_len(const char* msg);
+
+// TODO
+int char2hex_todo(char c, uint8_t *x);
+
+int hex2char_todo(uint8_t x, char *c);
+
+size_t bin2hex_todo(const uint8_t *buf, size_t buflen, char *hex, size_t hexlen);
+
+size_t hex2bin_todo(const char *hex, size_t hexlen, uint8_t *buf, size_t buflen);
 
 #endif
