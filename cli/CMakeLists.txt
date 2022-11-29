@@ -25,7 +25,7 @@ add_definitions(-DNRF -DTFM)
 
 target_sources(app PRIVATE
   src/main.c
-  src/secure_partition_interface.c
+  ../lib/secure_partition_interface.c
   ../lib/bls_hsm_ns.c
   ../lib/common.c
 )

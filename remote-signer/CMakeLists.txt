@@ -25,7 +25,7 @@ target_sources(app PRIVATE ${app_sources}
   ../lib/picohttpparser.c
   ../lib/bls_hsm_ns.c
   ../lib/common.c
-  ../cli/src/secure_partition_interface.c
+  ../lib/secure_partition_interface.c
 )
 
 zephyr_library_include_directories(

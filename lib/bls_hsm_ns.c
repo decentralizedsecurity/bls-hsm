@@ -1,5 +1,5 @@
 #include "bls_hsm_ns.h"
-#include "../cli/src/secure_partition_interface.h"
+#include "secure_partition_interface.h"
 #include "common.h"
 #include "bls_hsm.h"
 #include <stdio.h>

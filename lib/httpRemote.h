@@ -21,7 +21,7 @@
 #ifndef TFM
 #include "bls_hsm.h"
 #else
-#include "../cli/src/secure_partition_interface.h"
+#include "secure_partition_interface.h"
 #endif
 
 #define SCRYPTTYPE 1
