@@ -7,7 +7,14 @@
 #include <string.h>
 
 // LOG System Wrapper
-#if defined(NRF) && defined(TFM)
+#if defined(NO_LOGS)
+void do_nothing(){
+}
+#define ERR_LOG(msg) do_nothing()
+#define WRNG_LOG(msg) do_nothing()
+#define INF_LOG(msg) do_nothing()
+#define DEBUG_LOG(msg) do_nothing()
+#elif defined(NRF) && defined(TFM)
 #define ERR_MSG 1
 #define WRNG_MSG 2
 void print_colored_error(const char * msg, int size, int msg_type){
