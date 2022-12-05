@@ -17,6 +17,13 @@
   # Service definitions for library mode.
   "secure_functions": [
     {
+      "name": "TFM_INIT",
+      "signal": "TFM_INIT_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
       "name": "TFM_DP_SECRET_DIGEST",
       "signal": "TFM_DP_SECRET_DIGEST_REQ",
       "non_secure_clients": true,
@@ -52,6 +59,13 @@
       "version_policy": "STRICT"
     },
     {
+      "name": "TFM_VERIFY_SIGN_PK",
+      "signal": "TFM_VERIFY_SIGN_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
       "name": "TFM_GET_KEY",
       "signal": "TFM_GET_KEY_REQ",
       "non_secure_clients": true,
@@ -68,6 +82,13 @@
     {
       "name": "TFM_RESET",
       "signal": "TFM_RESET_REQ",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_IMPORT_SK",
+      "signal": "TFM_IMPORT_SK_REQ",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"

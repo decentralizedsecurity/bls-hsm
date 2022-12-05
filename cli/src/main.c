@@ -63,13 +63,6 @@ static int cmd_signature_verification(const struct shell *shell, size_t argc, ch
 	return 0;
 }
 
-static int cmd_get_keystore_size(const struct shell *shell, size_t argc, char **argv, char* buff)
-{
-    int size = get_keystore_length();
-    printf("%d\n", size);
-	return 0;
-}
-
 static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
     print_keys_Json(buffer);
@@ -110,8 +103,6 @@ SHELL_CMD_ARG_REGISTER(keygen, NULL, "Generates secret key and public key", cmd_
 SHELL_CMD_ARG_REGISTER(signature, NULL, "Signs a message with a specific public key", cmd_signature_message, 3, 0);
 
 SHELL_CMD_ARG_REGISTER(verify, NULL, "Verifies the signature", cmd_signature_verification, 4, 0);
-
-SHELL_CMD_ARG_REGISTER(getsize, NULL, "Returns keystore size", cmd_get_keystore_size, 1, 0);
 
 SHELL_CMD_ARG_REGISTER(getkeys, NULL, "Returns the identifiers of the keys available to the signer", cmd_get_keys, 1, 0);
 
