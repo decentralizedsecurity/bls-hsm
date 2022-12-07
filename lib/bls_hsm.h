@@ -544,14 +544,14 @@ int sign_pk(const char* pk, const char* msg, char* sign){
                 blst_p2 sig;
                 byte sig_bin[96];
                 char sig_hex[193];
-                //printf("SIGNATURE:\n - pk: %s\n - msg: %s\n", pk, msg);
+                
                 blst_sign_pk_in_g1(&sig, &hash, &secret_keys_store[pk_index]);
                 sig_serialize(sig_bin, sig);
                 if(bin2hex_todo(sig_bin, sizeof(sig_bin), sig_hex, sizeof(sig_hex)) == 0) {
                     ERR_LOG("Error signing message\r\n");
                     return BIN2HEXERR;
                 }
-                strcpy(sign, sig_hex);/**/
+                strcpy(sign, sig_hex);
                 INF_LOG("Message signed\r\n");
                 return 0;
             }

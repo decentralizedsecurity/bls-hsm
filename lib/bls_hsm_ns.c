@@ -210,7 +210,6 @@ int print_keys_Json(char* buff){
     #else
     tfm_get_keys(public_keys_hex_store);
     #endif
-    //printk("print_keys_Json: %.96s\n", public_keys_hex_store);
     
         strcat(buff, "{\"keys\":[\"");
         for(int i = 0; i < keystore_size; i++){

@@ -121,23 +121,18 @@ int tfm_sign_pk(char* pk, char* msg, char* sign){
 	psa_status_t status;
 
     psa_invec in_vec[] = {
-		{ .base = pk, .len = /*sizeof(pk)*/97 },
-		{ .base = msg, .len = /*sizeof(msg)*/65 }/**/
+		{ .base = pk, .len = 97 },
+		{ .base = msg, .len = 65 }
 	};
 
 	psa_outvec out_vec[] = {
-		{ .base = sign, .len = /*sizeof(sign)*/193 },
+		{ .base = sign, .len = 193 },
 	};
 
 	status = tfm_ns_interface_dispatch(
 				(veneer_fn)tfm_sign_pk_req_veneer,
 				(uint32_t)in_vec, IOVEC_LEN(in_vec),
 				(uint32_t)out_vec, IOVEC_LEN(out_vec));
-
-	/*printk("(tfm_sign_pk) pk: %s\n", pk);
-	printk("(tfm_sign_pk) msg: %s\n", msg);
-	printk("(tfm_sign_pk) sign: %s\n", sign);
-	printk("(tfm_sign_pk) ret: %d\n", status);*/
 
 	return status;
 }
