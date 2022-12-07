@@ -133,6 +133,10 @@ size_t hex2bin_todo(const char *hex, size_t hexlen, uint8_t *buf, size_t buflen)
 #define UID_KEYSTORE 1
 psa_status_t status;
 size_t bytes_read;
+
+/**
+ * @brief Initializes PSA storage
+*/
 psa_status_t init(){
     status = psa_ps_get((psa_storage_uid_t) UID_KEYSTORE_SIZE, 0, sizeof(int), &keystore_size, &bytes_read);
 	if (status != PSA_SUCCESS) {
@@ -159,6 +163,11 @@ psa_status_t init(){
 }
 #endif
 
+/**
+ * @brief Store a secret key into psa storage
+ * 
+ * @param sk Secret key to store
+*/
 int add_sk(blst_scalar sk){
     memcpy(&secret_keys_store[keystore_size], &sk, sizeof(blst_scalar));
     keystore_size++;
