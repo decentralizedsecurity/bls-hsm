@@ -169,7 +169,8 @@ int verify(char* pk, char* msg, char* sig, char* buff){
     #ifndef TFM
     int ret = verify_sign(pk, msg, sig);
     #else
-    int ret = tfm_verify_sign(pk, msg, sig);
+    // There is no need to verify in the secure world
+    int ret = verify_sign(pk, msg, sig);
     #endif
     if(ret == BLSTSUCCESS){
         strcat(buff, "BLSTSUCCESS\n");
