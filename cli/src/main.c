@@ -114,6 +114,7 @@ SHELL_CMD_ARG_REGISTER(import, NULL, "Import secret key", cmd_import, 2, 0);
 
 void main(void)
 {
+    tfm_init();
 #if defined(CONFIG_USB_UART_CONSOLE)
 	const struct device *dev;
 	uint32_t dtr = 0;

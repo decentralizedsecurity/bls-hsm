@@ -130,6 +130,7 @@ size_t hex2bin_todo(const char *hex, size_t hexlen, uint8_t *buf, size_t buflen)
 #include <psa/storage_common.h>
 #include <psa/protected_storage.h>
 #define UID_KEYSTORE_SIZE 11
+#define UID_KEYSTORE 1
 psa_status_t status;
 size_t bytes_read;
 psa_status_t init(){
@@ -138,18 +139,20 @@ psa_status_t init(){
         keystore_size = 0;
         return PSA_SUCCESS;
 	} else {
-        for(psa_storage_uid_t i = 1; i <= keystore_size; i++){
-            status = psa_ps_get((psa_storage_uid_t) i, 0, sizeof(blst_scalar), &secret_keys_store[i-1], &bytes_read);
-            if (status != PSA_SUCCESS){
-                return status;
-            }
+        status = psa_ps_get((psa_storage_uid_t) UID_KEYSTORE, 0, sizeof(blst_scalar)*keystore_size, secret_keys_store, &bytes_read);
+        if (status != PSA_SUCCESS){
+            return status;
+        }
+        for(int i = 1; i <= keystore_size; i++){   
             blst_p1 pk;
             uint8_t pk_bin[48];
+            uint8_t pk_hex[97];
             blst_sk_to_pk_in_g1(&pk, &secret_keys_store[i-1]);
             blst_p1_compress(pk_bin, &pk);
-            if(bin2hex_todo(pk_bin, sizeof(pk_bin), public_keys_hex_store[i-1], 96) == 0){
+            if(bin2hex_todo(pk_bin, sizeof(pk_bin), pk_hex, 96) == 0){
                 return -BIN2HEXERR;
             }
+            memcpy(public_keys_hex_store[i-1], pk_hex, 96);
         }
         return PSA_SUCCESS;
     }
@@ -160,7 +163,7 @@ int add_sk(blst_scalar sk){
     memcpy(&secret_keys_store[keystore_size], &sk, sizeof(blst_scalar));
     keystore_size++;
 #ifdef TFM
-    status = psa_ps_set((psa_storage_uid_t)keystore_size, sizeof(blst_scalar), &sk, (psa_storage_create_flags_t) PSA_STORAGE_FLAG_NONE);
+    status = psa_ps_set((psa_storage_uid_t)UID_KEYSTORE, sizeof(secret_keys_store), secret_keys_store, (psa_storage_create_flags_t) PSA_STORAGE_FLAG_NONE);
     if (status != PSA_SUCCESS) {
         return status;
     }
@@ -464,6 +467,7 @@ int secure_keygen(const char* info){
         // source of randomness. IKM MUST be at least 32 bytes long, but it MAY be longer.
         unsigned char ikm[32];
         blst_p1 pk;
+        uint8_t pk_hex[97];
         byte out[48];
         char default_info[] = {
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -502,10 +506,11 @@ int secure_keygen(const char* info){
         // Public key
         blst_sk_to_pk_in_g1(&pk, &sk_gen);
         blst_p1_compress(out, &pk);
-        if(bin2hex_todo(out, sizeof(out), public_keys_hex_store[keystore_size-1], 96) == 0){
+        if(bin2hex_todo(out, sizeof(out), pk_hex, 97) == 0){
             ERR_LOG("BIN2HEX error\r\n");
             return -BIN2HEXERR;
-        }/**/
+        }
+        memcpy(&public_keys_hex_store[keystore_size-1], pk_hex, 96);
         INF_LOG("A new pair of secret and private key have been generated\r\n");
 
         return keystore_size-1;
@@ -529,7 +534,7 @@ int sign_pk(const char* pk, const char* msg, char* sign){
 
                 blst_p2 sig;
                 byte sig_bin[96];
-                char sig_hex[192];
+                char sig_hex[193];
                 //printf("SIGNATURE:\n - pk: %s\n - msg: %s\n", pk, msg);
                 blst_sign_pk_in_g1(&sig, &hash, &secret_keys_store[pk_index]);
                 sig_serialize(sig_bin, sig);
@@ -641,10 +646,12 @@ int import_sk(char* sk){
         blst_p1 pk;
         blst_sk_to_pk_in_g1(&pk, &sk_imp);
         byte pk_bin[48];
+        uint8_t pk_hex[97];
         blst_p1_compress(pk_bin, &pk);
-        if(bin2hex_todo(pk_bin, sizeof(pk_bin), public_keys_hex_store[keystore_size-1], sizeof(public_keys_hex_store[keystore_size-1])) == 0){
+        if(bin2hex_todo(pk_bin, sizeof(pk_bin), pk_hex, 97) == 0){
             return -BIN2HEXERR;
         }
+        memcpy(public_keys_hex_store[keystore_size-1], pk_hex, 96);
         
         return keystore_size - 1;
 }
