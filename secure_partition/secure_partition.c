@@ -174,17 +174,12 @@ psa_status_t tfm_get_key_req(psa_invec *in_vec, size_t in_len,
 
 psa_status_t tfm_get_keys_req(psa_invec *in_vec, size_t in_len,
 				      psa_outvec *out_vec, size_t size_len){
-	//char keys[1][96];
-	//get_keys(keys);
-	//char public_keys_hex_store[10][96];
-	//get_keys(public_keys_hex_store);
-	//tfm_memcpy((void*) out_vec[0].base, /*keys[0]*/"12345678901234567890", 15);
 	int keystore_size = get_keystore_size();
     char public_keys_hex_store[keystore_size][96];
 	get_keys(public_keys_hex_store);
-	printf("tfm_get_keys_req executed\n");
-	tfm_memcpy((void*) out_vec[0].base, public_keys_hex_store, keystore_size*96);
-	//get_keys((void*) out_vec[0].base);
+	for(int i = 0; i < keystore_size; i++){
+		tfm_memcpy((void*) out_vec[0].base+96*i, public_keys_hex_store[i], 96);
+	}
 	return PSA_SUCCESS;
 }
 

@@ -326,7 +326,7 @@ int get_key(int index, char* public_key_hex){
  * @param public_key_hex String array that contains public keys
 */
 void get_keys(char public_keys_hex_store_ns[keystore_size][96]){
-        for(int i = 0; i < 1; i++){
+        for(int i = 0; i < keystore_size; i++){
             for(int j = 0; j < 96; j++){
                 public_keys_hex_store_ns[i][j] = public_keys_hex_store[i][j];
             }
