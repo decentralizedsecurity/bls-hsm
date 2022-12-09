@@ -68,6 +68,11 @@ The commands that are supported are:
   uart:~$ getkeys
   {'keys':['86a722b1f5c1cb1420ff0766cf5205b023de2e9c69efc65dbf976af2d710c3d12f937cf7104c9cd51bb4c62ff185d07f']}
   ```
+- *getsize*: returns the number of keys that have been stored.
+  ```
+  uart:~$ getsize
+  2
+  ```
 - *reset*: deletes all the keys.
   ```
   uart:~$ reset
