@@ -32,6 +32,8 @@ In order to build the [Blst](https://github.com/supranational/blst) library, we 
 
 In order to build the nRF Connect projects you can either follow these [steps](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_programming.html#gs-programming-cmd) or use the `build.sh` script. There is also a `flash.sh` script to flash the board with a previously built project.
 
+Another way to build the tools and flash the board with the project is to use the [nRF Connect for VS Code](https://www.nordicsemi.com/Products/Development-tools/nrf-connect-for-vs-code) extension pack for [VS Code](https://code.visualstudio.com) which allows the user to build, flash and debug the tools, among other features.
+
 You can find more information about building and running the other tools in their respective folders
 
 ## Testing and debugging tools:bug:
