@@ -34,11 +34,11 @@ In order to build the nRF Connect projects you can either follow these [steps](h
 
 You can find more information about building and running the other tools in their respective folders
 
-## How to use the tools. Logging and debugging :bug:
+## Testing and debugging tools:bug:
 
 ### Send commands
 
-Commands are sent to the board through a serial port. In the same way, information is received through the same serial port. In order to display the information and send commands, you can use a terminal emulator, like PuTTY, or use the one provided by VS Code.
+Commands are sent to the board through a serial port. In the same way, information is received through the same serial port. To see the UART output and send commands, you can connect the development kit with a terminal emulator, like PuTTY, or use the one provided by VS Code.
 
 The connection to the serial port must be made with the following configuration:
 - speed: 115200 baud
@@ -49,9 +49,9 @@ The connection to the serial port must be made with the following configuration:
 
 ### Debug secure-partition
 
-The serial port is used to be able to use the `cli` and `remote-signer` projects. However, there is the option to view error and debug messages from the `secure partition` (TF-M).
-
-
+The serial port is needed to use `cli` and `remote-signer` projects. In addition, there is the option to view error and debug messages from the `secure partition` (TF-M).
+- nRF5340DK: Connect the pin P0.25 with your computer using a serial-USB converter.
+- nRF9160DK: ?
 
 # CLI
 
