@@ -169,8 +169,7 @@ int verify(char* pk, char* msg, char* sig, char* buff){
     #ifndef TFM
     int ret = verify_sign(pk, msg, sig);
     #else
-    // There is no need to verify in the secure world
-    int ret = verify_sign(pk, msg, sig);
+    int ret = tfm_verify_sign(pk, msg, sig);
     #endif
     if(ret == BLSTSUCCESS){
         strcat(buff, "BLSTSUCCESS\n");
@@ -208,7 +207,10 @@ int print_keys_Json(char* buff){
     #ifndef TFM
     get_keys(public_keys_hex_store);
     #else
-    tfm_get_keys(public_keys_hex_store);
+    //tfm_get_keys(public_keys_hex_store);
+    for(int i = 0; i < keystore_size; i++){
+        tfm_get_key(i, public_keys_hex_store[i]);
+    }
     #endif
     //printk("print_keys_Json: %.96s\n", public_keys_hex_store);
     
@@ -337,7 +339,7 @@ int verify_password(char* checksum_message_hex, char* cipher_message_hex, unsign
     #endif
 
     char checksum_str[64];
-    if(bin2hex(checksum_hash, 32, checksum_str, 64) == 0){
+    if(bin2hex_todo(checksum_hash, 32, checksum_str, 64) == 0){
         return BIN2HEXERR;
     }
     
@@ -373,7 +375,7 @@ int get_private_key(char* cipher_message, char* iv_str, unsigned char* decriptio
 
     char private_key_str[65];
 
-    if(bin2hex(private_key, 32, private_key_str, 64) != 64){
+    if(bin2hex_todo(private_key, 32, private_key_str, 64) != 64){
         return BIN2HEXERR;
     }
     private_key[64] = '\0';

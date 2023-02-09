@@ -11,7 +11,6 @@
 
 #include "./picohttpparser.h"
 #include <cJSON.h>
-#include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -178,7 +177,7 @@ int copyKeys(struct boardRequest* request){
         #ifndef TFM
         get_keys(buffer);
         #else
-        // tfm_get_keys(buffer);
+        //tfm_get_keys(buffer);
         for(int i = 0; i < ksize; i++){
             tfm_get_key(i, buffer[i]);
         }
@@ -328,7 +327,7 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
     }else if((request.methodLen == 4) && (strncmp(request.method, "POST", 4) == 0)){
         getBody(buffer, bufferSize, &request);
         #ifdef NRF
-        LOG_INF("Body parsed\n");
+        //LOG_INF("Body parsed\n");
         #endif
         if((request.pathLen == (strlen(signRequestStr) + keySize)) && (strncmp(request.path, signRequestStr, strlen(signRequestStr)) == 0)){
             getAcceptOptions(&request);
@@ -340,7 +339,7 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
 
             reply->method = sign;
             #ifdef NRF
-            LOG_INF("Signing method requested\n");
+            //LOG_INF("Signing method requested\n");
             #endif        
         }else if((request.pathLen == strlen(keymanagerStr)) && (strncmp(request.path, keymanagerStr, strlen(keymanagerStr)) == 0)){
             reply->json = request.body;
@@ -362,14 +361,14 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
 int upcheckResponseStr(char* buffer){
     strcpy(buffer, upcheckResponse);
     #ifdef NRF
-    uint32_t mem = GetFreeMemorySize();
+    /*uint32_t mem = GetFreeMemorySize();
     char buf[4] = "";
     sprintf(buf, "%d\0", mem);
     int cl = strlen(buf);
     char len[2] = "";
     itoa(cl, len, 10);
     buffer[74] = len[0];
-    strcat(buffer, buf);
+    strcat(buffer, buf);*/
     #endif
     return strlen(buffer);
 }
@@ -457,19 +456,19 @@ int signResponseStr(char* buffer, struct boardRequest* request){
     cJSON* json = cJSON_Parse(request->json);
     #ifdef NRF
     if(json == NULL){
-        LOG_INF("Failed parsing request body\n");
+        //("Failed parsing request body\n");
         return -1;
     }
     #endif
     cJSON* signingroot = cJSON_GetObjectItemCaseSensitive(json, "signingRoot");
     #ifdef NRF
-        LOG_INF("SR parsed\n");
+        //LOG_INF("SR parsed\n");
     #endif
     char sr[32];
     char srhex[65] = "";
     if(signingroot == NULL){
         #ifdef NRF
-        LOG_INF("Computing SR\n");
+        //LOG_INF("Computing SR\n");
         #endif
         if(getSR(json, sr) == -1){
             cJSON_Delete(json);
@@ -479,11 +478,11 @@ int signResponseStr(char* buffer, struct boardRequest* request){
     }else{
         memcpy(srhex, signingroot->valuestring + 2, 64);
         #ifdef NRF
-        LOG_INF("SR copied\n");
+        //LOG_INF("SR copied\n");
         #endif
     }
     #ifdef NRF
-    LOG_INF("Signing root: %s\n", srhex);
+    //LOG_INF("Signing root: %s\n", srhex);
     #endif
 
     char key[97] = "";
@@ -491,14 +490,14 @@ int signResponseStr(char* buffer, struct boardRequest* request){
     char signat[MAXSizeEthereumSignature+1] = "";//¿Maximum size of ethereum siganture?
     //signature(key, signingroot->valuestring, signat);
     #ifdef NRF
-    LOG_INF("PK: %s\n", key);
+    //LOG_INF("PK: %s\n", key);
     #endif
     if(signature(key, srhex, signat) != 0){
         cJSON_Delete(json);
         return -1;
     }
     #ifdef NRF
-    LOG_INF("Signature: %s\n", signat);
+    //LOG_INF("Signature: %s\n", signat);
     #endif
 
     char reply[256] = "";
@@ -949,7 +948,7 @@ int dumpHttpResponse(char* buffer, struct boardRequest* request){//boardRequest 
                 return pknotfoundResponseStr(buffer);
             }
             #ifdef NRF
-            LOG_INF("Key found\n");
+            //LOG_INF("Key found\n");
             #endif
             return signResponseStr(buffer, request);
             break;
