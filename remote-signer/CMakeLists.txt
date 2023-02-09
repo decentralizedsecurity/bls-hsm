@@ -18,6 +18,10 @@ set_property(TARGET zephyr_property_target
 
 project(remote_signer)
 
+if(CONFIG_NETWORKING)
+  add_definitions(-DNET)
+endif()
+
 add_definitions(-DNRF -DNRF_RS -DTFM)
 
 FILE(GLOB app_sources src/*.c)
@@ -32,8 +36,8 @@ zephyr_library_include_directories(
   ../lib/
 )
 
-#add_library(testlib STATIC IMPORTED)
-#target_link_libraries(app PUBLIC ${APPLICATION_SOURCE_DIR}/../lib/libblst.a)
+add_library(testlib STATIC IMPORTED)
+target_link_libraries(app PUBLIC ${APPLICATION_SOURCE_DIR}/../lib/libblst.a)
 
 target_include_directories(app PRIVATE
   $<TARGET_PROPERTY:tfm,TFM_BINARY_DIR>/install/interface/include

@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/tarm/serial"
@@ -219,13 +218,14 @@ func main() {
 		fmt.Println("Listening on port " + port)
 
 		// Go routine to restart the bridge periodically
-		go func() {
+		/*go func() {
 			time.Sleep(600 * time.Second)
 			mutex.Lock()
+			mutex.Unlock()
 			log.Println("Restarting bridge...")
 			args := os.Args
 			syscall.Exec(args[0], args, os.Environ())
-		}()
+		}()*/
 
 		for {
 			conn, err := l.Accept()
