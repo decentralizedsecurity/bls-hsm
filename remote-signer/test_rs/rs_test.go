@@ -33,7 +33,7 @@ func TestImportKeystore(t *testing.T) {
 	request := []byte("POST /eth/v1/keystores HTTP/1.1\r\n" +
 		"Host: localhost:80\r\n" +
 		"Content-Type: application/json\r\n" +
-		"Content-Length: 876\r\n\r\n" + string(keystore[:]))
+		"Content-Length: 1212\r\n\r\n" + string(keystore[:]))
 
 	scanner := bufio.NewScanner(s)
 

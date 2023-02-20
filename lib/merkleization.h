@@ -5,7 +5,7 @@
 #include <inttypes.h>
 #include <math.h>
 #include <string.h>
-#include <sys/byteorder.h>
+#include <zephyr/sys/byteorder.h>
 #include <cJSON.h>
 
 #define MASK0 (uint64_t) 0xfffffffffffffffe

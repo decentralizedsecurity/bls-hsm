@@ -11,80 +11,92 @@
   "name": "TFM_SP",
   "type": "APPLICATION-ROT",
   "priority": "NORMAL",
-  "entry_point": "tfm_dp_req_mngr_init",
-  "stack_size": "0x800",
+  "entry_point": "tfm_sp_req_mngr_init",
+  "stack_size": "0x20000",
 
-  # Service definitions for library mode.
-  "secure_functions": [
-    {
+  "services" : [{
+    "name": "TFM_DP_SECRET_DIGEST",
+    "sid": "0xFFFFF001", # Bits [31:12] denote the vendor (change this),
+                         # bits [11:0] are arbitrary at the discretion of the
+                         # vendor.
+    "non_secure_clients": true,
+    "version": 1,
+    "version_policy": "STRICT"
+   },
+   {
       "name": "TFM_INIT",
-      "signal": "TFM_INIT_REQ",
-      "non_secure_clients": true,
-      "version": 1,
-      "version_policy": "STRICT"
-    },
-    {
-      "name": "TFM_DP_SECRET_DIGEST",
-      "signal": "TFM_DP_SECRET_DIGEST_REQ",
+      "sid": "0xFFFFF002",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     },
     {
       "name": "TFM_GET_KEYSTORE_SIZE",
-      "signal": "TFM_GET_KEYSTORE_SIZE_REQ",
+      "sid": "0xFFFFF004",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     },
     {
       "name": "TFM_GET_FREE_MEMORY_SIZE",
-      "signal": "TFM_GET_FREE_MEMORY_SIZE_REQ",
+      "sid": "0xFFFFF005",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     },
     {
       "name": "TFM_SECURE_KEYGEN",
-      "signal": "TFM_SECURE_KEYGEN_REQ",
+      "sid": "0xFFFFF006",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     },
     {
       "name": "TFM_SIGN_PK",
-      "signal": "TFM_SIGN_PK_REQ",
+      "sid": "0xFFFFF007",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_VERIFY_SIGN",
+      "sid": "0xFFFFF008",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     },
     {
       "name": "TFM_GET_KEY",
-      "signal": "TFM_GET_KEY_REQ",
+      "sid": "0xFFFFF009",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     },
     {
       "name": "TFM_GET_KEYS",
-      "signal": "TFM_GET_KEYS_REQ",
+      "sid": "0xFFFFF00A",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     },
     {
       "name": "TFM_RESET",
-      "signal": "TFM_RESET_REQ",
+      "sid": "0xFFFFF00B",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     },
     {
       "name": "TFM_IMPORT_SK",
-      "signal": "TFM_IMPORT_SK_REQ",
+      "sid": "0xFFFFF00C",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     }
+  ],
+
+  "dependencies": [
+    "TFM_CRYPTO",
+    "TFM_PROTECTED_STORAGE_SERVICE"
   ]
 }

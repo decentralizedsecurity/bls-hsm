@@ -2,7 +2,9 @@
 #define bls_hsm_h
 #include "blst.h"
 #include "common.h"
-#include <sys/util.h>
+#ifdef NRF
+#include <zephyr/sys/util.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 
@@ -133,20 +135,18 @@ size_t hex2bin_todo(const char *hex, size_t hexlen, uint8_t *buf, size_t buflen)
 #define UID_KEYSTORE 1
 psa_status_t status;
 size_t bytes_read;
-
-/**
- * @brief Initializes PSA storage
-*/
 psa_status_t init(){
+    // Initialize PSA Crypto
+	status = psa_crypto_init();
+	if (status != PSA_SUCCESS) return (psa_status_t)-1;
+
     status = psa_ps_get((psa_storage_uid_t) UID_KEYSTORE_SIZE, 0, sizeof(int), &keystore_size, &bytes_read);
 	if (status != PSA_SUCCESS) {
         keystore_size = 0;
-        INF_LOG("There is nothing stored in PSA\r\n");
         return PSA_SUCCESS;
 	} else {
-        status = psa_ps_get((psa_storage_uid_t) UID_KEYSTORE, 0, sizeof(blst_scalar)*keystore_size, secret_keys_store, &bytes_read);
+        status =psa_ps_get((psa_storage_uid_t) UID_KEYSTORE, 0, sizeof(blst_scalar)*keystore_size, secret_keys_store, &bytes_read);
         if (status != PSA_SUCCESS){
-            ERR_LOG("init: psa_ps_get() error\r\n");
             return status;
         }
         for(int i = 1; i <= keystore_size; i++){   
@@ -156,35 +156,26 @@ psa_status_t init(){
             blst_sk_to_pk_in_g1(&pk, &secret_keys_store[i-1]);
             blst_p1_compress(pk_bin, &pk);
             if(bin2hex_todo(pk_bin, sizeof(pk_bin), pk_hex, 96) == 0){
-                ERR_LOG("init: BIN2HEXERR\r\n");
                 return -BIN2HEXERR;
             }
             memcpy(public_keys_hex_store[i-1], pk_hex, 96);
         }
-        INF_LOG("init: PSA initialized successfully\r\n");
         return PSA_SUCCESS;
     }
 }
 #endif
 
-/**
- * @brief Store a secret key into psa storage
- * 
- * @param sk Secret key to store
-*/
 int add_sk(blst_scalar sk){
     memcpy(&secret_keys_store[keystore_size], &sk, sizeof(blst_scalar));
     keystore_size++;
 #ifdef TFM
     status = psa_ps_set((psa_storage_uid_t)UID_KEYSTORE, sizeof(secret_keys_store), secret_keys_store, (psa_storage_create_flags_t) PSA_STORAGE_FLAG_NONE);
     if (status != PSA_SUCCESS) {
-        ERR_LOG("add_sk: psa_ps_set(keystore) error\r\n");
         return status;
     }
 
     status = psa_ps_set((psa_storage_uid_t)UID_KEYSTORE_SIZE, sizeof(int), &keystore_size, (psa_storage_create_flags_t) PSA_STORAGE_FLAG_NONE);
     if (status != PSA_SUCCESS) {
-        ERR_LOG("add_sk: psa_ps_set(keystore_size) error\r\n");
         return status;
     }
 #endif
@@ -295,7 +286,7 @@ int sig_parse(const char* sig_hex, blst_p2_affine* sig, char* buff){
  * @brief Returns the number of stored keys
 */
 int get_keystore_size(){
-        DEBUG_LOG("Returned store size\r\n");
+        //DEBUG_LOG("Returned store size\r\n");
         return keystore_size;
 }
 
@@ -332,7 +323,7 @@ int get_key(int index, char* public_key_hex){
  * @param public_key_hex String array that contains public keys
 */
 void get_keys(char public_keys_hex_store_ns[keystore_size][96]){
-        for(int i = 0; i < keystore_size; i++){
+        for(int i = 0; i < 1; i++){
             for(int j = 0; j < 96; j++){
                 public_keys_hex_store_ns[i][j] = public_keys_hex_store[i][j];
             }
@@ -550,14 +541,14 @@ int sign_pk(const char* pk, const char* msg, char* sign){
                 blst_p2 sig;
                 byte sig_bin[96];
                 char sig_hex[193];
-                
+                //printf("SIGNATURE:\n - pk: %s\n - msg: %s\n", pk, msg);
                 blst_sign_pk_in_g1(&sig, &hash, &secret_keys_store[pk_index]);
                 sig_serialize(sig_bin, sig);
                 if(bin2hex_todo(sig_bin, sizeof(sig_bin), sig_hex, sizeof(sig_hex)) == 0) {
                     ERR_LOG("Error signing message\r\n");
                     return BIN2HEXERR;
                 }
-                strcpy(sign, sig_hex);
+                strcpy(sign, sig_hex);/**/
                 INF_LOG("Message signed\r\n");
                 return 0;
             }

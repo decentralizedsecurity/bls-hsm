@@ -66,56 +66,45 @@ static psa_status_t tfm_dp_secret_digest(uint32_t secret_index,
 	return PSA_SUCCESS;
 }
 
-#include "tfm_memory_utils.h"
+#include "psa/service.h"
+#include "psa_manifest/tfm_secure_partition.h"
 
-void psa_write_digest(void *handle, uint8_t *digest, uint32_t digest_size)
+typedef psa_status_t (*dp_func_t)(psa_msg_t *);
+
+static void psa_write_digest(void *handle, uint8_t *digest,
+			     uint32_t digest_size)
 {
-	tfm_memcpy(handle, digest, digest_size);
+	psa_write((psa_handle_t)handle, 0, digest, digest_size);
 }
 
-psa_status_t tfm_dp_secret_digest_req(psa_invec *in_vec, size_t in_len,
-				      psa_outvec *out_vec, size_t out_len)
+static psa_status_t tfm_dp_secret_digest_ipc(psa_msg_t *msg)
 {
+	size_t num = 0;
 	uint32_t secret_index;
 
-	if ((in_len != 1) || (out_len != 1)) {
-		/* The number of arguments are incorrect */
+	if (msg->in_size[0] != sizeof(secret_index)) {
+		/* The size of the argument is incorrect */
 		return PSA_ERROR_PROGRAMMER_ERROR;
 	}
 
-	if (in_vec[0].len != sizeof(secret_index)) {
-		/* The input argument size is incorrect */
+	num = psa_read(msg->handle, 0, &secret_index, msg->in_size[0]);
+	if (num != msg->in_size[0]) {
 		return PSA_ERROR_PROGRAMMER_ERROR;
 	}
 
-	secret_index = *((uint32_t *)in_vec[0].base);
-
-	return tfm_dp_secret_digest(secret_index, out_vec[0].len,
-				    &out_vec[0].len, psa_write_digest,
-				    (void *)out_vec[0].base);
+	return tfm_dp_secret_digest(secret_index, msg->out_size[0],
+				    &msg->out_size[0], psa_write_digest,
+				    (void *)msg->handle);
 }
 
-
-psa_status_t tfm_dp_req_mngr_init(void){
-	psa_status_t status;
-
-	// Initialize PSA Crypto
-	status = psa_crypto_init();
-	if (status != PSA_SUCCESS) return (psa_status_t)-1;
-
-	return PSA_SUCCESS;
-}
-
-psa_status_t tfm_init_req(psa_invec *in_vec, size_t in_len,
-				      psa_outvec *out_vec, size_t size_len){
+static psa_status_t tfm_init_ipc(psa_msg_t *msg){
 	psa_status_t status = init();
 	return status;
 }
 
-psa_status_t tfm_get_keystore_size_req(psa_invec *in_vec, size_t in_len,
-				      psa_outvec *out_vec, size_t size_len){
+static psa_status_t tfm_get_keystore_size_ipc(psa_msg_t *msg){
 	uint32_t ksize = get_keystore_size();
-	tfm_memcpy((void*) out_vec[0].base, &ksize, out_vec[0].len);
+	psa_write((psa_handle_t)msg->handle, 0, &ksize, sizeof(ksize));
 	return PSA_SUCCESS;
 }
 
@@ -139,56 +128,184 @@ static uint32_t GetFreeMemorySize()
   return i;
 }
 
-uint32_t tfm_get_free_memory_size_req(psa_invec *in_vec, size_t in_len,
-				      psa_outvec *out_vec, size_t size_len){
-	printf("Executing GetFreeMemorySize from TF-M\n");
-	return GetFreeMemorySize();
-}
-
-psa_status_t tfm_secure_keygen_req(psa_invec *in_vec, size_t in_len,
-				      psa_outvec *out_vec, size_t size_len){
-	uint32_t index = secure_keygen(in_vec[0].base);
-	tfm_memcpy((void*) out_vec[0].base, &index, out_vec[0].len);
+static psa_status_t tfm_get_free_memory_size_ipc(psa_msg_t *msg){
+	int ms = GetFreeMemorySize();
+	psa_write((psa_handle_t)msg->handle, 0, &ms, sizeof(ms));
 	return PSA_SUCCESS;
 }
 
-psa_status_t tfm_sign_pk_req(psa_invec *in_vec, size_t in_len,
-				      psa_outvec *out_vec, size_t size_len){
+static psa_status_t tfm_secure_keygen_ipc(psa_msg_t *msg){
+	size_t size;
+	char info[32] = "";
+	size = psa_read(msg->handle, 0, info, msg->in_size[0]);
+	if (size != msg->in_size[0]) {
+		return PSA_ERROR_PROGRAMMER_ERROR;
+	}
+	uint32_t index = secure_keygen(info);
+	psa_write((psa_handle_t)msg->handle, 0, &index, sizeof(index));
+	return PSA_SUCCESS;
+}
+
+static psa_status_t tfm_sign_pk_ipc(psa_msg_t *msg){
+	//int ret = sign_pk(in_vec[0].base, in_vec[1].base, (void*) out_vec[0].base);
+	//const char* pk = in_vec[0].base;
+	//const char* msg = in_vec[1].base;
 	char sign[193] = "";
-	int ret = sign_pk(in_vec[0].base, in_vec[1].base, sign);
-	tfm_memcpy((void*)out_vec[0].base, sign, out_vec[0].len);
+	char pk[97];
+	char m[65];
+	size_t size = psa_read(msg->handle, 0, pk, msg->in_size[0]);
+	if (size != msg->in_size[0]) {
+		return PSA_ERROR_PROGRAMMER_ERROR;
+	}
+
+	size = psa_read(msg->handle, 1, m, msg->in_size[1]);
+	if (size != msg->in_size[1]) {
+		return PSA_ERROR_PROGRAMMER_ERROR;
+	}
+
+	int ret = sign_pk(pk, m, sign);
+	psa_write((psa_handle_t)msg->handle, 0, sign, sizeof(sign));
 	return ret;
 }
 
-psa_status_t tfm_get_key_req(psa_invec *in_vec, size_t in_len,
-				      psa_outvec *out_vec, size_t size_len){
-	uint32_t index = *((uint32_t *)in_vec[0].base);
+static psa_status_t tfm_verify_sign_ipc(psa_msg_t *msg){
+	char pk[96];
+	char m[64];
+	char sign[192];
+
+	size_t size = psa_read(msg->handle, 0, pk, msg->in_size[0]);
+	if (size != msg->in_size[0]) {
+		return PSA_ERROR_PROGRAMMER_ERROR;
+	}
+
+	size = psa_read(msg->handle, 1, m, msg->in_size[1]);
+	if (size != msg->in_size[1]) {
+		return PSA_ERROR_PROGRAMMER_ERROR;
+	}
+
+	size = psa_read(msg->handle, 2, sign, msg->in_size[2]);
+	if (size != msg->in_size[2]) {
+		return PSA_ERROR_PROGRAMMER_ERROR;
+	}
+
+	uint32_t ret = verify_sign(pk, m, sign);
+	psa_write((psa_handle_t)msg->handle, 0, &ret, sizeof(ret));
+	//tfm_memcpy((void*) out_vec[0].base, ret, out_vec[0].len);
+	return ret;
+}
+
+static psa_status_t tfm_get_key_ipc(psa_msg_t *msg){
+	uint32_t index;
+
+	size_t size = psa_read(msg->handle, 0, &index, msg->in_size[0]);
+	if (size != msg->in_size[0]) {
+		return PSA_ERROR_PROGRAMMER_ERROR;
+	}
+
 	char pk[96];
 	get_key(index, pk);
-	tfm_memcpy((void*) out_vec[0].base, pk, out_vec[0].len);
+	psa_write((psa_handle_t)msg->handle, 0, pk, sizeof(pk));
 	return PSA_SUCCESS;
 }
 
-psa_status_t tfm_get_keys_req(psa_invec *in_vec, size_t in_len,
-				      psa_outvec *out_vec, size_t size_len){
+static psa_status_t tfm_get_keys_ipc(psa_msg_t *msg){
+	//char keys[1][96];
+	//get_keys(keys);
+	//char public_keys_hex_store[10][96];
+	//get_keys(public_keys_hex_store);
+	//tfm_memcpy((void*) out_vec[0].base, /*keys[0]*/"12345678901234567890", 15);
 	int keystore_size = get_keystore_size();
     char public_keys_hex_store[keystore_size][96];
 	get_keys(public_keys_hex_store);
-	for(int i = 0; i < keystore_size; i++){
-		tfm_memcpy((void*) out_vec[0].base+96*i, public_keys_hex_store[i], 96);
-	}
+	printf("tfm_get_keys_req executed\n");
+	psa_write((psa_handle_t)msg->handle, 0, public_keys_hex_store, keystore_size*96);
+	//get_keys((void*) out_vec[0].base);
 	return PSA_SUCCESS;
 }
 
-psa_status_t tfm_reset_req(psa_invec *in_vec, size_t in_len,
-				      psa_outvec *out_vec, size_t size_len){
+static psa_status_t tfm_reset_ipc(psa_msg_t *msg){
 	reset();
 	return PSA_SUCCESS;
 }
 
-psa_status_t tfm_import_sk_req(psa_invec *in_vec, size_t in_len,
-				      psa_outvec *out_vec, size_t size_len){
-	int ret = import_sk(in_vec[0].base);
-	tfm_memcpy((void*) out_vec[0].base, ret, out_vec[0].len);
+static psa_status_t tfm_import_sk_ipc(psa_msg_t *msg){
+	char sk[64];
+	size_t size = psa_read(msg->handle, 0, sk, msg->in_size[0]);
+	if (size != msg->in_size[0]) {
+		return PSA_ERROR_PROGRAMMER_ERROR;
+	}
+
+	int ret = import_sk(sk);
+
+	psa_write((psa_handle_t)msg->handle, 0, &ret, sizeof(ret));
 	return PSA_SUCCESS;
+}
+
+static void sp_signal_handle(psa_signal_t signal, dp_func_t pfn)
+{
+	psa_status_t status;
+	psa_msg_t msg;
+
+	status = psa_get(signal, &msg);
+	switch (msg.type) {
+	case PSA_IPC_CONNECT:
+		psa_reply(msg.handle, PSA_SUCCESS);
+		break;
+	case PSA_IPC_CALL:
+		status = pfn(&msg);
+		psa_reply(msg.handle, status);
+		break;
+	case PSA_IPC_DISCONNECT:
+		psa_reply(msg.handle, PSA_SUCCESS);
+		break;
+	default:
+		psa_panic();
+	}
+}
+
+psa_status_t tfm_sp_req_mngr_init(void)
+{
+	psa_signal_t signals = 0;
+
+	while (1) {
+		signals = psa_wait(PSA_WAIT_ANY, PSA_BLOCK);
+		if (signals & TFM_DP_SECRET_DIGEST_SIGNAL) {
+			sp_signal_handle(TFM_DP_SECRET_DIGEST_SIGNAL,
+					 tfm_dp_secret_digest_ipc);
+		} else if (signals & TFM_INIT_SIGNAL) {
+			sp_signal_handle(TFM_INIT_SIGNAL,
+			tfm_init_ipc);
+		} else if (signals & TFM_GET_KEYSTORE_SIZE_SIGNAL) {
+			sp_signal_handle(TFM_GET_KEYSTORE_SIZE_SIGNAL,
+			tfm_get_keystore_size_ipc);
+		} else if (signals & TFM_GET_FREE_MEMORY_SIZE_SIGNAL) {
+			sp_signal_handle(TFM_GET_FREE_MEMORY_SIZE_SIGNAL,
+			tfm_get_free_memory_size_ipc);
+		} else if (signals & TFM_SECURE_KEYGEN_SIGNAL) {
+			sp_signal_handle(TFM_SECURE_KEYGEN_SIGNAL,
+			tfm_secure_keygen_ipc);
+		} else if (signals & TFM_SIGN_PK_SIGNAL) {
+			sp_signal_handle(TFM_SIGN_PK_SIGNAL,
+			tfm_sign_pk_ipc);
+		} else if (signals & TFM_VERIFY_SIGN_SIGNAL) {
+			sp_signal_handle(TFM_VERIFY_SIGN_SIGNAL,
+			tfm_verify_sign_ipc);
+		} else if (signals & TFM_GET_KEY_SIGNAL) {
+			sp_signal_handle(TFM_GET_KEY_SIGNAL,
+			tfm_get_key_ipc);
+		} else if (signals & TFM_GET_KEYS_SIGNAL) {
+			sp_signal_handle(TFM_GET_KEYS_SIGNAL,
+			tfm_get_keys_ipc);
+		} else if (signals & TFM_RESET_SIGNAL) {
+			sp_signal_handle(TFM_RESET_SIGNAL,
+			tfm_reset_ipc);
+		} else if (signals & TFM_IMPORT_SK_SIGNAL) {
+			sp_signal_handle(TFM_IMPORT_SK_SIGNAL,
+			tfm_import_sk_ipc);
+		} else {
+			psa_panic();
+		}
+	}
+
+	return PSA_ERROR_SERVICE_FAILURE;
 }

@@ -169,8 +169,7 @@ int verify(char* pk, char* msg, char* sig, char* buff){
     #ifndef TFM
     int ret = verify_sign(pk, msg, sig);
     #else
-    // There is no need to verify in the secure world
-    int ret = verify_sign(pk, msg, sig);
+    int ret = tfm_verify_sign(pk, msg, sig);
     #endif
     if(ret == BLSTSUCCESS){
         strcat(buff, "BLSTSUCCESS\n");
@@ -208,8 +207,12 @@ int print_keys_Json(char* buff){
     #ifndef TFM
     get_keys(public_keys_hex_store);
     #else
-    tfm_get_keys(public_keys_hex_store);
+    //tfm_get_keys(public_keys_hex_store);
+    for(int i = 0; i < keystore_size; i++){
+        tfm_get_key(i, public_keys_hex_store[i]);
+    }
     #endif
+    //printk("print_keys_Json: %.96s\n", public_keys_hex_store);
     
         strcat(buff, "{\"keys\":[\"");
         for(int i = 0; i < keystore_size; i++){
