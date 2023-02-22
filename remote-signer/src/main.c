@@ -22,6 +22,7 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(remote_signer, LOG_LEVEL_INF);
 #include <httpRemote.h>
+#include <touchpad_manager.h>
 
 #ifndef NET
 #include <zephyr/drivers/uart.h>
@@ -242,6 +243,9 @@ void main(void)
 	struct boardRequest reply;
 	InitZeroHashes(64);
 	tfm_init();
+
+	screen_init();
+	//screen_print();
 
 	while(1){
 #ifndef NET
