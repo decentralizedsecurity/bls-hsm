@@ -183,7 +183,7 @@ psa_status_t tfm_secure_keygen(char* info, size_t infosize){
 
 	psa_close(handle);
 
-	return status; //return status;
+	return index; //return status;
 }
 
 psa_status_t tfm_sign_pk(char* pk, char* msg, char* sign){
