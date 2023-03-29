@@ -1,0 +1,63 @@
+diff --git a/src/e1.c b/src/e1.c
+index 91c4cdb..fb5a04b 100644
+--- a/src/e1.c
++++ b/src/e1.c
+@@ -407,7 +407,7 @@ static void sigma(POINTonE1 *out, const POINTonE1 *in)
+     vec_copy(out->X, in->X, 2*sizeof(out->X));
+     mul_fp(out->Z, in->Z, beta);
+ }
+-
++POINTonE1 table[2][1<<(5-1)];
+ /* Gallant-Lambert-Vanstone, ~45% faster than POINTonE1_mult_w5 */
+ static void POINTonE1_mult_glv(POINTonE1 *out, const POINTonE1 *in,
+                                const pow256 SK)
+@@ -422,7 +422,7 @@ static void POINTonE1_mult_glv(POINTonE1 *out, const POINTonE1 *in,
+ 
+     {
+         const byte *scalars[2] = { val.s+16, val.s };
+-        POINTonE1 table[2][1<<(5-1)];   /* 4.5KB */
++        //POINTonE1 table[2][1<<(5-1)];   /* 4.5KB */
+         size_t i;
+ 
+         POINTonE1_precompute_w5(table[0], in);
+diff --git a/src/e2.c b/src/e2.c
+index 822ac23..e4ee76a 100644
+--- a/src/e2.c
++++ b/src/e2.c
+@@ -480,7 +480,7 @@ static void psi(POINTonE2 *out, const POINTonE2 *in)
+     cneg_fp(out->Y[1], out->Y[1], 1);   mul_fp2(out->Y, out->Y, frobenius_y);
+     cneg_fp(out->Z[1], out->Z[1], 1);
+ }
+-
++POINTonE2 table2[4][1<<(5-1)];
+ /* Galbraith-Lin-Scott, ~67% faster than POINTonE2_mul_w5 */
+ static void POINTonE2_mult_gls(POINTonE2 *out, const POINTonE2 *in,
+                                const pow256 SK)
+@@ -497,19 +497,19 @@ static void POINTonE2_mult_gls(POINTonE2 *out, const POINTonE2 *in,
+ 
+     {
+         const byte *scalars[2] = { val.s, NULL };
+-        POINTonE2 table[4][1<<(5-1)];   /* 18KB */
++        //POINTonE2 table[4][1<<(5-1)];   /* 18KB */
+         size_t i;
+ 
+-        POINTonE2_precompute_w5(table[0], in);
++        POINTonE2_precompute_w5(table2[0], in);
+         for (i = 0; i < 1<<(5-1); i++) {
+-            psi(&table[1][i], &table[0][i]);
+-            psi(&table[2][i], &table[1][i]);
+-            psi(&table[3][i], &table[2][i]);
+-            POINTonE2_cneg(&table[1][i], 1); /* account for z being negative */
+-            POINTonE2_cneg(&table[3][i], 1);
++            psi(&table2[1][i], &table2[0][i]);
++            psi(&table2[2][i], &table2[1][i]);
++            psi(&table2[3][i], &table2[2][i]);
++            POINTonE2_cneg(&table2[1][i], 1); /* account for z being negative */
++            POINTonE2_cneg(&table2[3][i], 1);
+         }
+ 
+-        POINTonE2s_mult_w5(out, NULL, 4, scalars, 64, table);
++        POINTonE2s_mult_w5(out, NULL, 4, scalars, 64, table2);
+     }
+ 
+     vec_zero(val.l, sizeof(val));   /* scrub the copy of SK */
