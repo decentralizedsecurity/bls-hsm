@@ -6,7 +6,7 @@ This project is founded by the [Eth2 staking community grants](https://blog.ethe
 
 We have implemented the following tools:
 
-- [`cli`](./cli/README.md). A command line interface to create BLS keypairs, sign and verify messages.
+- [`cli`](./cli). A command line interface to create BLS keypairs, sign and verify messages.
 - `remote-signer`. An Eth2.0 remote signer that protects private keys using ARM TrustZone.
 
 Those two tools are provided as separate nRF Connect projects and requiere a nRF5340DK or a nRF9160DK board to run. They relay in the `secure_partition` project, that is run the secure world and contains blst function calls that involve private keys, using Trusted Firmware-M (TF-M).
