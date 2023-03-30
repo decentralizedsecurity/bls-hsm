@@ -871,6 +871,7 @@ int httpImportFromKeystore(char* body){
 
     cJSON* passwordsJson = cJSON_GetObjectItemCaseSensitive(json, "passwords");
     if((passwordsJson == NULL) || (passwordsJson->child == NULL)){
+        // Open the keyboard
         cJSON_Delete(json);
         return -1;
     }
