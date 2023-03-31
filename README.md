@@ -11,20 +11,13 @@ We have implemented the following tools:
 
 Those two tools are provided as separate nRF Connect projects and requiere a nRF5340DK or a nRF9160DK board to run. They relay in the `secure_partition` project, that is run the secure world and contains blst function calls that involve private keys, using Trusted Firmware-M (TF-M).
 
-Apart from those tools, we also provide a port of them that can be run without the need of ARM TrustZone and instead of exposing the functionality over the serial port, use a TCP socket:
-
-- `cli-socket`.
-- `remote-signer-socket`.
-
-Those two tools can be build and run in Linux, MacOS and Windows directly, and would allow anyone to test our project before considering buying a supported hardware.
-
 Lastly, we have also implemented a simple remote signer in Go that uses our CLI as backend.
 
 - `remote-signer-go`.
 
 ## Dependencies :link:
 
-We have developed this project using the [nRF Connect SDK](https://www.nordicsemi.com/Products/Development-software/nRF-Connect-SDK), which is based on the Zephyr RTOS. In order to install the required dependencies it is recommended to follow this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html). Currently, only 2.0.0 version of the toolchain is supported. If you are using Linux, you can try the script `linux_dependencies.sh` to install all the required dependencies, although we recommend following the official guide.
+We have developed this project using the [nRF Connect SDK](https://www.nordicsemi.com/Products/Development-software/nRF-Connect-SDK), which is based on the Zephyr RTOS. In order to install the required dependencies it is recommended to follow this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html). Currently, only 2.2.0 version of the toolchain is supported. If you are using Linux, you can try the script `linux_dependencies.sh` to install all the required dependencies, although we recommend following the official guide.
 
 In order to build the [Blst](https://github.com/supranational/blst) library, we provide the script `build_libs.sh`, that clones and builds the library in Linux providing the ARM compiler as a parameter. If you are using other operating system you can try building the library using the scripts provided by suprational in their repo.
 
@@ -36,7 +29,7 @@ Another way to build the tools and flash the board with the project is to use th
 
 You can find more information about building and running the other tools in their respective folders
 
-## Testing and debugging tools:bug:
+## Testing and debugging tools :bug:
 
 ### Send commands
 
