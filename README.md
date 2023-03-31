@@ -15,6 +15,25 @@ Lastly, we have also implemented a simple remote signer in Go that uses our CLI 
 
 - `remote-signer-go`.
 
+## Boards compatibility :electric_plug:
+| | nRF9160DK | Thingy:91 | nRF5340DK | Thingy:53 |
+| --- | --- | --- | --- | --- |
+|**Tools**|
+| [cli](./cli) | :microscope: | :microscope: | :heavy_check_mark: | :microscope: |
+| [remote-signer](./remote-signer) | :microscope: | :microscope: | :heavy_check_mark: | :microscope: |
+|**Features**|
+| [Trust-Zone](#trust-zone) | :microscope: | :microscope: | :heavy_check_mark: | :microscope: |
+| [Serial communication](#serial) | :x: | :x: | :microscope: | :microscope: |
+| [LTE](#lte) | :heavy_check_mark: | :microscope: | :x: | :x: |
+| [Bluetooth](#bluetooth) | :soon: | :soon: | :x: | :x: |
+| [Touchpad-screen](#touchpad-screen) | :soon: | :soon: | :microscope: | :soon: |
+
+ - :heavy_check_mark: Full support
+ - :large_orange_diamond: Partial support
+ - :x: No support
+ - :soon: In the to-do list
+ - :microscope: Experimental
+
 ## Features :page_with_curl: <span id="features"><span>
 
 ### ARM Trust-Zone <span id="trust-zone"><span>
