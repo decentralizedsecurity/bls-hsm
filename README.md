@@ -15,6 +15,23 @@ Lastly, we have also implemented a simple remote signer in Go that uses our CLI 
 
 - `remote-signer-go`.
 
+## Features :page_with_curl: <span id="features"><span>
+
+### ARM Trust-Zone <span id="trust-zone"><span>
+TODO
+
+### Serial communication <span id="serial"><span>
+TODO
+
+### LTE <span id="lte"><span>
+TODO
+
+### Bluetooth <span id="bluetooth"><span>
+TODO
+
+### Touchpad-screen <span id="touchpad-screen"><span>
+TODO
+
 ## Dependencies :link:
 
 We have developed this project using the [nRF Connect SDK](https://www.nordicsemi.com/Products/Development-software/nRF-Connect-SDK), which is based on the Zephyr RTOS. In order to install the required dependencies it is recommended to follow this [guide](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html). Currently, only 2.2.0 version of the toolchain is supported. If you are using Linux, you can try the script `linux_dependencies.sh` to install all the required dependencies, although we recommend following the official guide.
