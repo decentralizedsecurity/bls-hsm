@@ -31,13 +31,13 @@ Lastly, we have also implemented a simple remote signer in Go that uses our CLI 
  - :heavy_check_mark: Full support
  - :large_orange_diamond: Partial support
  - :x: No support
- - :soon: In the to-do list
+ - :soon: On the to-do list
  - :microscope: Experimental
 
 ## Features :page_with_curl: <span id="features"><span>
 
 ### ARM Trust-Zone <span id="trust-zone"><span>
-TODO
+A secure partition is used to store sensitive data (keys) and allows acces to them. For more information on how it works, you can check out [`secure_partition` documentation](./secure_partition).
 
 ### Serial communication <span id="serial"><span>
 TODO
