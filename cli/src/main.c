@@ -3,18 +3,17 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-#include <zephyr.h>
-#include <sys/printk.h>
-#include <shell/shell.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/shell/shell.h>
 #include <version.h>
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 #include <stdlib.h>
-#include <kernel.h>
+#include <zephyr/kernel.h>
 #include <stdio.h>
 #include <secure_services.h>
 #include <pm_config.h>
 #include <fw_info.h>
-#include <drivers/uart.h>
+#include <zephyr/drivers/uart.h>
 #include <cJSON.h>
 #include <string.h>
 #ifdef CONFIG_USB
