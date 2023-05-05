@@ -48,8 +48,12 @@ TODO
 ### Bluetooth <span id="bluetooth"><span>
 TODO
 
-### Touchpad-screen <span id="touchpad-screen"><span>
-[LVGL](https://docs.lvgl.io/8.3/) is used to add a touch screen to the board. This allows the user to interact with the board without using a terminal on their computer.
+### Touchpad screen <span id="touchpad-screen"><span>
+[LVGL](https://docs.lvgl.io/8.3/) is used to add a touchpad screen to the board. It allows the user to interact with the board without using a terminal on their computer.
+
+The development has been done using an Adafruit 2.8" TFT Touch Shield.
+
+To make a build with this feature, `display.conf` kconfig fragment must be added to the build configuration.
 
 ## Dependencies :link:
 
