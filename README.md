@@ -34,6 +34,8 @@ Lastly, we have also implemented a simple remote signer in Go that uses our CLI 
  - :soon: On the to-do list
  - :microscope: Experimental
 
+ Note: the prototype is developed for the boards shown in the table. However, it should be easily ported to other boards having ARM Cortex-M33. 
+
 ## Features :page_with_curl: <span id="features"><span>
 
 ### ARM Trust-Zone <span id="trust-zone"><span>
