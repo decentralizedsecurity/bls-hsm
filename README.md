@@ -49,7 +49,7 @@ TODO
 TODO
 
 ### Touchpad-screen <span id="touchpad-screen"><span>
-TODO
+[LVGL](https://docs.lvgl.io/8.3/) is used to add a touch screen to the board. This allows the user to interact with the board without using a terminal on their computer.
 
 ## Dependencies :link:
 
