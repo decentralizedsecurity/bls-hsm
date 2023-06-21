@@ -35,6 +35,13 @@ LOG_MODULE_REGISTER(remote_signer, LOG_LEVEL_INF);
 #include <zephyr/kernel.h>
 #include <lvgl.h>
 
+// Threads
+#include <zephyr/sys/__assert.h>
+#define THREAD_STACK_SIZE 17408 // Same value as CONFIG_MAIN_STACK_SIZE
+#define THREAD_PRIORITY 7
+
+K_THREAD_STACK_DEFINE(my_thread_stack, THREAD_STACK_SIZE);
+
 #ifndef NET
 #include <zephyr/drivers/uart.h>
 #include <zephyr/usb/usb_device.h>
@@ -279,6 +286,42 @@ void lvgl_cli(){
     lv_obj_center(label);
 }
 
+void request_password(){
+	int cont = 1;
+	const struct device *display_dev;
+
+	display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
+	if (!device_is_ready(display_dev)) {
+		printk("[request_password]: Device not ready, aborting test\n");
+		return;
+	}
+
+	printk("[request_password]: Requesting password via touchscreen\n");
+
+	// Create a keyboard to use it with the text area
+    lv_obj_t * kb = lv_keyboard_create(lv_scr_act());
+
+    // Create a text area. The keyboard will write here
+    lv_obj_t * ta;
+    ta = lv_textarea_create(lv_scr_act());
+    lv_obj_align(ta, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_add_event_cb(ta, ta_event_cb, LV_EVENT_ALL, kb);
+    lv_textarea_set_placeholder_text(ta, "Hello");
+    lv_obj_set_size(ta, 280, 80);
+
+    lv_keyboard_set_textarea(kb, ta);
+
+	// Display on screen
+	lv_task_handler();
+	display_blanking_off(display_dev);
+
+	while (1) {
+		lv_task_handler();
+		cont++;
+		k_sleep(K_MSEC(10));
+	}
+}
+
 void lvgl_foo(){
 	// ---------------------------------------------------------------------------
 
@@ -296,7 +339,8 @@ void lvgl_foo(){
 	//createTextArea();
 	//addText("\n\nsignature 86a722b1f5c1cb1420ff0766cf5205b023de2e9c69efc65dbf976af2d710c3d12f937cf7104c9cd51bb4c62ff185d07f 5656565656565656565656565656565656565656565656565656565656565656\nSignature: 0xb912c912616709f6a190b03db1a259ca21f535abe51f88d6c95407a81fd8648b067c5e0548587f6a84f2dea9afd2098812bb1d7fb188f1d04411a04f25042b627c5f8d60dcef6416072cfef40b799b3c89397bcddf69ae62611484bfc6e83689\n");
 	//addText("\nverify 0x86a722b1f5c1cb1420ff0766cf5205b023de2e9c69efc65dbf976af2d710c3d12f937cf7104c9cd51bb4c62ff185d07f 5656565656565656565656565656565656565656565656565656565656565656 0xb912c912616709f6a190b03db1a259ca21f535abe51f88d6c95407a81fd8648b067c5e0548587f6a84f2dea9afd2098812bb1d7fb188f1d04411a04f25042b627c5f8d60dcef6416072cfef40b799b3c89397bcddf69ae62611484bfc6e83689\nSuccess");
-	lvgl_cli();
+	//lvgl_cli();
+	request_password();
 
 	lv_task_handler();
 	display_blanking_off(display_dev);
@@ -318,9 +362,15 @@ void lvgl_foo(){
 // -------------
 }
 
+void display_manager(){
+	printk("[myThread]: I'm alive!\n");
+	request_password();
+}
+
+K_THREAD_DEFINE(thread_id, THREAD_STACK_SIZE, display_manager, NULL, NULL, NULL, THREAD_PRIORITY, 0, 0);
+
 void main(void)
 {
-	lvgl_foo();
 #ifndef NET
 	const struct device *dev;
 	uint32_t baudrate, dtr = 0U;
