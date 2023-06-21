@@ -198,27 +198,6 @@ static void ta_event_cb(lv_event_t * e)
     }
 }
 
-void lv_example_keyboard_1(void)
-{
-    /*Create a keyboard to use it with an of the text areas*/
-    lv_obj_t * kb = lv_keyboard_create(lv_scr_act());
-
-    /*Create a text area. The keyboard will write here*/
-    lv_obj_t * ta;
-    ta = lv_textarea_create(lv_scr_act());
-    lv_obj_align(ta, LV_ALIGN_TOP_LEFT, 10, 10);
-    lv_obj_add_event_cb(ta, ta_event_cb, LV_EVENT_ALL, kb);
-    lv_textarea_set_placeholder_text(ta, "Hello");
-    lv_obj_set_size(ta, 140, 80);
-
-    ta = lv_textarea_create(lv_scr_act());
-    lv_obj_align(ta, LV_ALIGN_TOP_RIGHT, -10, 10);
-    lv_obj_add_event_cb(ta, ta_event_cb, LV_EVENT_ALL, kb);
-    lv_obj_set_size(ta, 140, 80);
-
-    lv_keyboard_set_textarea(kb, ta);
-}
-
 void createTextArea(void){
 	textArea = lv_textarea_create(lv_scr_act());
 	lv_obj_set_size(textArea, 320, 240);
@@ -254,36 +233,6 @@ static void signature_event_handler(lv_event_t * e){
 	if(lv_event_get_code(e) == LV_EVENT_CLICKED) {
         printk("Signature\n");
     }
-}
-
-void lvgl_cli(){
-	lv_obj_t * label;
-
-    lv_obj_t * btn1 = lv_btn_create(lv_scr_act());
-    lv_obj_add_event_cb(btn1, event_handler_button, LV_EVENT_ALL, NULL);
-    lv_obj_align(btn1, LV_ALIGN_TOP_LEFT, 5, 5);
-
-    label = lv_label_create(btn1);
-    lv_label_set_text(label, "Keygen");
-    lv_obj_center(label);
-
-    lv_obj_t * btn2 = lv_btn_create(lv_scr_act());
-    lv_obj_add_event_cb(btn2, event_handler_button, LV_EVENT_ALL, NULL);
-    lv_obj_align(btn2, LV_ALIGN_TOP_MID, 0, 5);
-    lv_obj_add_flag(btn2, LV_OBJ_FLAG_CHECKABLE);
-    lv_obj_set_height(btn2, LV_SIZE_CONTENT);
-
-    label = lv_label_create(btn2);
-    lv_label_set_text(label, "Keys");
-    lv_obj_center(label);
-
-	lv_obj_t * btn3 = lv_btn_create(lv_scr_act());
-    lv_obj_add_event_cb(btn3, signature_event_handler, LV_EVENT_ALL, NULL);
-    lv_obj_align(btn3, LV_ALIGN_TOP_RIGHT, -5, 5);
-
-    label = lv_label_create(btn3);
-    lv_label_set_text(label, "Signature");
-    lv_obj_center(label);
 }
 
 void request_password(){
@@ -335,23 +284,15 @@ void lvgl_foo(){
 		return;
 	}
 
-	//lv_example_keyboard_1();
 	//createTextArea();
 	//addText("\n\nsignature 86a722b1f5c1cb1420ff0766cf5205b023de2e9c69efc65dbf976af2d710c3d12f937cf7104c9cd51bb4c62ff185d07f 5656565656565656565656565656565656565656565656565656565656565656\nSignature: 0xb912c912616709f6a190b03db1a259ca21f535abe51f88d6c95407a81fd8648b067c5e0548587f6a84f2dea9afd2098812bb1d7fb188f1d04411a04f25042b627c5f8d60dcef6416072cfef40b799b3c89397bcddf69ae62611484bfc6e83689\n");
 	//addText("\nverify 0x86a722b1f5c1cb1420ff0766cf5205b023de2e9c69efc65dbf976af2d710c3d12f937cf7104c9cd51bb4c62ff185d07f 5656565656565656565656565656565656565656565656565656565656565656 0xb912c912616709f6a190b03db1a259ca21f535abe51f88d6c95407a81fd8648b067c5e0548587f6a84f2dea9afd2098812bb1d7fb188f1d04411a04f25042b627c5f8d60dcef6416072cfef40b799b3c89397bcddf69ae62611484bfc6e83689\nSuccess");
-	//lvgl_cli();
 	request_password();
 
 	lv_task_handler();
 	display_blanking_off(display_dev);
 
 	while (1) {
-		/*if ((cont % 400) == 0U) {
-			printf("tic\n");
-		}else if((cont % 200) == 0U){
-			printf("tac\n");
-			cont = 1;
-		}*/
 		lv_task_handler();
 		cont++;
 		k_sleep(K_MSEC(10));
