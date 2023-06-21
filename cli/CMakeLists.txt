@@ -6,6 +6,8 @@
 
 cmake_minimum_required(VERSION 3.20)
 
+set(SHIELD adafruit_2_8_tft_touch_v2)
+
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 get_target_property(TFM_BINARY_DIR tfm TFM_BINARY_DIR)
