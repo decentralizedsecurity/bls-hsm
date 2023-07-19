@@ -1,0 +1,41 @@
+h1{
+    text-align: center;
+}
+
+.buttonList{
+    text-align: center;
+}
+
+.buttonList input{
+    font-size: 16px;
+    padding: 8px 12px;
+    margin-right: 3px;
+}
+
+#content {
+    width: 100%;
+    display: flex;
+}
+
+#commandContainer {
+    flex: 0 0 60%; /* El div commandContainer ocupará el 60% del ancho */
+  }
+  
+  #infoContainer {
+    flex: 0 0 40%; /* El div infoContainer ocupará el 40% del ancho */
+  }
+
+#commandContainer{
+    text-align: center;
+}
+
+#command {
+    height: 50vh;
+    width: 90%;
+    text-align: left;
+}
+
+.sendButton{
+    font-size: 22px;
+    padding: 8px 12px;
+}
