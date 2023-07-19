@@ -179,12 +179,12 @@ static void ta_event_cb(lv_event_t * e)
 		keygen("", buff);
 		printk("buff = %s\n", buff);
 
-		char pk[96+2];
+		/*char pk[96+2];
 		memcpy(pk, buff, 98);
 		printk("pk = %s\n");
     	memset(buff, 0, 2048);
 		signature(pk, msg, buff);
-		printk("signature = %s\n", buff);
+		printk("signature = %s\n", buff);*/
 	}
 
     if(code == LV_EVENT_FOCUSED) {
@@ -309,6 +309,81 @@ void display_manager(){
 }
 
 K_THREAD_DEFINE(thread_id, THREAD_STACK_SIZE, display_manager, NULL, NULL, NULL, THREAD_PRIORITY, 0, 0);
+
+// Request pwd
+static void write_pwd_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    lv_obj_t * kb = lv_event_get_user_data(e);
+	
+	if(code == LV_EVENT_VALUE_CHANGED){
+		printk("Value changed\n");
+	}
+
+	if(code == LV_EVENT_READY){
+		char * msg = lv_textarea_get_text(ta);
+		printk("pwd: %s\n",msg);
+
+		/*char buff [2048];
+    	memset(buff, 0, 2048);
+		keygen("", buff);
+		printk("buff = %s\n", buff);
+
+		char pk[96+2];
+		memcpy(pk, buff, 98);
+		printk("pk = %s\n");
+    	memset(buff, 0, 2048);
+		signature(pk, msg, buff);
+		printk("signature = %s\n", buff);*/
+	}
+
+    if(code == LV_EVENT_FOCUSED) {
+        lv_keyboard_set_textarea(kb, ta);
+        lv_obj_clear_flag(kb, LV_OBJ_FLAG_HIDDEN);
+    }
+
+    if(code == LV_EVENT_DEFOCUSED) {
+        lv_keyboard_set_textarea(kb, NULL);
+        lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
+    }
+}
+
+void request_pwd(){
+	int cont = 1;
+	const struct device *display_dev;
+
+	display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
+	if (!device_is_ready(display_dev)) {
+		printk("[request_pwd]: Device not ready, aborting test\n");
+		return;
+	}
+
+	printk("[request_pwd]: Requesting password via touchscreen\n");
+
+	// Create a keyboard to use it with the text area
+    lv_obj_t * kb = lv_keyboard_create(lv_scr_act());
+
+    // Create a text area. The keyboard will write here
+    lv_obj_t * ta;
+    ta = lv_textarea_create(lv_scr_act());
+    lv_obj_align(ta, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_add_event_cb(ta, write_pwd_cb, LV_EVENT_ALL, kb);
+    lv_textarea_set_placeholder_text(ta, "Hello");
+    lv_obj_set_size(ta, 280, 80);
+
+    lv_keyboard_set_textarea(kb, ta);
+
+	// Display on screen
+	lv_task_handler();
+	display_blanking_off(display_dev);
+
+	while (1) {
+		lv_task_handler();
+		cont++;
+		k_sleep(K_MSEC(10));
+	}
+}
 
 void main(void)
 {
