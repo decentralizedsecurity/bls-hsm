@@ -22,6 +22,7 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(remote_signer, LOG_LEVEL_INF);
 #include <httpRemote.h>
+#include <tiny-json.h>
 
 #include <tfm_veneers.h>
 #include <tfm_ns_interface.h>
@@ -385,8 +386,142 @@ void request_pwd(){
 	}
 }
 
+// example 1
+int tiny_json_foo_1() {
+    char str[] = "{\n"
+        "\t\"firstName\": \"Bidhan\",\n"
+        "\t\"lastName\": \"Chatterjee\",\n"
+        "\t\"age\": 40,\n"
+        "\t\"address\": {\n"
+        "\t\t\"streetAddress\": \"144 J B Hazra Road\",\n"
+        "\t\t\"city\": \"Burdwan\",\n"
+        "\t\t\"state\": \"Paschimbanga\",\n"
+        "\t\t\"postalCode\": \"713102\"\n"
+        "\t},\n"
+        "\t\"phoneList\": [\n"
+        "\t\t{ \"type\": \"personal\", \"number\": \"09832209761\" },\n"
+        "\t\t{ \"type\": \"fax\", \"number\": \"91-342-2567692\" }\n"
+        "\t]\n"
+        "}\n";
+    puts( str );
+    json_t mem[32];
+    json_t const* json = json_create( str, mem, sizeof mem / sizeof *mem );
+    if ( !json ) {
+        puts("Error json create.");
+        return EXIT_FAILURE;
+    }
+
+    json_t const* firstName = json_getProperty( json, "firstName" );
+    if ( !firstName || JSON_TEXT != json_getType( firstName ) ) {
+        puts("Error, the first name property is not found.");
+        return EXIT_FAILURE;
+    }
+    char const* firstNameVal = json_getValue( firstName );
+    printk( "Fist Name: %s.\n", firstNameVal );
+
+    char const* lastName = json_getPropertyValue( json, "lastName" );
+    if ( !lastName ) {
+        puts("Error, the last name property is not found.");
+        return EXIT_FAILURE;
+    }	
+    printk( "Last Name: %s.\n", lastName );
+
+    json_t const* age = json_getProperty( json, "age" );
+    if ( !age || JSON_INTEGER != json_getType( age ) ) {
+        puts("Error, the age property is not found.");
+        return EXIT_FAILURE;
+    }
+    int const ageVal = (int)json_getInteger( age );
+    printk( "Age: %d.\n", ageVal );
+
+    json_t const* phoneList = json_getProperty( json, "phoneList" );
+    if ( !phoneList || JSON_ARRAY != json_getType( phoneList ) ) {
+        puts("Error, the phone list property is not found.");
+        return EXIT_FAILURE;
+    }
+
+    json_t const* phone;
+    for( phone = json_getChild( phoneList ); phone != 0; phone = json_getSibling( phone ) ) {
+        if ( JSON_OBJ == json_getType( phone ) ) {
+            char const* phoneNumber = json_getPropertyValue( phone, "number" );
+            if ( phoneNumber ) printk( "Number: %s.\n", phoneNumber );
+        }
+    }
+
+    return EXIT_SUCCESS;
+}
+
+// Example 2
+/** Print the value os a json object or array.
+  * @param json The handler of the json object or array. */
+static void dump( json_t const* json ) {
+
+    jsonType_t const type = json_getType( json );
+    if ( type != JSON_OBJ && type != JSON_ARRAY ) {
+        puts("error");
+        return;
+    }
+
+    printf( "%s", type == JSON_OBJ? " {": " [" );
+
+    json_t const* child;
+    for( child = json_getChild( json ); child != 0; child = json_getSibling( child ) ) {
+
+        jsonType_t propertyType = json_getType( child );
+        char const* name = json_getName( child );
+        if ( name ) printf(" \"%s\": ", name );
+
+        if ( propertyType == JSON_OBJ || propertyType == JSON_ARRAY )
+            dump( child );
+
+        else {
+            char const* value = json_getValue( child );
+            if ( value ) {
+                bool const text = JSON_TEXT == json_getType( child );
+                char const* fmt = text? " \"%s\"": " %s";
+                printf( fmt, value );
+                bool const last = !json_getSibling( child );
+                if ( !last ) putchar(',');
+            }
+        }
+    }
+
+    printf( "%s", type == JSON_OBJ? " }": " ]" );
+
+}
+/* Parser a json string. */
+int tiny_json_foo_2() {
+    char str[] = "{\n"
+        "\t\"firstName\": \"Bidhan\",\n"
+        "\t\"lastName\": \"Chatterjee\",\n"
+        "\t\"age\": 40,\n"
+        "\t\"address\": {\n"
+        "\t\t\"streetAddress\": \"144 J B Hazra Road\",\n"
+        "\t\t\"city\": \"Burdwan\",\n"
+        "\t\t\"state\": \"Paschimbanga\",\n"
+        "\t\t\"postalCode\": \"713102\"\n"
+        "\t},\n"
+        "\t\"phoneList\": [\n"
+        "\t\t{ \"type\": \"personal\", \"number\": \"09832209761\" },\n"
+        "\t\t{ \"type\": \"fax\", \"number\": \"91-342-2567692\" }\n"
+        "\t]\n"
+        "}\n";
+    puts( str );
+    json_t mem[32];
+    json_t const* json = json_create( str, mem, sizeof mem / sizeof *mem );
+    if ( !json ) {
+        puts("Error json create.");
+        return EXIT_FAILURE;
+    }
+    puts("Print JSON:");
+    dump( json );
+    return EXIT_SUCCESS;
+}
+
 void main(void)
 {
+	//tiny_json_foo_1();
+	//tiny_json_foo_2();
 #ifndef NET
 	const struct device *dev;
 	uint32_t baudrate, dtr = 0U;

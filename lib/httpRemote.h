@@ -11,6 +11,7 @@
 
 #include "./picohttpparser.h"
 #include <cJSON.h>
+#include <tiny-json.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -135,7 +136,8 @@ struct httpRequest{
     size_t numHeaders;   
 };
 
-cJSON* keystores[MAXKeys];
+//cJSON* keystores[MAXKeys];
+json_t* keystores[MAXKeys];
 char* passwords[MAXKeys];
 
 #ifdef NRF
@@ -559,6 +561,41 @@ void delete_keystores(int nkeys){
     Returns error number on error
 */
 int get_decryption_key_encryption_type(int i, int* type){
+    // TODO: handle errors
+    printk("[get_decryption_key_encryption_type] keystores[i]: %s.\n", json_getValue(keystores[i]));
+    if(keystores[i] == NULL/* || json_getType(keystores[i]) != JSON_OBJ*/){
+        return BADJSONFORMAT;
+    }
+
+    printk("From this point on, something is wrong\n\n");
+    //printk("[get_decryption_key_encryption_type] keystores[i]->u.c.child->sibling->name: %s.\n", keystores[i]->u.c.child->sibling->name);
+    json_t* crypto = json_getProperty(keystores[i], "crypto");
+    if(crypto == NULL){
+        return BADJSONFORMAT;
+    }
+
+    json_t* kdf = json_getProperty(crypto, "kdf");
+    if(kdf == NULL){
+        return BADJSONFORMAT;
+    }
+
+    json_t* json_function = json_getProperty(kdf, "function");
+    if(json_function == NULL || json_getType(json_function) != JSON_TEXT){
+        return BADJSONFORMAT;
+    }
+    char* function = json_getValue(json_function);
+    printk( "[get_decryption_key_encryption_type] function: %s.\n", function);
+
+    if(strcmp("pbkdf2", function) == 0){
+        *type = PBKDF2TYPE;
+    }else if(strcmp("scrypt", function) == 0){
+        *type = SCRYPTTYPE;
+    }else{
+        return -1;//ERROR
+    }
+
+    return 0;
+    /*
     if(keystores[i] == NULL || keystores[i]->type != cJSON_Object){
         return BADJSONFORMAT;
     }
@@ -587,7 +624,7 @@ int get_decryption_key_encryption_type(int i, int* type){
         return -1;//ERROR
     }
 
-    return 0;
+    return 0;*/
 }
 
 /*
@@ -857,7 +894,7 @@ int import_from_keystore(int nKeys){
     -1 on error and set the variable errno to the type of error
 */
 
-int httpImportFromKeystore(char* body){
+/*int httpImportFromKeystore(char* body){
     cJSON* json= cJSON_Parse(body);
     if(json == NULL){
         return -1;
@@ -935,6 +972,183 @@ int httpImportFromKeystore(char* body){
     delete_keystores(nKeystores);
     cJSON_Delete(json);
     return 0;
+}*/
+int httpImportFromKeystore(char* body){
+    //printk("[httpImportFromKeystore] body: %s\nEND OF BODY\n", body);
+    puts( body );
+    json_t mem[32];
+    json_t const* json = json_create( body, mem, sizeof mem / sizeof *mem );
+    if ( !json ) {
+        puts("Error json create.");
+        return EXIT_FAILURE;
+    }
+
+    json_t const* keystoresJson = json_getProperty( json, "keystores" );
+    if ( !keystoresJson ) {
+        puts("Error json create.");
+        return EXIT_FAILURE;
+    }
+
+    json_t const* passwordsJson = json_getProperty( json, "passwords" );
+    if ( !passwordsJson || JSON_ARRAY != json_getType( passwordsJson ) || json_getChild( passwordsJson ) == 0) {
+        // Open the keyboard
+        return -1;
+    }else{
+        /*json_t const* password;
+        for( password = json_getChild( passwordsJson ); password != 0; password = json_getSibling( password ) ) {
+            char const* pwd = json_getValue( password );
+            printf( "[httpImportFromKeystore] pwd: %s.\n", pwd );
+        }*/
+    }
+
+    #ifndef TFM
+    int nKeysAlreadyStored = get_keystore_size();
+    #else
+    int nKeysAlreadyStored = tfm_get_keystore_size();
+    #endif
+    printk("[httpImportFromKeystore] nKeysAlreadyStored: %d\n", nKeysAlreadyStored);
+
+    int nKeystores = 0;
+    int nPasswords = 0;
+
+    json_t * key = json_getChild(keystoresJson);
+    json_t * pwd = json_getChild(passwordsJson);
+
+    while(key != NULL){
+        if(nKeystores < (MAXKeys + nKeysAlreadyStored)){
+            char* keystorestr = json_getValue(key);
+            del(keystorestr, '\\');
+            //printf( "[httpImportFromKeystore] keystorestr: %s.\n", keystorestr );
+            //keystores[nKeystores] = cJSON_Parse(keystorestr);
+            keystores[nKeystores] = key;
+            ++nKeystores;
+            key = json_getSibling( key );
+        }else{
+            // TODO
+            delete_keystores(nKeystores);
+            cJSON_Delete(json);
+            return -1;
+        }
+    }
+
+    while(pwd != NULL){
+        printk("[httpImportFromKeystore] nPasswords: %d\n", nPasswords);
+        if(nPasswords < (MAXKeys + nKeysAlreadyStored)){
+            if(json_getType(pwd) != JSON_TEXT){
+                // TODO
+                delete_keystores(nKeystores);
+                cJSON_Delete(json);
+                return -1;
+            }else{
+                passwords[nPasswords] = json_getValue(pwd);
+                printk( "[httpImportFromKeystore] pwd: %s.\n", json_getValue(pwd) );
+            }
+            ++nPasswords;
+            pwd = json_getSibling(pwd);
+        }else{
+            // TODO
+            delete_keystores(nKeystores);
+            cJSON_Delete(json);
+            return -1;
+        }
+    }
+
+    printk("[httpImportFromKeystore] nKeystores: %d, nPasswords: %d\n", nKeystores, nPasswords);
+    if(nKeystores != nPasswords){
+        // TODO
+        //delete_keystores(nKeystores);
+        //cJSON_Delete(json);
+        return -1;
+    }
+
+    printk("[httpImportFromKeystore] import_from_keystore()\n");
+    if(import_from_keystore(nKeystores) != 0){
+        // TODO
+        //delete_keystores(nKeystores);
+        //cJSON_Delete(json);
+        printk("[httpImportFromKeystore] import_from_keystore(): Error\n");
+        return -1;
+    }
+    
+    printk("[httpImportFromKeystore] return 0\n");
+    // TODO
+    //delete_keystores(nKeystores);
+    //cJSON_Delete(json);
+    return 0;
+    
+    /*
+    cJSON* keystoresJson = cJSON_GetObjectItemCaseSensitive(json, "keystores");
+    if((keystoresJson == NULL) || (keystoresJson->child == NULL)){
+        cJSON_Delete(json);
+        return -1;
+    }
+
+    cJSON* passwordsJson = cJSON_GetObjectItemCaseSensitive(json, "passwords");
+    if((passwordsJson == NULL) || (passwordsJson->child == NULL)){
+        // Open the keyboard
+        cJSON_Delete(json);
+        return -1;
+    }
+
+    #ifndef TFM
+    int nKeysAlreadyStored = get_keystore_size();
+    #else
+    int nKeysAlreadyStored = tfm_get_keystore_size();
+    #endif
+
+    int nKeystores = 0;
+    int nPasswords = 0;
+
+    keystoresJson = keystoresJson->child;
+    passwordsJson = passwordsJson->child;
+
+    while(keystoresJson != NULL){
+        if(nKeystores < (MAXKeys + nKeysAlreadyStored)){
+            char* keystorestr = keystoresJson->valuestring;
+            del(keystorestr, '\\');
+            keystores[nKeystores] = cJSON_Parse(keystorestr);
+            ++nKeystores;
+            keystoresJson = keystoresJson->next;
+        }else{
+            delete_keystores(nKeystores);
+            cJSON_Delete(json);
+            return -1;
+        }
+    }
+
+    while(passwordsJson != NULL){
+        if(nPasswords < (MAXKeys + nKeysAlreadyStored)){
+            if(passwordsJson->type != cJSON_String){
+                delete_keystores(nKeystores);
+                cJSON_Delete(json);
+                return -1;
+            }else{
+                passwords[nPasswords] = passwordsJson->valuestring;
+            }
+            ++nPasswords;
+            passwordsJson = passwordsJson->next;
+        }else{
+            delete_keystores(nKeystores);
+            cJSON_Delete(json);
+            return -1;
+        }
+    }
+
+    if(nKeystores != nPasswords){
+        delete_keystores(nKeystores);
+        cJSON_Delete(json);
+        return -1;
+    }
+
+    if(import_from_keystore(nKeystores) != 0){
+        delete_keystores(nKeystores);
+        cJSON_Delete(json);
+        return -1;
+    }
+
+    delete_keystores(nKeystores);
+    cJSON_Delete(json);
+    return 0;*/
 }
 
 /*

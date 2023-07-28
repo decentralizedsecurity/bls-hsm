@@ -32,6 +32,7 @@ target_sources(app PRIVATE ${app_sources}
   ../lib/bls_hsm_ns.c
   ../lib/common.c
   ../lib/secure_partition_interface.c
+  ../lib/tiny-json.c
 )
 
 zephyr_library_include_directories(
