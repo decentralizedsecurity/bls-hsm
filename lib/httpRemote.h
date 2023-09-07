@@ -562,9 +562,8 @@ void delete_keystores(int nkeys){
     Returns error number on error
 */
 int get_decryption_key_encryption_type(int i, int* type){
-    // TODO: handle errors
     printk("[get_decryption_key_encryption_type] keystores[i]: %s.\n", json_getValue(keystores[i]));
-    if(keystores[i] == NULL/* || json_getType(keystores[i]) != JSON_OBJ*/){
+    if(keystores[i] == NULL || json_getType(keystores[i]) != JSON_OBJ){
         return BADJSONFORMAT;
     }
 
@@ -912,8 +911,6 @@ int httpImportFromKeystore(char* body){
             char* keystorestr = json_getValue(key);
             del(keystorestr, '\\');
             printk( "[httpImportFromKeystore] keystorestr: %s.\n", keystorestr );
-            //keystores[nKeystores] = cJSON_Parse(keystorestr);
-            //keystores[nKeystores] = key;
             keystores[nKeystores] = json_create( keystorestr, key_mem[nKeystores], sizeof (key_mem[nKeystores]) / sizeof *(key_mem[nKeystores]) );
             if ( !keystores[nKeystores] || JSON_ARRAY != json_getType( keystores[nKeystores] ) ) {
                 printk("[httpImportFromKeystore]: Error keystores[nKeystores]\n");
