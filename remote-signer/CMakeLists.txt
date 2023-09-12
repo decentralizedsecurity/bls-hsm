@@ -33,6 +33,7 @@ target_sources(app PRIVATE ${app_sources}
   ../lib/common.c
   ../lib/secure_partition_interface.c
   ../lib/tiny-json.c
+  ../lib/touchscreen.c
 )
 
 zephyr_library_include_directories(
