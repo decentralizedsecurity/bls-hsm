@@ -23,6 +23,7 @@
 #else
 #include "secure_partition_interface.h"
 #endif
+#include "touchscreen.h"
 
 #define SCRYPTTYPE 1
 #define PBKDF2TYPE 2
@@ -273,7 +274,7 @@ int checkKey(struct boardRequest* request){
     We are only going to support GET and POST requests, so if we get another type of request we are going to handle it like an error.
 */
 int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//boardRequest out, buffer in
-
+    //printk("[parseRequest] buffer: %s\n", buffer);
     if((strncmp(buffer, "POST", 4) != 0) && (strncmp(buffer, "GET", 3) != 0)){
         return -1;
     }else if (strncmp(buffer, "POST", 4) == 0){
@@ -562,12 +563,10 @@ void delete_keystores(int nkeys){
     Returns error number on error
 */
 int get_decryption_key_encryption_type(int i, int* type){
-    printk("[get_decryption_key_encryption_type] keystores[i]: %s.\n", json_getValue(keystores[i]));
     if(keystores[i] == NULL || json_getType(keystores[i]) != JSON_OBJ){
         return BADJSONFORMAT;
     }
 
-    printk("From this point on, something is wrong\n\n");
     json_t* crypto = json_getProperty(keystores[i], "crypto");
     if(crypto == NULL){
         return BADJSONFORMAT;
@@ -862,6 +861,19 @@ int import_from_keystore(int nKeys){
     return 0;
 }
 
+int get_short_version(char * short_text, const char * long_text){
+    for(int i = 0; i < 4; i++){
+        short_text[i] = long_text[i];
+    }
+    for(int i = 4; i < 7; i++){
+        short_text[i] = '.';
+    }
+    for(int i = 0; i < 4; i++){
+        short_text[7 + i] = long_text[strlen(long_text) - 4 + i];
+    }
+    short_text[11] = '\0';
+}  
+
 int httpImportFromKeystore(char* body){
     //printk("[httpImportFromKeystore] body: %s\nEND OF BODY\n", body);
     puts( body );
@@ -918,7 +930,7 @@ int httpImportFromKeystore(char* body){
             }
             ++nKeystores;
             key = json_getSibling( key );
-            printk( "[httpImportFromKeystore] keystores[nKeystores-1]: %s.\n", json_getValue(keystores[nKeystores-1]) );
+            //printk( "[httpImportFromKeystore] keystores[nKeystores-1]: %s.\n", json_getValue(keystores[nKeystores-1]) );
         }else{
             // TODO
             delete_keystores(nKeystores);
@@ -936,8 +948,45 @@ int httpImportFromKeystore(char* body){
                 cJSON_Delete(json);
                 return -1;
             }else{
-                passwords[nPasswords] = json_getValue(pwd);
-                printk( "[httpImportFromKeystore] pwd: %s.\n", json_getValue(pwd) );
+                if(strlen(json_getValue(pwd)) == 0){
+                    printk("[httpImportFromKeystore] User must write password using the touchscreen\n");
+
+                    // --------------------------------------------------------------------------
+                    if(keystores[0] == NULL || json_getType(keystores[0]) != JSON_OBJ){
+                        return BADJSONFORMAT;
+                    }
+
+                    json_t* crypto = json_getProperty(keystores[0], "crypto");
+                    if(crypto == NULL){
+                        return BADJSONFORMAT;
+                    }
+
+                    json_t* checksum = json_getProperty(crypto, "checksum");
+                    if(checksum == NULL){
+                        return BADJSONFORMAT;
+                    }                    
+
+                    json_t* json_cipher_message = json_getProperty(checksum, "message");
+                    if(json_cipher_message == NULL || json_getType(json_cipher_message) != JSON_TEXT){
+                        return BADJSONFORMAT;
+                    }
+                    char* cipher_message = json_getValue(json_cipher_message);
+                    // --------------------------------------------------------------------------
+                    printk("[httpImportFromKeystore] cipher_message = %s\n", cipher_message);
+                    char shortened_msg[12];
+                    get_short_version(shortened_msg, cipher_message);
+                    printk("[httpImportFromKeystore] shortened cipher_message = %s\n", shortened_msg);
+                    char displayed_text[31+12] = "Enter the password for the key ";
+                    strcat(displayed_text, shortened_msg);
+                    
+                    char ts_pwd[100]; // Password written by user via touchscreen
+                    ts_get_text_kb(ts_pwd, displayed_text);
+                    printk("[httpImportFromKeystore] pwd (written by user via touchscreen) = %s\n", ts_pwd);
+                    passwords[nPasswords] = ts_pwd; // TODO: Maybe passwords[nPasswords] content is deleted after '}'
+                }else{
+                    passwords[nPasswords] = json_getValue(pwd);
+                    printk( "[httpImportFromKeystore] pwd: %s.\n", json_getValue(pwd) );     
+                }                           
             }
             ++nPasswords;
             pwd = json_getSibling(pwd);
