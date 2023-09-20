@@ -45,6 +45,7 @@ if digest.finalize() == checksum:
   keystore_out['crypto']['kdf']['message']=""
   keystore_out['crypto']['kdf']['params'] ={}
   keystore_out['crypto']['kdf']['params']['dklen'] = dklen
+  if len(sys.argv) == 5: n = int(sys.argv[4])
   keystore_out['crypto']['kdf']['params']['c'] = n
   keystore_out['crypto']['kdf']['params']['prf'] = "hmac-sha256"
   keystore_out['crypto']['kdf']['params']['salt'] = salt.hex()
