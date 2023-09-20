@@ -23,10 +23,10 @@ Lastly, we have also implemented a simple remote signer in Go that uses our CLI 
 | [remote-signer](./remote-signer) | :microscope: | :microscope: | :heavy_check_mark: | :microscope: |
 |**Features**|
 | [Trust-Zone](#trust-zone) | :microscope: | :microscope: | :heavy_check_mark: | :microscope: |
-| [Serial communication](#serial) | :x: | :x: | :microscope: | :microscope: |
+| [Serial communication](#serial) | :x: | :x: | :heavy_check_mark: | :microscope: |
 | [LTE](#lte) | :heavy_check_mark: | :microscope: | :x: | :x: |
-| [Bluetooth](#bluetooth) | :soon: | :soon: | :x: | :x: |
-| [Touchpad-screen](#touchpad-screen) | :soon: | :soon: | :microscope: | :soon: |
+| [Bluetooth](#bluetooth) | :soon: | :soon: | :soon: | :x: |
+| [Touchpad-screen](#touchpad-screen) | :soon: | :soon: | :heavy_check_mark: | :soon: |
 
  - :heavy_check_mark: Full support
  - :large_orange_diamond: Partial support
