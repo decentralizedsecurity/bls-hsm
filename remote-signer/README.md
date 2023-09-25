@@ -5,10 +5,19 @@ We are currently in the process of implementing a full C/C++ implementation of t
 ## Usage
 
 This is still work in progress and there are still some missing features. 
-One of the limitations of running a remote signer in an ARM Cortex-M33 cpu is the inability to run scrypt in a reasonable time. For that reason we only support PBKDFv2 keystores. The keystore import requires 1 minute so be patient. In order to convert scrypt keystores, we have also included in the repo a very simple python script [scrypt2pbkdf.py](scrypt2pbkdf.py). You need to pass three arguments: the password of the scrypt keystore, the path to the scrypt keystore and the path for the output keystore in pbkdfv2 format. The output keystore will use the same password as the input keystore.
+
+One of the limitations of running a remote signer in an ARM Cortex-M33 cpu is the inability to run scrypt in a reasonable time. For that reason we only support PBKDFv2 keystores. The keystore import requires 1 minute so be patient.
+
+In order to convert scrypt keystores, we have also included in the repo a very simple python script [scrypt2pbkdf.py](scrypt2pbkdf.py). You need to pass three arguments: the password of the scrypt keystore, the path to the scrypt keystore and the path for the output keystore in pbkdfv2 format. The output keystore will use the same password as the input keystore.
 
 ```
 python scrypt2pbkdf.py 123456789 scrypt_keystore.json pbkdf2keystore.json
+```
+
+You can also add an optional last argument, to indicate the value of c. The higher it is, the longer it will take to import, so entering a low value allows you to get a keystore that imports quickly. This is useful for testing purposes.
+
+```
+python scrypt2pbkdf.py 123456789 scrypt_keystore.json pbkdf2keystore.json 8
 ```
 
 The remote signer listen for HTTP requests over a serial port, process them and sends the response over serial too. If you want to test it with a Eth 2.0 client you first need to setup a Socket to Serial bridge, which is provided by [bridge.go](remote-signer/bridge.go). In order to build it you have to run `go mod init bridge`, `go mod tidy` and `go build`. You must specify the serial port when launching it (`./bridge [-port=SOCKETPORT] [-v] <COMport>`). Here are some output examples:
