@@ -72,6 +72,8 @@ function sendCommandSerial(message, nResponses) {
         const decoder = new TextDecoder();
         const response = decoder.decode(result.value);
         console.log('Response:', response);
+        const responseText = response.replace(/\r?\n|\r/g, '<br>')
+        document.getElementById('infoContainer').innerHTML = document.getElementById('infoContainer').innerHTML + responseText
 
         readResponses(remainingResponses - 1);
       });

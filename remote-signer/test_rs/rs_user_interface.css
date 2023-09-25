@@ -2,6 +2,11 @@ h1{
     text-align: center;
 }
 
+.breakWordContainer {
+    width: 10%;
+    overflow-wrap: break-word; /* This will automatically split the text into a new line if necessary. */ 
+}
+
 .buttonList{
     text-align: center;
 }
@@ -18,12 +23,13 @@ h1{
 }
 
 #commandContainer {
-    flex: 0 0 60%; /* El div commandContainer ocupará el 60% del ancho */
+    flex: 0 0 60%;
   }
   
-  #infoContainer {
-    flex: 0 0 40%; /* El div infoContainer ocupará el 40% del ancho */
-  }
+#infoContainer {
+    flex: 0 0 37%;
+    padding: 0 3% 0 0;
+}
 
 #commandContainer{
     text-align: center;
