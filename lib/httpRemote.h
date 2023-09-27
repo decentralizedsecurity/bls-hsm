@@ -139,7 +139,7 @@ struct httpRequest{
 
 //cJSON* keystores[MAXKeys];
 json_t * keystores[MAXKeys];
-json_t key_mem[1][32]; // Temporary array size to avoid overflow. The array size should be key_mem[MAXKeys][32].
+//json_t key_mem[1][32]; // Temporary array size to avoid overflow. The array size should be key_mem[MAXKeys][32].
 char * passwords[MAXKeys];
 
 #ifdef NRF
@@ -582,7 +582,7 @@ int get_decryption_key_encryption_type(int i, int* type){
         return BADJSONFORMAT;
     }
     char* function = json_getValue(json_function);
-    printk( "[get_decryption_key_encryption_type] function: %s.\n", function);
+    //printk( "[get_decryption_key_encryption_type] function: %s.\n", function);
 
     if(strcmp("pbkdf2", function) == 0){
         *type = PBKDF2TYPE;
@@ -736,7 +736,7 @@ int get_decryption_key_scrypt_params(int i, unsigned char* decryption_key){
     Returns 0 on succes
     error number on error
 */
-int verify_password_params(int i, unsigned char* decryption_key){
+int verify_password_params(const int i, unsigned char* decryption_key){
     printk("[verify_password_params] Start\n");
     if(keystores[i] == NULL || json_getType(keystores[i]) != JSON_OBJ){
         return BADJSONFORMAT;
@@ -778,7 +778,7 @@ int verify_password_params(int i, unsigned char* decryption_key){
     Returns 0 on succes
     error number on error
 */
-int get_private_key_params(int i, unsigned char* decryption_key, char* private_key){
+int get_private_key_params(const int i, unsigned char* decryption_key, char* private_key){
     printk("[get_private_key_params] Start\n");
     if(keystores[i] == NULL || json_getType(keystores[i]) != JSON_OBJ){
         return BADJSONFORMAT;
@@ -822,7 +822,10 @@ int import_from_keystore(int nKeys){
     int error;
     unsigned char decryption_key[32];
     char private_key[32];
-    for(int i = 0; i < nKeys; ++i){
+    int aux = -1;
+    for(int i = 0; i < nKeys; i++){
+        aux++;
+        printk("[import_from_keystore] Importing key nº%d\n", i);
         int type;
         if((error = get_decryption_key_encryption_type(i, &type)) != 0){
             return error;
@@ -831,6 +834,7 @@ int import_from_keystore(int nKeys){
 /***********************************************************************************************************************************************
 ***********************************************************DECRYPTIONKEY************************************************************************
 ************************************************************************************************************************************************/
+        printk("[import_from_keystore] Decryptionkey (%d)\n", i);
         if(type == PBKDF2TYPE){
             if((error = get_decryption_key_pbkdf2_params(i, decryption_key)) != 0){
                 return error;
@@ -846,6 +850,7 @@ int import_from_keystore(int nKeys){
 /***********************************************************************************************************************************************
 **************************************************************VERIFYPASSWORD****************************************************************
 ***********************************************************************************************************************************************/
+        printk("[import_from_keystore] Verify password (%d)\n", i);
         if((error = verify_password_params(i, decryption_key)) != 0){
             return error;
         }
@@ -853,9 +858,12 @@ int import_from_keystore(int nKeys){
 /***********************************************************************************************************************************************
 *****************************************************************PRIVATEKEY********************************************************************* 
 ***********************************************************************************************************************************************/
+        //i = aux;
+        printk("[import_from_keystore] Private key (%d)\n", i);
         if((error = get_private_key_params(i, decryption_key, private_key)) != 0){
             return error;
         }
+        printk("[import_from_keystore] End -> i = %d, aux = %d\n", i, aux);
     }
     
     return 0;
@@ -916,13 +924,13 @@ int httpImportFromKeystore(char* body){
     json_t * key = json_getChild(keystoresJson); // TODO: change key to keystoreItem and change keystoresJson to keystoresArrayJson
     json_t * pwd = json_getChild(passwordsJson);
 
-    //json_t key_mem[32];
+    json_t key_mem[3][32];
 
     while(key != NULL){
         if(nKeystores < (MAXKeys + nKeysAlreadyStored)){
             char* keystorestr = json_getValue(key);
             del(keystorestr, '\\');
-            printk( "[httpImportFromKeystore] keystorestr: %s.\n", keystorestr );
+            //printk( "[httpImportFromKeystore] keystorestr: %s.\n", keystorestr );
             keystores[nKeystores] = json_create( keystorestr, key_mem[nKeystores], sizeof (key_mem[nKeystores]) / sizeof *(key_mem[nKeystores]) );
             if ( !keystores[nKeystores] || JSON_ARRAY != json_getType( keystores[nKeystores] ) ) {
                 printk("[httpImportFromKeystore]: Error keystores[nKeystores]\n");
