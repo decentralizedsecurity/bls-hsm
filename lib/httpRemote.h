@@ -822,9 +822,7 @@ int import_from_keystore(int nKeys){
     int error;
     unsigned char decryption_key[32];
     char private_key[32];
-    int aux = -1;
     for(int i = 0; i < nKeys; i++){
-        aux++;
         printk("[import_from_keystore] Importing key nº%d\n", i);
         int type;
         if((error = get_decryption_key_encryption_type(i, &type)) != 0){
@@ -858,12 +856,11 @@ int import_from_keystore(int nKeys){
 /***********************************************************************************************************************************************
 *****************************************************************PRIVATEKEY********************************************************************* 
 ***********************************************************************************************************************************************/
-        //i = aux;
         printk("[import_from_keystore] Private key (%d)\n", i);
         if((error = get_private_key_params(i, decryption_key, private_key)) != 0){
             return error;
         }
-        printk("[import_from_keystore] End -> i = %d, aux = %d\n", i, aux);
+        printk("[import_from_keystore] End -> i = %d\n", i);
     }
     
     return 0;
