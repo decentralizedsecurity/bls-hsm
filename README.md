@@ -42,7 +42,8 @@ Note: the prototype is developed for the boards shown in the table. However, it 
 A secure partition is used to store sensitive data (keys) and allows acces to them. For more information on how it works, you can check out [`secure_partition` documentation](./secure_partition).
 
 ### Serial communication <span id="serial"><span>
-TODO
+
+You can send commands and receive information through a serial port. To do this, you can use the [browser application](./browser-app) or a [terminal emulator](./terminal-emulator).
 
 ### LTE <span id="lte"><span>
 This feature is under development
@@ -72,8 +73,13 @@ You can find more information about building and running the other tools in thei
 ## Testing and debugging tools :bug:
 
 ### Send commands
+Commands are sent to the board through a serial port. In the same way, information is received through the same serial port.
 
-Commands are sent to the board through a serial port. In the same way, information is received through the same serial port. To see the UART output and send commands, you can connect the development kit with a terminal emulator, like PuTTY, or use the one provided by VS Code.
+#### Browser application <span id="browser-app"><span>
+
+
+#### Terminal emulator <span id="terminal-emulator"><span>
+To see the UART output and send commands, you can connect the development kit with a terminal emulator, like PuTTY, or use the one provided by VS Code.
 
 The connection to the serial port must be made with the following configuration:
 - speed: 115200 baud
