@@ -43,7 +43,7 @@ A secure partition is used to store sensitive data (keys) and allows acces to th
 
 ### Serial communication <span id="serial"><span>
 
-You can send commands and receive information through a serial port. To do this, you can use the [browser application](./browser-app) or a [terminal emulator](./terminal-emulator).
+You can send commands and receive information through a serial port. To do this, you can use the [browser application](#browser-app) or a [terminal emulator](#terminal-emulator).
 
 ### LTE <span id="lte"><span>
 This feature is under development
@@ -76,7 +76,9 @@ You can find more information about building and running the other tools in thei
 Commands are sent to the board through a serial port. In the same way, information is received through the same serial port.
 
 #### Browser application <span id="browser-app"><span>
+Browser application under development that allows an user-friendly interaction with remote-signer. It allows to send some predefined test commands. The user can also type his own commands. In addition, it displays the response given by remote-signer.
 
+To use the application, open `remote-signer/test_rs/rs_user_interface.html` in Google Chrome.
 
 #### Terminal emulator <span id="terminal-emulator"><span>
 To see the UART output and send commands, you can connect the development kit with a terminal emulator, like PuTTY, or use the one provided by VS Code.
@@ -92,4 +94,4 @@ The connection to the serial port must be made with the following configuration:
 
 The serial port is needed to use `cli` and `remote-signer` projects. In addition, there is the option to view error and debug messages from the `secure partition` (TF-M).
 - nRF5340DK: Connect the pin P0.25 with your computer using a serial-USB converter.
-- nRF9160DK: ?
+- nRF9160DK: Currently not implemented
