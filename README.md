@@ -34,6 +34,8 @@ Lastly, we have also implemented a simple remote signer in Go that uses our CLI 
  - :soon: On the to-do list
  - :microscope: Experimental
 
+Note: the prototype is developed for the boards shown in the table. However, it should be easily ported to other boards having ARM Cortex-M33.
+
 ## Features :page_with_curl: <span id="features"><span>
 
 ### ARM Trust-Zone <span id="trust-zone"><span>
@@ -43,13 +45,15 @@ A secure partition is used to store sensitive data (keys) and allows acces to th
 TODO
 
 ### LTE <span id="lte"><span>
-TODO
+This feature is under development
 
 ### Bluetooth <span id="bluetooth"><span>
-TODO
+This feature is under development
 
 ### Touchpad-screen <span id="touchpad-screen"><span>
-TODO
+[LVGL](https://docs.lvgl.io/8.3/) is used to add a touchpad screen to the board. It allows the user to interact with the board without using a terminal on their computer.
+
+The development has been done using an Adafruit 2.8" TFT Touch Shield.
 
 ## Dependencies :link:
 
