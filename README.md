@@ -9,7 +9,7 @@ We have implemented the following tools:
 - [`cli`](./cli). A command line interface to create BLS keypairs, sign and verify messages.
 - [`remote-signer`](./remote-signer). An Eth2.0 remote signer that protects private keys using ARM TrustZone.
 
-Those two tools are provided as separate nRF Connect projects and requiere a nRF5340DK or a nRF9160DK board to run. They relay in the `secure_partition` project, that is run the secure world and contains blst function calls that involve private keys, using Trusted Firmware-M (TF-M).
+Those two tools are provided as separate nRF Connect projects and requiere a nRF5340DK or a nRF9160DK board to run. They relay in the [`secure_partition`](./secure_partition/) project, that is run the secure world and contains blst function calls that involve private keys, using Trusted Firmware-M (TF-M).
 
 Lastly, we have also implemented a simple remote signer in Go that uses our CLI as backend.
 
