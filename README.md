@@ -51,10 +51,34 @@ This feature is under development
 ### Bluetooth <span id="bluetooth"><span>
 This feature is under development
 
-### Touchpad-screen <span id="touchpad-screen"><span>
+### Touch screen <span id="touchpad-screen"><span>
 [LVGL](https://docs.lvgl.io/8.3/) is used to add a touchpad screen to the board. It allows the user to interact with the board without using a terminal on their computer.
 
 The development has been done using an Adafruit 2.8" TFT Touch Shield.
+
+To enable this feature, uncomment the following line in [`CMakeLists.txt`](./remote-signer/CMakeLists.txt).
+```
+set(TOUCHSCREEN TRUE)
+```
+In addition, the configuration must be uncommented in [`prj.conf`](./remote-signer/prj.conf):
+```
+# Configure Touchscreen
+CONFIG_LV_Z_MEM_POOL_NUMBER_BLOCKS=8
+CONFIG_DISPLAY=y
+CONFIG_DISPLAY_LOG_LEVEL_ERR=y
+
+CONFIG_LVGL=y
+CONFIG_LV_MEM_CUSTOM=y
+CONFIG_LV_USE_LOG=y
+CONFIG_LV_USE_LABEL=y
+CONFIG_LV_USE_MSGBOX=y
+CONFIG_LV_USE_KEYBOARD=y
+CONFIG_LV_FONT_MONTSERRAT_14=y
+CONFIG_LV_LABEL_LONG_TXT_HINT=y
+
+CONFIG_TFM_SECURE_UART1=n
+CONFIG_TFM_LOG_LEVEL_SILENCE=y
+```
 
 ## Dependencies :link:
 
