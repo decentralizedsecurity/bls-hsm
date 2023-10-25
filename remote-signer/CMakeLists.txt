@@ -2,7 +2,12 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-set(SHIELD adafruit_2_8_tft_touch_v2)
+#set(TOUCHSCREEN TRUE)
+
+if(TOUCHSCREEN)
+  add_definitions(-DTOUCHSCREEN)
+  set(SHIELD adafruit_2_8_tft_touch_v2)
+endif()
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
@@ -33,8 +38,13 @@ target_sources(app PRIVATE ${app_sources}
   ../lib/common.c
   ../lib/secure_partition_interface.c
   ../lib/tiny-json.c
-  ../lib/touchscreen.c
 )
+
+if(TOUCHSCREEN)
+  target_sources(app PRIVATE ${app_sources}
+    ../lib/touchscreen.c
+  )
+endif()
 
 zephyr_library_include_directories(
   ../lib/
