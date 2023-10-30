@@ -11,13 +11,21 @@
 
 #include "./picohttpparser.h"
 #include <cJSON.h>
-#include <unistd.h>
+#include <tiny-json.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "common.h"
 #include "bls_hsm_ns.h"
 #include <merkleization.h>
+#ifndef TFM
+#include "bls_hsm.h"
+#else
+#include "secure_partition_interface.h"
+#endif
+#ifdef TOUCHSCREEN
+#include "touchscreen.h"
+#endif
 
 #define SCRYPTTYPE 1
 #define PBKDF2TYPE 2
@@ -131,8 +139,10 @@ struct httpRequest{
     size_t numHeaders;   
 };
 
-cJSON* keystores[MAXKeys];
-char* passwords[MAXKeys];
+//cJSON* keystores[MAXKeys];
+json_t * keystores[MAXKeys];
+//json_t key_mem[1][32]; // Temporary array size to avoid overflow. The array size should be key_mem[MAXKeys][32].
+char * passwords[MAXKeys];
 
 #ifdef NRF
 static uint32_t GetFreeMemorySize()
@@ -160,13 +170,24 @@ static uint32_t GetFreeMemorySize()
     On empty keystore returns -1
 */
 int copyKeys(struct boardRequest* request){
+    #ifndef TFM
     int ksize = get_keystore_size();
+    #else
+    int ksize = tfm_get_keystore_size();
+    #endif
     if(ksize == 0){
         request->nKeys = 0;
         return -1;
     }else{
         char buffer[ksize][96];
+        #ifndef TFM
         get_keys(buffer);
+        #else
+        //tfm_get_keys(buffer);
+        for(int i = 0; i < ksize; i++){
+            tfm_get_key(i, buffer[i]);
+        }
+        #endif
         request->nKeys = 0;
         for(int i = 0; i < ksize; i++){
             ++(request->nKeys);
@@ -255,7 +276,7 @@ int checkKey(struct boardRequest* request){
     We are only going to support GET and POST requests, so if we get another type of request we are going to handle it like an error.
 */
 int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//boardRequest out, buffer in
-
+    //printk("[parseRequest] buffer: %s\n", buffer);
     if((strncmp(buffer, "POST", 4) != 0) && (strncmp(buffer, "GET", 3) != 0)){
         return -1;
     }else if (strncmp(buffer, "POST", 4) == 0){
@@ -312,7 +333,7 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
     }else if((request.methodLen == 4) && (strncmp(request.method, "POST", 4) == 0)){
         getBody(buffer, bufferSize, &request);
         #ifdef NRF
-        LOG_INF("Body parsed\n");
+        //LOG_INF("Body parsed\n");
         #endif
         if((request.pathLen == (strlen(signRequestStr) + keySize)) && (strncmp(request.path, signRequestStr, strlen(signRequestStr)) == 0)){
             getAcceptOptions(&request);
@@ -324,7 +345,7 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
 
             reply->method = sign;
             #ifdef NRF
-            LOG_INF("Signing method requested\n");
+            //LOG_INF("Signing method requested\n");
             #endif        
         }else if((request.pathLen == strlen(keymanagerStr)) && (strncmp(request.path, keymanagerStr, strlen(keymanagerStr)) == 0)){
             reply->json = request.body;
@@ -346,14 +367,14 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
 int upcheckResponseStr(char* buffer){
     strcpy(buffer, upcheckResponse);
     #ifdef NRF
-    uint32_t mem = GetFreeMemorySize();
+    /*uint32_t mem = GetFreeMemorySize();
     char buf[4] = "";
     sprintf(buf, "%d\0", mem);
     int cl = strlen(buf);
     char len[2] = "";
     itoa(cl, len, 10);
     buffer[74] = len[0];
-    strcat(buffer, buf);
+    strcat(buffer, buf);*/
     #endif
     return strlen(buffer);
 }
@@ -441,19 +462,19 @@ int signResponseStr(char* buffer, struct boardRequest* request){
     cJSON* json = cJSON_Parse(request->json);
     #ifdef NRF
     if(json == NULL){
-        LOG_INF("Failed parsing request body\n");
+        //("Failed parsing request body\n");
         return -1;
     }
     #endif
     cJSON* signingroot = cJSON_GetObjectItemCaseSensitive(json, "signingRoot");
     #ifdef NRF
-        LOG_INF("SR parsed\n");
+        //LOG_INF("SR parsed\n");
     #endif
     char sr[32];
     char srhex[65] = "";
     if(signingroot == NULL){
         #ifdef NRF
-        LOG_INF("Computing SR\n");
+        //LOG_INF("Computing SR\n");
         #endif
         if(getSR(json, sr) == -1){
             cJSON_Delete(json);
@@ -463,11 +484,11 @@ int signResponseStr(char* buffer, struct boardRequest* request){
     }else{
         memcpy(srhex, signingroot->valuestring + 2, 64);
         #ifdef NRF
-        LOG_INF("SR copied\n");
+        //LOG_INF("SR copied\n");
         #endif
     }
     #ifdef NRF
-    LOG_INF("Signing root: %s\n", srhex);
+    //LOG_INF("Signing root: %s\n", srhex);
     #endif
 
     char key[97] = "";
@@ -475,14 +496,14 @@ int signResponseStr(char* buffer, struct boardRequest* request){
     char signat[MAXSizeEthereumSignature+1] = "";//¿Maximum size of ethereum siganture?
     //signature(key, signingroot->valuestring, signat);
     #ifdef NRF
-    LOG_INF("PK: %s\n", key);
+    //LOG_INF("PK: %s\n", key);
     #endif
     if(signature(key, srhex, signat) != 0){
         cJSON_Delete(json);
         return -1;
     }
     #ifdef NRF
-    LOG_INF("Signature: %s\n", signat);
+    //LOG_INF("Signature: %s\n", signat);
     #endif
 
     char reply[256] = "";
@@ -544,34 +565,37 @@ void delete_keystores(int nkeys){
     Returns error number on error
 */
 int get_decryption_key_encryption_type(int i, int* type){
-    if(keystores[i] == NULL || keystores[i]->type != cJSON_Object){
+    if(keystores[i] == NULL || json_getType(keystores[i]) != JSON_OBJ){
         return BADJSONFORMAT;
     }
 
-    cJSON* crypto = cJSON_GetObjectItemCaseSensitive(keystores[i], "crypto");
+    json_t* crypto = json_getProperty(keystores[i], "crypto");
     if(crypto == NULL){
         return BADJSONFORMAT;
     }
 
-    cJSON* kdf = cJSON_GetObjectItemCaseSensitive(crypto, "kdf");
+    json_t* kdf = json_getProperty(crypto, "kdf");
     if(kdf == NULL){
         return BADJSONFORMAT;
     }
 
-    cJSON* json_function = cJSON_GetObjectItemCaseSensitive(kdf, "function");
-    if(json_function == NULL || json_function->type != cJSON_String){
+    json_t* json_function = json_getProperty(kdf, "function");
+    if(json_function == NULL || json_getType(json_function) != JSON_TEXT){
         return BADJSONFORMAT;
     }
-    char* function = json_function->valuestring;
+    char* function = json_getValue(json_function);
+    //printk( "[get_decryption_key_encryption_type] function: %s.\n", function);
 
     if(strcmp("pbkdf2", function) == 0){
         *type = PBKDF2TYPE;
     }else if(strcmp("scrypt", function) == 0){
         *type = SCRYPTTYPE;
     }else{
+        printk( "[get_decryption_key_encryption_type] Error\n");
         return -1;//ERROR
     }
 
+    printk("[get_decryption_key_encryption_type] End without errors\n");
     return 0;
 }
 
@@ -580,54 +604,55 @@ int get_decryption_key_encryption_type(int i, int* type){
     error number on error
 */
 int get_decryption_key_pbkdf2_params(int i, unsigned char* decryption_key){
-    if(keystores[i] == NULL || keystores[i]->type != cJSON_Object){
+    printk("[get_decryption_key_pbkdf2_params] Start\n");
+    if(keystores[i] == NULL || json_getType(keystores[i]) != JSON_OBJ){
         return BADJSONFORMAT;
     }
 
-    cJSON* crypto = cJSON_GetObjectItemCaseSensitive(keystores[i], "crypto");
+    json_t* crypto = json_getProperty(keystores[i], "crypto");
     if(crypto == NULL){
         return BADJSONFORMAT;
     }
 
-    cJSON* kdf = cJSON_GetObjectItemCaseSensitive(crypto, "kdf");
+    json_t* kdf = json_getProperty(crypto, "kdf");
     if(kdf == NULL){
         return BADJSONFORMAT;
     }
 
-    cJSON* params = cJSON_GetObjectItemCaseSensitive(kdf, "params");
+    json_t* params = json_getProperty(kdf, "params");
     if(params == NULL){
         return BADJSONFORMAT;
     }
 
     //dklen
-    cJSON* json_dklen;
-    json_dklen = cJSON_GetObjectItemCaseSensitive(params, "dklen");
-    if(json_dklen == NULL || json_dklen->type != cJSON_Number){
+    json_t* json_dklen;
+    json_dklen = json_getProperty(params, "dklen");
+    if(json_dklen == NULL || json_getType(json_dklen) != JSON_INTEGER){
         return BADJSONFORMAT;
     }
-    int dklen = json_dklen->valueint;
+    int dklen = json_getInteger(json_dklen);
 
     //c
-    cJSON* json_c;
-    json_c = cJSON_GetObjectItemCaseSensitive(params, "c");
-    if(json_c == NULL || json_c->type != cJSON_Number){
+    json_t* json_c;
+    json_c = json_getProperty(params, "c");
+    if(json_c == NULL || json_getType(json_c) != JSON_INTEGER){
         return BADJSONFORMAT;
     }
-    int c = json_c->valueint;
+    int c = json_getInteger(json_c);
 
     //prf
-    cJSON* json_prf = cJSON_GetObjectItemCaseSensitive(params, "prf");
-    if(json_prf == NULL || json_prf->type != cJSON_String){
+    json_t* json_prf = json_getProperty(params, "prf");
+    if(json_prf == NULL || json_getType(json_prf) != JSON_TEXT){
         return BADJSONFORMAT;
     }
-    char* prf = json_prf->valuestring;
+    char* prf = json_getValue(json_prf);
 
     //salt
-    cJSON* json_salt_str = cJSON_GetObjectItemCaseSensitive(params, "salt");
-    if(json_salt_str == NULL || json_salt_str->type != cJSON_String){
+    json_t* json_salt_str = json_getProperty(params, "salt");
+    if(json_salt_str == NULL || json_getType(json_salt_str) != JSON_TEXT){
         return BADJSONFORMAT;
     }
-    char* salt_str = json_salt_str->valuestring;
+    char* salt_str = json_getValue(json_salt_str);
 
     #ifdef NRF
     uint8_t salt[32];
@@ -636,8 +661,8 @@ int get_decryption_key_pbkdf2_params(int i, unsigned char* decryption_key){
     }
     return PBKDF2(salt, passwords[i], c, decryption_key);
     #endif
+    printk("[get_decryption_key_pbkdf2_params] End without errors\n");
     return 0;
-
 }
 
 /*
@@ -647,106 +672,106 @@ int get_decryption_key_pbkdf2_params(int i, unsigned char* decryption_key){
 
 int get_decryption_key_scrypt_params(int i, unsigned char* decryption_key){
     #ifndef NRF
-    if(keystores[i] == NULL || keystores[i]->type != cJSON_Object){
+    if(keystores[i] == NULL || json_getType(keystores[i]) != JSON_OBJ){
         return BADJSONFORMAT;
     }
 
-    cJSON* crypto = cJSON_GetObjectItemCaseSensitive(keystores[i], "crypto");
+    json_t* crypto = json_getProperty(keystores[i], "crypto");
     if(crypto == NULL){
         return BADJSONFORMAT;
     }
 
-    cJSON* kdf = cJSON_GetObjectItemCaseSensitive(crypto, "kdf");
+    json_t* kdf = json_getProperty(crypto, "kdf");
     if(kdf == NULL){
         return BADJSONFORMAT;
     }
 
-    cJSON* params = cJSON_GetObjectItemCaseSensitive(kdf, "params");
+    json_t* params = json_getProperty(kdf, "params");
     if(params == NULL){
         return BADJSONFORMAT;
     }
 
     //dklen
-    cJSON* json_dklen;
-    json_dklen = cJSON_GetObjectItemCaseSensitive(params, "dklen");
+    json_t* json_dklen;
+    json_dklen = json_getProperty(params, "dklen");
     if(json_dklen == NULL || json_dklen->type != cJSON_Number){
         return BADJSONFORMAT;
     }
-    int dklen = json_dklen->valueint;
+    int dklen = json_getInteger(json_dklen);
 
     //n -> cost
-    cJSON* json_n;
-    json_n = cJSON_GetObjectItemCaseSensitive(params, "n");
+    json_t* json_n;
+    json_n = json_getProperty(params, "n");
     if(json_n == NULL || json_n->type != cJSON_Number){
         return BADJSONFORMAT;
     }
-    int n = json_n->valueint;
+    int n = json_getInteger(json_n);
 
     //r -> blockSize
-    cJSON* json_r = cJSON_GetObjectItemCaseSensitive(params, "r");
+    json_t* json_r = json_getProperty(params, "r");
     if(json_r == NULL || json_r->type != cJSON_Number){
         return BADJSONFORMAT;
     }
-    int r = json_r->valueint;
+    int r = json_getInteger(json_r);
 
     //p -> parallel
-    cJSON* json_p =  cJSON_GetObjectItemCaseSensitive(params, "p");
+    json_t* json_p =  json_getProperty(params, "p");
     if(json_p == NULL || json_p->type != cJSON_Number){
         return BADJSONFORMAT;
     }
-    int p = cJSON_GetObjectItemCaseSensitive(params, "p")->valueint;
+    int p = json_getInteger(json_p);
 
     //salt
-    cJSON* json_salt_str = cJSON_GetObjectItemCaseSensitive(params, "salt");
+    json_t* json_salt_str = json_getProperty(params, "salt");
     if(json_salt_str == NULL || json_salt_str->type != cJSON_String){
         return BADJSONFORMAT;
     }
-    char* salt_str = json_salt_str->valuestring;
+    char* salt_str = json_getValue(json_salt_str);
 
     return get_decryption_key_scrypt(passwords[i], dklen, n, r, p, salt_str, decryption_key);
     #else
     return -1;
     #endif
-
 }
 
 /*
     Returns 0 on succes
     error number on error
 */
-int verify_password_params(int i, unsigned char* decryption_key){
-    if(keystores[i] == NULL || keystores[i]->type != cJSON_Object){
+int verify_password_params(const int i, unsigned char* decryption_key){
+    printk("[verify_password_params] Start\n");
+    if(keystores[i] == NULL || json_getType(keystores[i]) != JSON_OBJ){
         return BADJSONFORMAT;
     }
 
-    cJSON* crypto = cJSON_GetObjectItemCaseSensitive(keystores[i], "crypto");
+    json_t* crypto = json_getProperty(keystores[i], "crypto");
     if(crypto == NULL){
         return BADJSONFORMAT;
     }
 
-    cJSON* checksum = cJSON_GetObjectItemCaseSensitive(crypto, "checksum");
+    json_t* checksum = json_getProperty(crypto, "checksum");
     if(checksum == NULL){
         return BADJSONFORMAT;
     }
 
-    cJSON* cipher = cJSON_GetObjectItemCaseSensitive(crypto, "cipher");
+    json_t* cipher = json_getProperty(crypto, "cipher");
     if(cipher == NULL){
         return BADJSONFORMAT;
     }
 
     //checksum_message
-    cJSON* json_checksum_message = cJSON_GetObjectItemCaseSensitive(checksum, "message");
-    if(json_checksum_message == NULL || json_checksum_message->type != cJSON_String){
+    json_t* json_checksum_message = json_getProperty(checksum, "message");
+    if(json_checksum_message == NULL || json_getType(json_checksum_message) != JSON_TEXT){
         return BADJSONFORMAT;
     }
-    char* checksum_message_hex = json_checksum_message->valuestring;
+    char* checksum_message_hex = json_getValue(json_checksum_message);
 
     //cipher_message
-    cJSON* json_message_cipher = cJSON_GetObjectItemCaseSensitive(cipher, "message");
-    if(json_message_cipher == NULL || json_message_cipher->type != cJSON_String){
+    json_t* json_message_cipher = json_getProperty(cipher, "message");
+    if(json_message_cipher == NULL || json_getType(json_message_cipher) != JSON_TEXT){
         return BADJSONFORMAT;
     }
-    char* cipher_message_hex = json_message_cipher->valuestring;
+    char* cipher_message_hex = json_getValue(json_message_cipher);
 
     return verify_password(checksum_message_hex, cipher_message_hex, decryption_key);
 }
@@ -755,37 +780,38 @@ int verify_password_params(int i, unsigned char* decryption_key){
     Returns 0 on succes
     error number on error
 */
-int get_private_key_params(int i, unsigned char* decryption_key, char* private_key){
-    if(keystores[i] == NULL || keystores[i]->type != cJSON_Object){
+int get_private_key_params(const int i, unsigned char* decryption_key, char* private_key){
+    printk("[get_private_key_params] Start\n");
+    if(keystores[i] == NULL || json_getType(keystores[i]) != JSON_OBJ){
         return BADJSONFORMAT;
     }
 
-    cJSON* crypto = cJSON_GetObjectItemCaseSensitive(keystores[i], "crypto");
+    json_t* crypto = json_getProperty(keystores[i], "crypto");
     if(crypto == NULL){
         return BADJSONFORMAT;
     }
 
-    cJSON* cipher = cJSON_GetObjectItemCaseSensitive(crypto, "cipher");
+    json_t* cipher = json_getProperty(crypto, "cipher");
     if(cipher == NULL){
         return BADJSONFORMAT;
     }
 
-    cJSON* params = cJSON_GetObjectItemCaseSensitive(cipher, "params");
+    json_t* params = json_getProperty(cipher, "params");
     if(params == NULL){
         return BADJSONFORMAT;
     }
 
-    cJSON* json_iv_str = cJSON_GetObjectItemCaseSensitive(params, "iv");
-    if(json_iv_str == NULL || json_iv_str->type != cJSON_String){
+    json_t* json_iv_str = json_getProperty(params, "iv");
+    if(json_iv_str == NULL || json_getType(json_iv_str) != JSON_TEXT){
         return BADJSONFORMAT;
     }
-    char* iv_str = json_iv_str->valuestring;
+    char* iv_str = json_getValue(json_iv_str);
 
-    cJSON* json_cipher_message = cJSON_GetObjectItemCaseSensitive(cipher, "message");
-    if(json_cipher_message == NULL || json_cipher_message->type != cJSON_String){
+    json_t* json_cipher_message = json_getProperty(cipher, "message");
+    if(json_cipher_message == NULL || json_getType(json_cipher_message) != JSON_TEXT){
         return BADJSONFORMAT;
     }
-    char* cipher_message = json_cipher_message->valuestring;
+    char* cipher_message = json_getValue(json_cipher_message);
 
     return get_private_key(cipher_message, iv_str, decryption_key, private_key);
 }
@@ -798,7 +824,8 @@ int import_from_keystore(int nKeys){
     int error;
     unsigned char decryption_key[32];
     char private_key[32];
-    for(int i = 0; i < nKeys; ++i){
+    for(int i = 0; i < nKeys; i++){
+        printk("[import_from_keystore] Importing key nº%d\n", i);
         int type;
         if((error = get_decryption_key_encryption_type(i, &type)) != 0){
             return error;
@@ -807,6 +834,7 @@ int import_from_keystore(int nKeys){
 /***********************************************************************************************************************************************
 ***********************************************************DECRYPTIONKEY************************************************************************
 ************************************************************************************************************************************************/
+        printk("[import_from_keystore] Decryptionkey (%d)\n", i);
         if(type == PBKDF2TYPE){
             if((error = get_decryption_key_pbkdf2_params(i, decryption_key)) != 0){
                 return error;
@@ -822,6 +850,7 @@ int import_from_keystore(int nKeys){
 /***********************************************************************************************************************************************
 **************************************************************VERIFYPASSWORD****************************************************************
 ***********************************************************************************************************************************************/
+        printk("[import_from_keystore] Verify password (%d)\n", i);
         if((error = verify_password_params(i, decryption_key)) != 0){
             return error;
         }
@@ -829,91 +858,177 @@ int import_from_keystore(int nKeys){
 /***********************************************************************************************************************************************
 *****************************************************************PRIVATEKEY********************************************************************* 
 ***********************************************************************************************************************************************/
+        printk("[import_from_keystore] Private key (%d)\n", i);
         if((error = get_private_key_params(i, decryption_key, private_key)) != 0){
             return error;
         }
+        printk("[import_from_keystore] End -> i = %d\n", i);
     }
     
     return 0;
 }
 
-/*
-    Returns 0 on success
-    -1 on error and set the variable errno to the type of error
-*/
+int get_short_version(char * short_text, const char * long_text){
+    for(int i = 0; i < 4; i++){
+        short_text[i] = long_text[i];
+    }
+    for(int i = 4; i < 7; i++){
+        short_text[i] = '.';
+    }
+    for(int i = 0; i < 4; i++){
+        short_text[7 + i] = long_text[strlen(long_text) - 4 + i];
+    }
+    short_text[11] = '\0';
+}  
 
 int httpImportFromKeystore(char* body){
-    cJSON* json= cJSON_Parse(body);
-    if(json == NULL){
-        return -1;
+    //printk("[httpImportFromKeystore] body: %s\nEND OF BODY\n", body);
+    puts( body );
+    json_t mem[32];
+    json_t const* json = json_create( body, mem, sizeof mem / sizeof *mem );
+    if ( !json ) {
+        puts("Error json create.");
+        return EXIT_FAILURE;
     }
 
-    cJSON* keystoresJson = cJSON_GetObjectItemCaseSensitive(json, "keystores");
-    if((keystoresJson == NULL) || (keystoresJson->child == NULL)){
-        cJSON_Delete(json);
-        return -1;
+    json_t const* keystoresJson = json_getProperty( json, "keystores" );
+    if ( !keystoresJson ) {
+        puts("Error json create.");
+        return EXIT_FAILURE;
     }
 
-    cJSON* passwordsJson = cJSON_GetObjectItemCaseSensitive(json, "passwords");
-    if((passwordsJson == NULL) || (passwordsJson->child == NULL)){
-        cJSON_Delete(json);
+    json_t const* passwordsJson = json_getProperty( json, "passwords" );
+    if ( !passwordsJson || JSON_ARRAY != json_getType( passwordsJson ) || json_getChild( passwordsJson ) == 0) {
+        // Open the keyboard
+        printk("[httpImportFromKeystore] At this point, the user will write pwd using the keyboard\n");
         return -1;
+    }else{
+        /*json_t const* password;
+        for( password = json_getChild( passwordsJson ); password != 0; password = json_getSibling( password ) ) {
+            char const* pwd = json_getValue( password );
+            printf( "[httpImportFromKeystore] pwd: %s.\n", pwd );
+        }*/
     }
 
+    #ifndef TFM
     int nKeysAlreadyStored = get_keystore_size();
+    #else
+    int nKeysAlreadyStored = tfm_get_keystore_size();
+    #endif
+    printk("[httpImportFromKeystore] nKeysAlreadyStored: %d\n", nKeysAlreadyStored);
 
     int nKeystores = 0;
     int nPasswords = 0;
 
-    keystoresJson = keystoresJson->child;
-    passwordsJson = passwordsJson->child;
+    json_t * key = json_getChild(keystoresJson); // TODO: change key to keystoreItem and change keystoresJson to keystoresArrayJson
+    json_t * pwd = json_getChild(passwordsJson);
 
-    while(keystoresJson != NULL){
+    json_t key_mem[3][32];
+
+    while(key != NULL){
         if(nKeystores < (MAXKeys + nKeysAlreadyStored)){
-            char* keystorestr = keystoresJson->valuestring;
+            char* keystorestr = json_getValue(key);
             del(keystorestr, '\\');
-            keystores[nKeystores] = cJSON_Parse(keystorestr);
+            //printk( "[httpImportFromKeystore] keystorestr: %s.\n", keystorestr );
+            keystores[nKeystores] = json_create( keystorestr, key_mem[nKeystores], sizeof (key_mem[nKeystores]) / sizeof *(key_mem[nKeystores]) );
+            if ( !keystores[nKeystores] || JSON_ARRAY != json_getType( keystores[nKeystores] ) ) {
+                printk("[httpImportFromKeystore] Error keystores[nKeystores]\n");
+                //return -1;
+            }
             ++nKeystores;
-            keystoresJson = keystoresJson->next;
+            key = json_getSibling( key );
+            //printk( "[httpImportFromKeystore] keystores[nKeystores-1]: %s.\n", json_getValue(keystores[nKeystores-1]) );
         }else{
+            // TODO
             delete_keystores(nKeystores);
             cJSON_Delete(json);
             return -1;
         }
     }
 
-    while(passwordsJson != NULL){
+    while(pwd != NULL){
+        printk("[httpImportFromKeystore] nPasswords: %d\n", nPasswords);
         if(nPasswords < (MAXKeys + nKeysAlreadyStored)){
-            if(passwordsJson->type != cJSON_String){
+            if(json_getType(pwd) != JSON_TEXT){
+                // TODO
                 delete_keystores(nKeystores);
                 cJSON_Delete(json);
                 return -1;
             }else{
-                passwords[nPasswords] = passwordsJson->valuestring;
+                if(strlen(json_getValue(pwd)) == 0){
+                    #ifdef TOUCHSCREEN
+                    printk("[httpImportFromKeystore] User must write password using the touchscreen\n");
+
+                    if(keystores[0] == NULL || json_getType(keystores[0]) != JSON_OBJ){
+                        return BADJSONFORMAT;
+                    }
+
+                    json_t* crypto = json_getProperty(keystores[0], "crypto");
+                    if(crypto == NULL){
+                        return BADJSONFORMAT;
+                    }
+
+                    json_t* checksum = json_getProperty(crypto, "checksum");
+                    if(checksum == NULL){
+                        return BADJSONFORMAT;
+                    }                    
+
+                    json_t* json_cipher_message = json_getProperty(checksum, "message");
+                    if(json_cipher_message == NULL || json_getType(json_cipher_message) != JSON_TEXT){
+                        return BADJSONFORMAT;
+                    }
+                    char* cipher_message = json_getValue(json_cipher_message);
+                    printk("[httpImportFromKeystore] cipher_message = %s\n", cipher_message);
+                    char shortened_msg[12];
+                    get_short_version(shortened_msg, cipher_message);
+                    printk("[httpImportFromKeystore] shortened cipher_message = %s\n", shortened_msg);
+                    char displayed_text[31+12] = "Enter the password for the key ";
+                    strcat(displayed_text, shortened_msg);
+                    
+                    char ts_pwd[100]; // Password written by user via touchscreen
+                    ts_get_text_kb(ts_pwd, displayed_text);
+                    printk("[httpImportFromKeystore] pwd (written by user via touchscreen) = %s\n", ts_pwd);
+                    passwords[nPasswords] = ts_pwd;
+                    #else
+                    printk("[httpImportFromKeystore] Error: Password not entered. Unable to import keystore\n");
+                    return -1;
+                    #endif
+                }else{
+                    passwords[nPasswords] = json_getValue(pwd);
+                    printk( "[httpImportFromKeystore] pwd: %s.\n", json_getValue(pwd) );     
+                }                           
             }
             ++nPasswords;
-            passwordsJson = passwordsJson->next;
+            pwd = json_getSibling(pwd);
         }else{
+            // TODO
             delete_keystores(nKeystores);
             cJSON_Delete(json);
             return -1;
         }
     }
 
+    printk("[httpImportFromKeystore] nKeystores: %d, nPasswords: %d\n", nKeystores, nPasswords);
     if(nKeystores != nPasswords){
-        delete_keystores(nKeystores);
-        cJSON_Delete(json);
+        // TODO
+        //delete_keystores(nKeystores);
+        //cJSON_Delete(json);
         return -1;
     }
 
+    printk("[httpImportFromKeystore] import_from_keystore()\n");
     if(import_from_keystore(nKeystores) != 0){
-        delete_keystores(nKeystores);
-        cJSON_Delete(json);
+        // TODO
+        //delete_keystores(nKeystores);
+        //cJSON_Delete(json);
+        printk("[httpImportFromKeystore] import_from_keystore(): Error\n");
         return -1;
     }
-
-    delete_keystores(nKeystores);
-    cJSON_Delete(json);
+    
+    printk("[httpImportFromKeystore] return 0\n");
+    // TODO
+    //delete_keystores(nKeystores);
+    //cJSON_Delete(json);
     return 0;
 }
 
@@ -929,7 +1044,7 @@ int dumpHttpResponse(char* buffer, struct boardRequest* request){//boardRequest 
                 return pknotfoundResponseStr(buffer);
             }
             #ifdef NRF
-            LOG_INF("Key found\n");
+            //LOG_INF("Key found\n");
             #endif
             return signResponseStr(buffer, request);
             break;

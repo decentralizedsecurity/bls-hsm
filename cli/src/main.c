@@ -3,18 +3,17 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-#include <zephyr.h>
-#include <sys/printk.h>
-#include <shell/shell.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/shell/shell.h>
 #include <version.h>
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 #include <stdlib.h>
-#include <kernel.h>
+#include <zephyr/kernel.h>
 #include <stdio.h>
 #include <secure_services.h>
 #include <pm_config.h>
 #include <fw_info.h>
-#include <drivers/uart.h>
+#include <zephyr/drivers/uart.h>
 #include <cJSON.h>
 #include <string.h>
 #ifdef CONFIG_USB
@@ -38,7 +37,7 @@ static int cmd_keygen(const struct shell *shell, size_t argc, char **argv)
     }else{
         keygen(argv[1], buffer);
     }
-    printf(buffer);
+    printf("%s", buffer);
     memset(buffer, 0, 2048);
     return 0;
 }
@@ -49,7 +48,7 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
         printf("Signature: \n");
         printf("%s%s\n", "0x", buffer);
     }else{
-        printf(buffer);
+        printf("%s", buffer);
     }
     memset(buffer, 0, 2048);
 	return 0;
@@ -58,7 +57,7 @@ static int cmd_signature_message(const struct shell *shell, size_t argc, char **
 static int cmd_signature_verification(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
     verify(argv[1], argv[2], argv[3], buffer);
-    printf(buffer);
+    printf("%s", buffer);
     memset(buffer, 0, 2048);
 	return 0;
 }
@@ -66,14 +65,14 @@ static int cmd_signature_verification(const struct shell *shell, size_t argc, ch
 static int cmd_get_keys(const struct shell *shell, size_t argc, char **argv, char* buff)
 {
     print_keys_Json(buffer);
-    printf(buffer);
+    printf("%s", buffer);
     memset(buffer, 0, 2048);
 	return 0;
 }
 
 static int cmd_reset(const struct shell *shell, size_t argc, char **argv, char* buff){
     resetc(buffer);
-    printf(buffer);
+    printf("%s", buffer);
     memset(buffer, 0, 2048);
     return 0;
 }
@@ -93,7 +92,7 @@ static int cmd_prompt(const struct shell *shell, size_t argc, char **argv){
 
 static int cmd_import(const struct shell *shell, size_t argc, char **argv){
     import(argv[1], buffer);
-    printf(buffer);
+    printf("%s", buffer);
     memset(buffer, 0, 2048);
     return 0;
 }
@@ -114,6 +113,7 @@ SHELL_CMD_ARG_REGISTER(import, NULL, "Import secret key", cmd_import, 2, 0);
 
 void main(void)
 {
+    tfm_init();
 #if defined(CONFIG_USB_UART_CONSOLE)
 	const struct device *dev;
 	uint32_t dtr = 0;

@@ -1,0 +1,102 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+# Copyright (c) 2021, Nordic Semiconductor ASA. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+{
+  "psa_framework_version": 1.0,
+  "name": "TFM_SP",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "entry_point": "tfm_sp_req_mngr_init",
+  "stack_size": "0x20000",
+
+  "services" : [{
+    "name": "TFM_DP_SECRET_DIGEST",
+    "sid": "0xFFFFF001", # Bits [31:12] denote the vendor (change this),
+                         # bits [11:0] are arbitrary at the discretion of the
+                         # vendor.
+    "non_secure_clients": true,
+    "version": 1,
+    "version_policy": "STRICT"
+   },
+   {
+      "name": "TFM_INIT",
+      "sid": "0xFFFFF002",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_GET_KEYSTORE_SIZE",
+      "sid": "0xFFFFF004",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_GET_FREE_MEMORY_SIZE",
+      "sid": "0xFFFFF005",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_SECURE_KEYGEN",
+      "sid": "0xFFFFF006",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_SIGN_PK",
+      "sid": "0xFFFFF007",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_VERIFY_SIGN",
+      "sid": "0xFFFFF008",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_GET_KEY",
+      "sid": "0xFFFFF009",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_GET_KEYS",
+      "sid": "0xFFFFF00A",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_RESET",
+      "sid": "0xFFFFF00B",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "TFM_IMPORT_SK",
+      "sid": "0xFFFFF00C",
+      "non_secure_clients": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    }
+  ],
+
+  "dependencies": [
+    "TFM_CRYPTO",
+    "TFM_PROTECTED_STORAGE_SERVICE"
+  ]
+}
