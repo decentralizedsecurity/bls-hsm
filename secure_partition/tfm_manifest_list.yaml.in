@@ -12,7 +12,7 @@
   "version_minor": 1,
   "manifest_list": [
     {
-      "name": "Secure Partition",
+      "description": "Secure Partition",
       "short_name": "TFM_SP",
       "manifest": "${APPLICATION_SOURCE_DIR}/../secure_partition/tfm_secure_partition.yaml",
       "output_path": "${TFM_BINARY_DIR}/secure_partition",

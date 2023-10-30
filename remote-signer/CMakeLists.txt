@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-#set(TOUCHSCREEN TRUE)
+set(TOUCHSCREEN TRUE)
 
 if(TOUCHSCREEN)
   add_definitions(-DTOUCHSCREEN)
@@ -58,5 +58,5 @@ target_include_directories(app PRIVATE
 )
 
 target_compile_definitions(app
-    PRIVATE TFM_PARTITION_DUMMY_PARTITION
+    PRIVATE TFM_PARTITION_SECURE_PARTITION
 )

@@ -30,27 +30,30 @@ target_sources(tfm_app_rot_partition_sp
 # The generated sources
 target_sources(tfm_app_rot_partition_sp
     PRIVATE
-        $<$<BOOL:${TFM_PSA_API}>:
             ${CMAKE_BINARY_DIR}/secure_partition/auto_generated/intermedia_tfm_secure_partition.c>
 )
 target_sources(tfm_partitions
     INTERFACE
-        $<$<BOOL:${TFM_PSA_API}>:
             ${CMAKE_BINARY_DIR}/secure_partition/auto_generated/load_info_tfm_secure_partition.c>
 )
 
 target_link_libraries(tfm_app_rot_partition_sp
     PRIVATE
-        tfm_secure_api
         psa_interface
         secure_fw
         platform_s
+        tfm_sprt
         tfm_psa_rot_partition_crypto
 )
 
 target_link_libraries(tfm_app_rot_partition_sp
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../lib/libblst.a
+)
+
+target_link_libraries(tfm_spm
+    PRIVATE
+        tfm_app_rot_partition_sp
 )
 
 target_link_libraries(tfm_partitions
@@ -60,5 +63,5 @@ target_link_libraries(tfm_partitions
 
 target_compile_definitions(tfm_partition_defs
     INTERFACE
-        TFM_PARTITION_DUMMY_PARTITION
+        TFM_PARTITION_SECURE_PARTITION
 )
