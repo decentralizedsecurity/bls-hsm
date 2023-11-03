@@ -883,7 +883,7 @@ int get_short_version(char * short_text, const char * long_text){
 
 int httpImportFromKeystore(char* body){
     //printk("[httpImportFromKeystore] body: %s\nEND OF BODY\n", body);
-    puts( body );
+    printk("%s\n", body);
     json_t mem[32];
     json_t const* json = json_create( body, mem, sizeof mem / sizeof *mem );
     if ( !json ) {
