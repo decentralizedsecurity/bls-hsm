@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 //#include <sys/printk.h>
+#include "tfm_secure_api.h"
 #include "tfm_api.h"
 #include <psa/crypto.h>
 #include <psa/crypto_extra.h>

@@ -8,6 +8,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
+#include <tfm_veneers.h>
 #include <tfm_ns_interface.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>

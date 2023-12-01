@@ -24,6 +24,7 @@ LOG_MODULE_REGISTER(remote_signer, LOG_LEVEL_INF);
 #include <httpRemote.h>
 #include <tiny-json.h>
 
+#include <tfm_veneers.h>
 #include <tfm_ns_interface.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>

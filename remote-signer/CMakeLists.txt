@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-#set(TOUCHSCREEN TRUE)
+set(TOUCHSCREEN TRUE)
 
 if(TOUCHSCREEN)
   add_definitions(-DTOUCHSCREEN)

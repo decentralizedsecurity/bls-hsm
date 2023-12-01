@@ -3,7 +3,7 @@
 #include "blst.h"
 #include "common.h"
 #ifdef NRF
-//#include <zephyr/sys/util.h>
+#include <zephyr/sys/util.h>
 #endif
 #include <stdio.h>
 #include <string.h>
@@ -16,7 +16,7 @@ void do_nothing(){
 #define WRNG_LOG(msg) do_nothing()
 #define INF_LOG(msg) do_nothing()
 #define DEBUG_LOG(msg) do_nothing()
-#elif defined(NRF) && defined(TFM) && 0 // 0 due to errors building
+#elif defined(NRF) && defined(TFM) //&& 0 // 0 due to errors building
 #define ERR_MSG 1
 #define WRNG_MSG 2
 void print_colored_error(const char * msg, int size, int msg_type){

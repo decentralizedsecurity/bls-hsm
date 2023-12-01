@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <tfm_veneers.h>
 #include <tfm_ns_interface.h>
 
 #include "secure_partition_interface.h"
