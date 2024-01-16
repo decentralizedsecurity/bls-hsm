@@ -50,4 +50,9 @@ void ts_display_text(const char * buffer);
 */
 void ts_get_text_kb(char * buffer, const char * displayed_text);
 
+void ts_create_log();
+void ts_show_log();
+void ts_print_log(const char * buffer);
+void ts_println_log(const char * buffer);
+
 #endif
