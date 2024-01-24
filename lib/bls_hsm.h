@@ -30,7 +30,7 @@ void print_colored_error(const char * msg, int size, int msg_type){
 #define WRNG_LOG(msg) print_colored_error(msg, strlen(msg), WRNG_MSG)
 #define INF_LOG(msg) SPMLOG_INFMSG(msg)
 #define DEBUG_LOG(msg) SPMLOG_DBGMSG(msg)
-#elif defined(NRF) && !defined(TFM)
+#elif defined(NRF) && !defined(TFM) && 0
 #define ERR_LOG(msg) TODO(msg)
 #define WRNG_LOG(msg) TODO(msg)
 #define INF_LOG(msg) TODO(msg)
@@ -323,7 +323,7 @@ int get_key(int index, char* public_key_hex){
  * @param public_key_hex String array that contains public keys
 */
 void get_keys(char public_keys_hex_store_ns[keystore_size][96]){
-        for(int i = 0; i < 1; i++){
+        for(int i = 0; i < keystore_size; i++){
             for(int j = 0; j < 96; j++){
                 public_keys_hex_store_ns[i][j] = public_keys_hex_store[i][j];
             }
@@ -332,27 +332,27 @@ void get_keys(char public_keys_hex_store_ns[keystore_size][96]){
 }
 
 #ifdef NRF
-#include <psa/crypto.h>
-#include <psa/crypto_extra.h>
-#include <psa/crypto_values.h>
+//#include <psa/crypto.h>
+//#include <psa/crypto_extra.h>
+//#include <psa/crypto_values.h>
 #endif
 
 void hash(uint8_t* out, uint8_t* in, size_t size){
 #ifdef NRF
-    uint32_t olen;
-	psa_status_t status;
+    //uint32_t olen;
+	//psa_status_t status;
 
     /* Initialize PSA Crypto */
-    status = psa_crypto_init();
+    /*status = psa_crypto_init();
 	if (status != PSA_SUCCESS)
-		return;
-
+		return;*/
+    ocrypto_sha256(out, in, size);
 	/* Calculate the SHA256 hash */
-	status = psa_hash_compute(
+	/*status = psa_hash_compute(
 		PSA_ALG_SHA_256, in, size, out, 32, &olen);
 	if (status != PSA_SUCCESS) {
 		return;
-	}
+	}*/
 #else // TODO:  implement hash in c
         for(int i = 0; i < 32; i++){
             out[i] = in[i];
@@ -365,10 +365,10 @@ void hash(uint8_t* out, uint8_t* in, size_t size){
 // TODO
 
 void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
-    psa_status_t status;
+    /*psa_status_t status;
     psa_key_handle_t key_handle;
     /* Initialize PSA Crypto */
-	status = psa_crypto_init();
+	/*status = psa_crypto_init();
 	if (status != PSA_SUCCESS)
 		return;
 
@@ -391,19 +391,19 @@ void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
 	psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
 
 	/* Setup the decryption operation */
-	status = psa_cipher_encrypt_setup(&operation, key_handle, PSA_ALG_CTR);
+	/*status = psa_cipher_encrypt_setup(&operation, key_handle, PSA_ALG_CTR);
 	if (status != PSA_SUCCESS) {
 		return;
 	}
 
 	/* Set the IV to the one generated during encryption */
-	status = psa_cipher_set_iv(&operation, iv, 16);
+	/*status = psa_cipher_set_iv(&operation, iv, 16);
 	if (status != PSA_SUCCESS) {
 		return;
 	}
 
 	/* Perform the decryption */
-	status = psa_cipher_update(&operation,
+	/*status = psa_cipher_update(&operation,
 							   in,
 							   32,
 							   out,
@@ -413,13 +413,14 @@ void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
 	}
 
 	/* Finalize the decryption */
-	status = psa_cipher_finish(&operation,
+	/*status = psa_cipher_finish(&operation,
 							   out + olen,
 							   32 - olen,
 							   &olen);
 	if (status != PSA_SUCCESS) {
 		return;
-	}
+	}*/
+    ocrypto_aes_ctr_decrypt(out, in, 32, key, 16, iv);
 }
 #endif
 

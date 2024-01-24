@@ -17,9 +17,9 @@
 #include <stdio.h>
 #include "common.h"
 #include "bls_hsm_ns.h"
-#include <merkleization.h>
+//#include <merkleization.h>
 #ifndef TFM
-#include "bls_hsm.h"
+//#include "bls_hsm.h"
 #else
 #include "secure_partition_interface.h"
 #endif
@@ -431,7 +431,7 @@ int keystoreResponse(char* buffer){
 Returns -1 if unsupported type
 Returns 0 otherwise
 */
-int getSR(cJSON* json, char* signingRoot){
+/*int getSR(cJSON* json, char* signingRoot){
     char* type = cJSON_GetObjectItem(json, "type")->valuestring;
     char htr[32];
     char* domain = NULL;
@@ -453,7 +453,7 @@ int getSR(cJSON* json, char* signingRoot){
 
     sr(signingRoot, json, htr, domain);
     return 0;
-}
+}*/
 
 /*
     Returns size of buffer
@@ -473,14 +473,15 @@ int signResponseStr(char* buffer, struct boardRequest* request){
     char sr[32];
     char srhex[65] = "";
     if(signingroot == NULL){
-        #ifdef NRF
+        /*#ifdef NRF
         //LOG_INF("Computing SR\n");
         #endif
         if(getSR(json, sr) == -1){
             cJSON_Delete(json);
             return -1;
         }
-        bin2hex(sr, 32, srhex, 64);
+        bin2hex(sr, 32, srhex, 64);*/
+        return -1;
     }else{
         memcpy(srhex, signingroot->valuestring + 2, 64);
         #ifdef NRF
