@@ -67,7 +67,7 @@ int get_keystore_length(){
 /*
 Generates random key. Response is dumped to 'buff'
 */
-int keygen(char* data, char* buff){    
+int keygen_(char* data, char* buff){    
     #ifndef TFM
     int keystore_size = get_keystore_size();
     #else

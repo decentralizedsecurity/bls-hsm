@@ -33,7 +33,7 @@
 #define signatureOffset 12//due to  Signature: \n
 
 #define MAXSizeEthereumSignature 192
-#define MAXBUF 32768
+#define MAXBUF 1500
 #define MAXHeaders 100
 #define MAXKeys 10 //Maximum numbers of keys to store
 #define keySize 96

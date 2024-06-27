@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-#set(TOUCHSCREEN TRUE)
+set(TOUCHSCREEN TRUE)
 
 if(TOUCHSCREEN)
   add_definitions(-DTOUCHSCREEN)
@@ -33,7 +33,7 @@ add_definitions(-DNRF -DNRF_RS )#-DTFM)
 
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources}
-  ../lib/picohttpparser.c
+  #../lib/picohttpparser.c
   ../lib/bls_hsm_ns.c
   ../lib/common.c
 #  ../lib/secure_partition_interface.c
@@ -41,9 +41,9 @@ target_sources(app PRIVATE ${app_sources}
 )
 
 if(TOUCHSCREEN)
-  target_sources(app PRIVATE ${app_sources}
-    ../lib/touchscreen.c
-  )
+  #target_sources(app PRIVATE ${app_sources}
+   # ../lib/touchscreen.c
+  #)
 endif()
 
 zephyr_library_include_directories(

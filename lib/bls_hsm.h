@@ -1,12 +1,43 @@
 #ifndef bls_hsm_h
 #define bls_hsm_h
-#include "blst.h"
+//#include "blst.h"
+
 #include "common.h"
 #ifdef NRF
 //#include <zephyr/sys/util.h>
 #endif
 #include <stdio.h>
 #include <string.h>
+
+#include "keygen.c"
+#include "hash_to_field.c"
+#include "e1.c"
+#include "map_to_g1.c"
+#include "e2.c"
+#include "map_to_g2.c"
+#include "fp12_tower.c"
+#include "pairing.c"
+#include "aggregate.c"
+#include "exp.c"
+#include "sqrt.c"
+#include "recip.c"
+#include "bulk_addition.c"
+#include "multi_scalar.c"
+#include "consts.c"
+//#include "vect.h"
+#include "vect.c"
+#include "exports.c"
+#include "rb_tree.c"
+#include "point.h"
+
+typedef uint8_t byte;
+typedef struct { byte b[256/8]; } blst_scalar;
+typedef struct { limb_t l[384/8/sizeof(limb_t)]; } blst_fp;
+typedef struct { blst_fp fp[2]; } blst_fp2;
+typedef struct { blst_fp x, y, z; } blst_p1;
+typedef struct { blst_fp2 x, y, z; } blst_p2;
+typedef struct { blst_fp x, y; } blst_p1_affine;
+typedef struct { blst_fp2 x, y; } blst_p2_affine;
 
 // LOG System Wrapper
 #if defined(NO_LOGS)
