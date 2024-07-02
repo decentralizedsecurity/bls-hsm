@@ -1,5 +1,7 @@
 #include "bls_hsm_ns.h"
+#ifndef CONFIG_WIFI_NRF700X
 #include "secure_partition_interface.h"
+#endif
 #include "common.h"
 #include "bls_hsm.h"
 #include <stdio.h>
@@ -19,6 +21,7 @@
 #include "mbedtls/cipher.h"
 #include "mbedtls/oid.h"
 #include "mbedtls/pkcs5.h"
+
 int PBKDF2(uint8_t* salt, uint8_t* password, int it_cnt, uint8_t* key)
 {   
     size_t plen = strlen(password);
@@ -380,7 +383,7 @@ int get_private_key(char* cipher_message, char* iv_str, unsigned char* decriptio
     }
     private_key[64] = '\0';
 
-    char buff[6500];
+    char buff[100];
     //printf("\n\n%s\n\n", private_key_str);
     import(private_key_str, buff);
 

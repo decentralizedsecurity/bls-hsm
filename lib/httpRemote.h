@@ -18,9 +18,9 @@
 #include "common.h"
 #include "bls_hsm_ns.h"
 #include <merkleization.h>
-#ifndef TFM
+#if !defined(TFM) && !defined(CONFIG_WIFI_NRF700X)
 #include "bls_hsm.h"
-#else
+#elif !defined(CONFIG_WIFI_NRF700X)
 #include "secure_partition_interface.h"
 #endif
 #ifdef TOUCHSCREEN
@@ -481,6 +481,7 @@ int signResponseStr(char* buffer, struct boardRequest* request){
             return -1;
         }
         bin2hex(sr, 32, srhex, 64);
+        return -1;
     }else{
         memcpy(srhex, signingroot->valuestring + 2, 64);
         #ifdef NRF

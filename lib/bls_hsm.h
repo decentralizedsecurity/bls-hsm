@@ -30,7 +30,7 @@ void print_colored_error(const char * msg, int size, int msg_type){
 #define WRNG_LOG(msg) print_colored_error(msg, strlen(msg), WRNG_MSG)
 #define INF_LOG(msg) SPMLOG_INFMSG(msg)
 #define DEBUG_LOG(msg) SPMLOG_DBGMSG(msg)
-#elif defined(NRF) && !defined(TFM)
+#elif defined(NRF) && !defined(TFM) && 0
 #define ERR_LOG(msg) TODO(msg)
 #define WRNG_LOG(msg) TODO(msg)
 #define INF_LOG(msg) TODO(msg)
@@ -323,7 +323,7 @@ int get_key(int index, char* public_key_hex){
  * @param public_key_hex String array that contains public keys
 */
 void get_keys(char public_keys_hex_store_ns[keystore_size][96]){
-        for(int i = 0; i < 1; i++){
+        for(int i = 0; i < keystore_size; i++){
             for(int j = 0; j < 96; j++){
                 public_keys_hex_store_ns[i][j] = public_keys_hex_store[i][j];
             }
@@ -331,14 +331,14 @@ void get_keys(char public_keys_hex_store_ns[keystore_size][96]){
         INF_LOG("All keys have been obtained\r\n");
 }
 
-#ifdef NRF
+#if defined(NRF) && !defined(CONFIG_WIFI_NRF700X)
 #include <psa/crypto.h>
 #include <psa/crypto_extra.h>
 #include <psa/crypto_values.h>
 #endif
 
 void hash(uint8_t* out, uint8_t* in, size_t size){
-#ifdef NRF
+#if defined(NRF) && !defined(CONFIG_WIFI_NRF700X)
     uint32_t olen;
 	psa_status_t status;
 
@@ -353,6 +353,9 @@ void hash(uint8_t* out, uint8_t* in, size_t size){
 	if (status != PSA_SUCCESS) {
 		return;
 	}
+
+#elif defined(CONFIG_WIFI_NRF700X)
+    ocrypto_sha256(out, in, size);
 #else // TODO:  implement hash in c
         for(int i = 0; i < 32; i++){
             out[i] = in[i];
@@ -365,6 +368,7 @@ void hash(uint8_t* out, uint8_t* in, size_t size){
 // TODO
 
 void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
+#ifndef CONFIG_WIFI_NRF700X
     psa_status_t status;
     psa_key_handle_t key_handle;
     /* Initialize PSA Crypto */
@@ -420,6 +424,9 @@ void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
 	if (status != PSA_SUCCESS) {
 		return;
 	}
+#else
+    ocrypto_aes_ctr_decrypt(out, in, 32, key, 16, iv);
+#endif
 }
 #endif
 
