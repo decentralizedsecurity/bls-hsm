@@ -16,17 +16,18 @@ Lastly, we have also implemented a simple remote signer in Go that uses our CLI 
 - `remote-signer-go`.
 
 ## Boards compatibility :electric_plug:
-| | nRF9160DK | Thingy:91 | nRF5340DK | Thingy:53 |
-| --- | --- | --- | --- | --- |
+| | nRF9160DK | Thingy:91 | nRF5340DK | Thingy:53 | nRF7002DK |
+| --- | --- | --- | --- | --- | --- |
 |**Tools**|
-| [cli](./cli) | :microscope: | :microscope: | :heavy_check_mark: | :microscope: |
-| [remote-signer](./remote-signer) | :microscope: | :microscope: | :heavy_check_mark: | :microscope: |
+| [cli](./cli) | :microscope: | :microscope: | :heavy_check_mark: | :microscope: |  |
+| [remote-signer](./remote-signer) | :microscope: | :microscope: | :heavy_check_mark: | :microscope: | :heavy_check_mark: |
 |**Features**|
-| [Trust-Zone](#trust-zone) | :microscope: | :microscope: | :heavy_check_mark: | :microscope: |
-| [Serial communication](#serial) | :x: | :x: | :heavy_check_mark: | :microscope: |
-| [LTE](#lte) | :heavy_check_mark: | :microscope: | :x: | :x: |
-| [Bluetooth](#bluetooth) | :soon: | :soon: | :soon: | :x: |
-| [Touchpad-screen](#touchpad-screen) | :soon: | :soon: | :heavy_check_mark: | :soon: |
+| [Trust-Zone](#trust-zone) | :microscope: | :microscope: | :heavy_check_mark: | :microscope: | :soon: |
+| [Serial communication](#serial) | :x: | :x: | :heavy_check_mark: | :microscope: | :heavy_check_mark: | :heavy_check_mark: |
+| [LTE](#lte) | :heavy_check_mark: | :microscope: | :x: | :x: | :x: |
+| [WiFi](#wifi) | :x: | :x: | :x: | :x: | :heavy_check_mark: |
+| [Bluetooth](#bluetooth) | :soon: | :soon: | :soon: | :x: | :x: |
+| [Touchpad-screen](#touchpad-screen) | :soon: | :soon: | :heavy_check_mark: | :soon: | :soon: |
 
  - :heavy_check_mark: Full support
  - :large_orange_diamond: Partial support
@@ -47,6 +48,9 @@ You can send commands and receive information through a serial port. To do this,
 
 ### LTE <span id="lte"><span>
 This feature is under development
+
+### WiFi <span id="wifi"><span>
+A version of the remote signer using WiFi is currently supported for nRF7002DK. To properly configure this version, you must specify the SSID and password the board should connect to by editing [CONFIG_STA_SAMPLE_SSID](./remote-signer/socket.conf#L48) and [CONFIG_STA_SAMPLE_PASSWORD](./remote-signer/socket.conf#L49) configurations inside [socket.conf](./remote-signer/socket.conf) file, which must be used along with prj.conf in the building process. The connection status logs as well as IP and port assigned will be shown via serial communication in a terminal that must be previously connected. Once the board is connected to the desired SSID and the socket is listening, it is ready to handle requests.
 
 ### Bluetooth <span id="bluetooth"><span>
 This feature is under development
