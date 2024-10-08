@@ -17,10 +17,10 @@
 #include <stdio.h>
 #include "common.h"
 #include "bls_hsm_ns.h"
-//#include <merkleization.h>
-#ifndef TFM
-//#include "bls_hsm.h"
-#else
+#include <merkleization.h>
+#if !defined(TFM) && !defined(CONFIG_WIFI_NRF700X)
+#include "bls_hsm.h"
+#elif !defined(CONFIG_WIFI_NRF700X)
 #include "secure_partition_interface.h"
 #endif
 #ifdef TOUCHSCREEN
@@ -33,7 +33,7 @@
 #define signatureOffset 12//due to  Signature: \n
 
 #define MAXSizeEthereumSignature 192
-#define MAXBUF 1500
+#define MAXBUF 2048
 #define MAXHeaders 100
 #define MAXKeys 10 //Maximum numbers of keys to store
 #define keySize 96
@@ -42,11 +42,13 @@
 #define upcheck 1
 #define getKeys 2
 #define importKey 4
+#define benchmark 5
 
 #define textPlain 0
 #define applicationJson 1
 
 char upcheckStr[] = "/upcheck";
+char benchStr[] = "/benchmark";
 char getKeysStr[] = "/api/v1/eth2/publicKeys";
 char signRequestStr[] = "/api/v1/eth2/sign/0x";
 char contentLengthStr[] = "content-length";
@@ -56,6 +58,14 @@ char acceptStr[] = "Accept";
 char textPlainStr[] = "text/plain";
 char applicationJsonStr[] = "application/json";
 
+bool benchResult = false;
+bool benchRun = false;
+bool benchCall = false;
+int impRet;
+int elapsedImp;
+int elapsedSign;
+int elapsedPBKDF2;
+
 /*
 **********************************************************RESPONSES****************************************************************
 */
@@ -64,6 +74,18 @@ char upcheckResponse[] = "HTTP/1.1 200 OK\r\n"
    "lain; charset=utf-8"
    "\r\n"
    "Content-Length: 0\r\n\r\n";
+
+char benchmarkResponse[] = "HTTP/1.1 200 OK\r\n"
+   "Content-Type: text/p"
+   "lain; charset=utf-8"
+   "\r\n"
+   "Content-Length: ";
+
+char benchmarkResult[] = "HTTP/1.1 200 OK\r\n"
+"Content-Type: text/p"
+"lain; charset=utf-8"
+"\r\n"
+"Content-Length: ";
 
 /*
 We got to add later the size of the json in text, 2 \n and the json with the publick Keys
@@ -111,6 +133,8 @@ char* pknf = "HTTP/1.1 404 Public key not found\r\n"
 "Content-Type: application/json\r\n"
 "Content-Length: 0\r\n\r\n";
 
+char* ksbench = "{\r\n    \"keystores\": [\r\n        \"{\\\"crypto\\\": {\\\"kdf\\\": {\\\"function\\\": \\\"pbkdf2\\\", \\\"message\\\": \\\"\\\", \\\"params\\\": {\\\"dklen\\\": 32, \\\"c\\\": 20, \\\"prf\\\": \\\"hmac-sha256\\\", \\\"salt\\\": \\\"8123ea083eae312143c724a8063ea9ec53b4818d34726b28a20fafa6107b2900\\\"}}, \\\"checksum\\\": {\\\"function\\\": \\\"sha256\\\", \\\"params\\\": {}, \\\"message\\\": \\\"0bb7c9edfb20f5014366485b737d7da46b13ea77d892a3bf5c021699ec935901\\\"}, \\\"cipher\\\": {\\\"function\\\": \\\"aes-128-ctr\\\", \\\"params\\\": {\\\"iv\\\": \\\"7ea5abd19a7747ddac97b3951ade63a5\\\"}, \\\"message\\\": \\\"34ac7048c247929f4a22369006eca51446cf5eda61c9bfb630c84ec6302d4969\\\"}}, \\\"description\\\": \\\"\\\", \\\"pubkey\\\": \\\"ae249bcf645e7470cdd10c546de97ea87f70a93dbf8a99e2b77833c9e83a5833a6d37f73ef8359aa79f495130697eec2\\\", \\\"path\\\": \\\"m/12381/3600/0/0/0\\\", \\\"uuid\\\": \\\"cc260592-1cf5-40d7-bc5a-44eaaa298d06\\\", \\\"version\\\": 4}\"\r\n    ],\r\n    \"passwords\": [\r\n        \"123456789\"\r\n    ]\r\n}";
+char *ksbenchhard = "{\r\n    \"keystores\": [\r\n        \"{\\\"crypto\\\": {\\\"kdf\\\": {\\\"function\\\": \\\"pbkdf2\\\", \\\"message\\\": \\\"\\\", \\\"params\\\": {\\\"dklen\\\": 32, \\\"c\\\": 262144, \\\"prf\\\": \\\"hmac-sha256\\\", \\\"salt\\\": \\\"ee44e42d4bb627ff3ee6519e674a4d71549157709b0591c576df821afbdf17fe\\\"}}, \\\"checksum\\\": {\\\"function\\\": \\\"sha256\\\", \\\"params\\\": {}, \\\"message\\\": \\\"be309986c4c3adc4964f441c6508fd8382238ff69e79c6d22f76e8a684ecd4b9\\\"}, \\\"cipher\\\": {\\\"function\\\": \\\"aes-128-ctr\\\", \\\"params\\\": {\\\"iv\\\": \\\"7d483ca3a85d62270850551f6e2dd60f\\\"}, \\\"message\\\": \\\"4501b803e84797ae5d43c280849ef5ad49ad680daadaaa92e5f85872ab7b59eb\\\"}}, \\\"description\\\": \\\"\\\", \\\"pubkey\\\": \\\"ad2d2d634fb838faa7f114fbff6af9ea1ca5b6a5ef5ae04ea45c72289578edb9f8e149b33cfd6569f077c338d0405512\\\", \\\"path\\\": \\\"m/12381/3600/0/0/0\\\", \\\"uuid\\\": \\\"9d1657bc-3969-4766-afc3-bcb74674b99a\\\", \\\"version\\\": 4}\"\r\n],\r\n    \"passwords\": [\r\n        \"popeye1234\"\r\n    ]\r\n}";
 /*
 ************************************************************************************************************************************
 */
@@ -327,6 +351,8 @@ int parseRequest(char* buffer, size_t bufferSize, struct boardRequest* reply){//
             reply->method = upcheck;
         }else if((request.pathLen == strlen(getKeysStr)) && (strncmp(request.path, getKeysStr, strlen(getKeysStr)) == 0)){
             reply->method = getKeys;
+        }else if((request.pathLen == strlen(benchStr)) && (strncmp(request.path, benchStr, strlen(benchStr)) == 0)){
+            reply->method = benchmark;
         }else{
             return -3;
         }
@@ -376,6 +402,62 @@ int upcheckResponseStr(char* buffer){
     buffer[74] = len[0];
     strcat(buffer, buf);*/
     #endif
+    return strlen(buffer);
+}
+
+int bench(){
+    char body[1000];
+    while(1){
+        if(benchCall && !benchRun){
+            benchRun = true;
+            strcpy(body, ksbench);
+            int64_t start = k_uptime_get();
+            impRet = httpImportFromKeystore(body);
+            elapsedImp = (int) k_uptime_delta(&start);
+
+            char* msg = "0x952537e75b316f1ba8c5b4a7ff5ad9e5adc5e1165f06e10395a2e7e83093bdea";
+            char* pk = "ae249bcf645e7470cdd10c546de97ea87f70a93dbf8a99e2b77833c9e83a5833a6d37f73ef8359aa79f495130697eec2";
+            //char* pk = "ad2d2d634fb838faa7f114fbff6af9ea1ca5b6a5ef5ae04ea45c72289578edb9f8e149b33cfd6569f077c338d0405512";
+            char sig[193];
+            start = k_uptime_get();
+            for(int i = 0; i<=100; i++){
+                sign_pk(pk, msg, sig);
+            }
+            elapsedSign = (int) k_uptime_delta(&start)/100;
+            benchResult = true;
+#ifdef BENCH
+            break;
+#endif
+        }
+        k_sleep(K_MSEC(100));
+    }
+}
+
+int benchmarkResp(char* buffer){
+    strcpy(buffer, benchmarkResponse);
+#ifndef BENCH
+    if(!benchCall || !benchRun){
+        benchCall = true;
+    }
+#endif
+    if(!benchResult){
+        strcat(buffer, "24\r\n\r\nBenchmark is in progress");
+    }else{
+        benchCall = false;
+        benchRun = false;
+#ifndef BENCH
+        benchResult = false;
+#endif
+        char res[100];
+        char clbody[110];
+        if(impRet == 0){
+            sprintf(res, "PBKDF2 decryption time: %d ms\r\nImport done in %d ms\r\nAverage signing time: %d ms\n", (int)elapsedPBKDF2, (int)elapsedImp, (int)elapsedSign);
+            sprintf(clbody, "%d\r\n\r\n%s", strlen(res), res);
+            strcat(buffer, clbody);
+        }else{
+            strcat(buffer, "13\r\n\r\nImport failed");
+        }
+    }
     return strlen(buffer);
 }
 
@@ -431,7 +513,7 @@ int keystoreResponse(char* buffer){
 Returns -1 if unsupported type
 Returns 0 otherwise
 */
-/*int getSR(cJSON* json, char* signingRoot){
+int getSR(cJSON* json, char* signingRoot){
     char* type = cJSON_GetObjectItem(json, "type")->valuestring;
     char htr[32];
     char* domain = NULL;
@@ -453,7 +535,7 @@ Returns 0 otherwise
 
     sr(signingRoot, json, htr, domain);
     return 0;
-}*/
+}
 
 /*
     Returns size of buffer
@@ -473,14 +555,14 @@ int signResponseStr(char* buffer, struct boardRequest* request){
     char sr[32];
     char srhex[65] = "";
     if(signingroot == NULL){
-        /*#ifdef NRF
+        #ifdef NRF
         //LOG_INF("Computing SR\n");
         #endif
         if(getSR(json, sr) == -1){
             cJSON_Delete(json);
             return -1;
         }
-        bin2hex(sr, 32, srhex, 64);*/
+        bin2hex(sr, 32, srhex, 64);
         return -1;
     }else{
         memcpy(srhex, signingroot->valuestring + 2, 64);
@@ -660,7 +742,10 @@ int get_decryption_key_pbkdf2_params(int i, unsigned char* decryption_key){
     if(hex2bin(salt_str, 64, salt, 32) == 0){
         return HEX2BINERR;
     }
-    return PBKDF2(salt, passwords[i], c, decryption_key);
+    int64_t start = k_uptime_get();
+    int ret = PBKDF2(salt, passwords[i], c, decryption_key);
+    elapsedPBKDF2 = (int) k_uptime_delta(&start);
+    return ret;
     #endif
     printk("[get_decryption_key_pbkdf2_params] End without errors\n");
     return 0;
@@ -1052,6 +1137,9 @@ int dumpHttpResponse(char* buffer, struct boardRequest* request){//boardRequest 
         case upcheck:
             return upcheckResponseStr(buffer);
             break;
+        case benchmark:
+            return benchmarkResp(buffer);
+            break;
         case getKeys:
             copyKeys(request);
             return getKeysResponseStr(buffer, request);
@@ -1067,5 +1155,8 @@ int dumpHttpResponse(char* buffer, struct boardRequest* request){//boardRequest 
             return -1;
     }
 }
+
+K_THREAD_DEFINE(bench_id, 16384, bench, NULL, NULL, NULL,
+		7, 0, 0);
 
 #endif

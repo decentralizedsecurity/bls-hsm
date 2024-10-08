@@ -1,43 +1,12 @@
 #ifndef bls_hsm_h
 #define bls_hsm_h
-//#include "blst.h"
-
+#include "blst.h"
 #include "common.h"
 #ifdef NRF
 //#include <zephyr/sys/util.h>
 #endif
 #include <stdio.h>
 #include <string.h>
-
-#include "keygen.c"
-#include "hash_to_field.c"
-#include "e1.c"
-#include "map_to_g1.c"
-#include "e2.c"
-#include "map_to_g2.c"
-#include "fp12_tower.c"
-#include "pairing.c"
-#include "aggregate.c"
-#include "exp.c"
-#include "sqrt.c"
-#include "recip.c"
-#include "bulk_addition.c"
-#include "multi_scalar.c"
-#include "consts.c"
-//#include "vect.h"
-#include "vect.c"
-#include "exports.c"
-#include "rb_tree.c"
-#include "point.h"
-
-typedef uint8_t byte;
-typedef struct { byte b[256/8]; } blst_scalar;
-typedef struct { limb_t l[384/8/sizeof(limb_t)]; } blst_fp;
-typedef struct { blst_fp fp[2]; } blst_fp2;
-typedef struct { blst_fp x, y, z; } blst_p1;
-typedef struct { blst_fp2 x, y, z; } blst_p2;
-typedef struct { blst_fp x, y; } blst_p1_affine;
-typedef struct { blst_fp2 x, y; } blst_p2_affine;
 
 // LOG System Wrapper
 #if defined(NO_LOGS)
@@ -362,28 +331,31 @@ void get_keys(char public_keys_hex_store_ns[keystore_size][96]){
         INF_LOG("All keys have been obtained\r\n");
 }
 
-#ifdef NRF
-//#include <psa/crypto.h>
-//#include <psa/crypto_extra.h>
-//#include <psa/crypto_values.h>
+#if defined(NRF) && !defined(CONFIG_WIFI_NRF700X)
+#include <psa/crypto.h>
+#include <psa/crypto_extra.h>
+#include <psa/crypto_values.h>
 #endif
 
 void hash(uint8_t* out, uint8_t* in, size_t size){
-#ifdef NRF
-    //uint32_t olen;
-	//psa_status_t status;
+#if defined(NRF) && !defined(CONFIG_WIFI_NRF700X)
+    uint32_t olen;
+	psa_status_t status;
 
     /* Initialize PSA Crypto */
-    /*status = psa_crypto_init();
+    status = psa_crypto_init();
 	if (status != PSA_SUCCESS)
-		return;*/
-    ocrypto_sha256(out, in, size);
+		return;
+
 	/* Calculate the SHA256 hash */
-	/*status = psa_hash_compute(
+	status = psa_hash_compute(
 		PSA_ALG_SHA_256, in, size, out, 32, &olen);
 	if (status != PSA_SUCCESS) {
 		return;
-	}*/
+	}
+
+#elif defined(CONFIG_WIFI_NRF700X)
+    ocrypto_sha256(out, in, size);
 #else // TODO:  implement hash in c
         for(int i = 0; i < 32; i++){
             out[i] = in[i];
@@ -396,10 +368,11 @@ void hash(uint8_t* out, uint8_t* in, size_t size){
 // TODO
 
 void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
-    /*psa_status_t status;
+#ifndef CONFIG_WIFI_NRF700X
+    psa_status_t status;
     psa_key_handle_t key_handle;
     /* Initialize PSA Crypto */
-	/*status = psa_crypto_init();
+	status = psa_crypto_init();
 	if (status != PSA_SUCCESS)
 		return;
 
@@ -422,19 +395,19 @@ void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
 	psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
 
 	/* Setup the decryption operation */
-	/*status = psa_cipher_encrypt_setup(&operation, key_handle, PSA_ALG_CTR);
+	status = psa_cipher_encrypt_setup(&operation, key_handle, PSA_ALG_CTR);
 	if (status != PSA_SUCCESS) {
 		return;
 	}
 
 	/* Set the IV to the one generated during encryption */
-	/*status = psa_cipher_set_iv(&operation, iv, 16);
+	status = psa_cipher_set_iv(&operation, iv, 16);
 	if (status != PSA_SUCCESS) {
 		return;
 	}
 
 	/* Perform the decryption */
-	/*status = psa_cipher_update(&operation,
+	status = psa_cipher_update(&operation,
 							   in,
 							   32,
 							   out,
@@ -444,14 +417,16 @@ void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out){
 	}
 
 	/* Finalize the decryption */
-	/*status = psa_cipher_finish(&operation,
+	status = psa_cipher_finish(&operation,
 							   out + olen,
 							   32 - olen,
 							   &olen);
 	if (status != PSA_SUCCESS) {
 		return;
-	}*/
+	}
+#else
     ocrypto_aes_ctr_decrypt(out, in, 32, key, 16, iv);
+#endif
 }
 #endif
 

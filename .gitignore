@@ -8,3 +8,4 @@ lib/picohttpparser*
 lib/cJSON*
 lib/libblst.a
 lib/blst*
+remote-signer-7002/build*

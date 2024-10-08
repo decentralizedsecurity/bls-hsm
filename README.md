@@ -50,7 +50,7 @@ You can send commands and receive information through a serial port. To do this,
 This feature is under development
 
 ### WiFi <span id="wifi"><span>
-A version of the remote signer using WiFi is currently supported for nRF7002DK. To properly configure this version, you must specify the SSID and password the board should connect to by editing [CONFIG_STA_SAMPLE_SSID](./remote-signer/socket.conf#L48) and [CONFIG_STA_SAMPLE_PASSWORD](./remote-signer/socket.conf#L49) configurations inside [socket.conf](./remote-signer/socket.conf) file, which must be used along with prj.conf in the building process. The connection status logs as well as IP and port assigned will be shown via serial communication in a terminal that must be previously connected. Once the board is connected to the desired SSID and the socket is listening, it is ready to handle requests.
+A version of the remote signer using WiFi is currently supported for nRF7002DK. To properly configure this version, you must specify the SSID and password the board should connect to by editing [CONFIG_STA_SAMPLE_SSID](./remote-signer-7002/socket.conf#L48) and [CONFIG_STA_SAMPLE_PASSWORD](./remote-signer-7002/socket.conf#L49) configurations inside [socket.conf](./remote-signer-7002/socket.conf) file, which must be used along with prj.conf in the building process. The connection status logs as well as IP and port assigned will be shown via serial communication in a terminal that must be previously connected. Once the board is connected to the desired SSID and the socket is listening, it is ready to handle requests.
 
 ### Bluetooth <span id="bluetooth"><span>
 This feature is under development

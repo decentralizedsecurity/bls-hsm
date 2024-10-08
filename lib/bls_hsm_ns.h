@@ -2,6 +2,7 @@
 #ifndef bls_hsm_ns_h
 #define bls_hsm_ns_h
 
+  
 #include <stdint.h>
 
 /*int pk_in_keystore(char * public_key_hex, int offset);
@@ -17,7 +18,7 @@ int PBKDF2(uint8_t* salt, uint8_t* password, int it_cnt, uint8_t* key);
 void aes128ctr(uint8_t* key, uint8_t* iv, uint8_t* in, uint8_t* out);*/
 
 int get_keystore_length();
-int keygen_(char* data, char* buff);
+int keygen(char* data, char* buff);
 void get_signature(char* pk, char* msg, char* signature);
 int signature(char* pk, char* msg, char* buff);
 int verify(char* pk, char* msg, char* sig, char* buff);

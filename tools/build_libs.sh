@@ -16,7 +16,7 @@ while getopts ":c::h" opt; do
 done
 
 
-if [[ ! -f ./lib/libblst.a ]] || [[ ! -f ./lib/blst.h ]] || [[ ! -f ./lib/blst_aux.h ]]; then
+if [[ ! -f ../lib/libblst.a ]] || [[ ! -f ../lib/blst.h ]] || [[ ! -f ../lib/blst_aux.h ]]; then
   echo "Cloning blst library"
   #Use version 0.3.10 of blst module
   git clone --depth 1 --branch v0.3.10 https://github.com/supranational/blst
@@ -53,23 +53,23 @@ if [[ ! -f ./lib/libblst.a ]] || [[ ! -f ./lib/blst.h ]] || [[ ! -f ./lib/blst_a
 
   if [ $ret -eq 0 ]; then
     echo "Blst library built"
-    mv ./libblst.a ./lib/
-    cp ./blst/bindings/blst.h ./blst/bindings/blst_aux.h ./lib/
+    mv ./libblst.a ../lib/
+    cp ./blst/bindings/blst.h ./blst/bindings/blst_aux.h ../lib/
   else
     echo "Error building blst library"
   fi
 fi
 
-if [[ ! -f ./lib/picohttpparser.c ]] || [[ ! -f ./lib/picohttpparser.h ]]; then
+if [[ ! -f ../lib/picohttpparser.c ]] || [[ ! -f ../lib/picohttpparser.h ]]; then
   echo "Cloning picohttpparser library"
   git clone https://github.com/h2o/picohttpparser.git
-  cp ./picohttpparser/picohttpparser.c ./picohttpparser/picohttpparser.h ./lib/
+  cp ./picohttpparser/picohttpparser.c ./picohttpparser/picohttpparser.h ../lib/
 fi
 
-if [[ ! -f ./lib/cJSON.c ]] || [[ ! -f ./lib/cJSON.h ]]; then
+if [[ ! -f ../lib/cJSON.c ]] || [[ ! -f ../lib/cJSON.h ]]; then
   echo "Cloning cJSON library"
   git clone https://github.com/DaveGamble/cJSON.git
-  cp ./cJSON/cJSON.c ./cJSON/cJSON.h ./lib/
+  cp ./cJSON/cJSON.c ./cJSON/cJSON.h ../lib/
 fi
 
 echo "Done"

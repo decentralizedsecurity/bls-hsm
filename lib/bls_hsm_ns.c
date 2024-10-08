@@ -1,5 +1,7 @@
 #include "bls_hsm_ns.h"
-//#include "secure_partition_interface.h"
+#ifndef CONFIG_WIFI_NRF700X
+#include "secure_partition_interface.h"
+#endif
 #include "common.h"
 #include "bls_hsm.h"
 #include <stdio.h>
@@ -15,6 +17,7 @@
 #endif
 
 #ifdef NRF
+#include <zephyr/kernel.h>
 #include "mbedtls/asn1.h"
 #include "mbedtls/cipher.h"
 #include "mbedtls/oid.h"
@@ -67,7 +70,7 @@ int get_keystore_length(){
 /*
 Generates random key. Response is dumped to 'buff'
 */
-int keygen_(char* data, char* buff){    
+int keygen(char* data, char* buff){    
     #ifndef TFM
     int keystore_size = get_keystore_size();
     #else
@@ -336,7 +339,10 @@ int verify_password(char* checksum_message_hex, char* cipher_message_hex, unsign
     wc_Sha256Update(&sha, pre_image, 16 + cipher_message_len);
     wc_Sha256Final(&sha, checksum_hash);
     #else
+    //int64_t start = k_uptime_get();
     hash(checksum_hash, pre_image, 16 + cipher_message_len);
+    /*int64_t elapsed = k_uptime_delta(&start);
+    *elapsedChecksum = (int) elapsed;*/
     #endif
 
     char checksum_str[64];
@@ -371,7 +377,10 @@ int get_private_key(char* cipher_message, char* iv_str, unsigned char* decriptio
     wc_AesSetKey(&aes, decription_key, 16, iv_bin, AES_ENCRYPTION);
     wc_AesCtrEncrypt(&aes, private_key, cipher_message_bin, cipher_message_len);
     #else
+    //int64_t start = k_uptime_get();
     aes128ctr(decription_key, iv_bin, cipher_message_bin, private_key);
+    /*int64_t elapsed = k_uptime_delta(&start);
+    *elapsedPK = (int) elapsed;*/
     #endif
 
     char private_key_str[65];
